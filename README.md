@@ -8,7 +8,7 @@
 
 Insuctions set:
 0000 Addition
-0001SrcA-SrcB
+0001 SrcA-SrcB
 0010 Left shift
 0011 Set less then
 0100 Unsigned set less than
