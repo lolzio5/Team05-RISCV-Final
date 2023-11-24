@@ -16,13 +16,14 @@ module alu #(
             OP_WIDTH'b0000: out = SrcA+SrcB; //Addition
             OP_WIDTH'b0001: out = SrcA-SrcB; //Subtraction
             OP_WIDTH'b0010: out = SrcA<<SrcB; //Left shift
-            OP_WIDTH'b0011: out = 1'b1; //Set less then
-            OP_WIDTH'b0100: out = 1'b1; //Unsigned set less than
+            OP_WIDTH'b0011: out = ($signed(SrcA) > $signed(SrcB)) ? 0 : 1; //Set less then
+            OP_WIDTH'b0100: out = ($unsigned(SrcA) > $unsigned(SrcB)) ? 0 : 1; //Unsigned set less than
             OP_WIDTH'b0101: out = SrcA ^ SrcB; //XOR
             OP_WIDTH'b0110: out = SrcA>>SrcB; //Right shift logical
             OP_WIDTH'b0111: out = SrcA>>>SrcB; //Right shift arithmetic
             OP_WIDTH'b1000: out = SrcA | SrcA; //OR
             OP_WIDTH'b1001: out = SrcA & SrcB; //AND
+            default: out = 0;
         endcase
         if(out==DATA_WIDTH'b0) begin
             Zero <=1'b1;
