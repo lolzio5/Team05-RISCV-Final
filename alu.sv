@@ -15,18 +15,21 @@ module alu #(
         case (ALUControl)
             OP_WIDTH'b0000: out = SrcA+SrcB; //Addition
             OP_WIDTH'b0001: out = SrcA-SrcB; //Subtraction
-            OP_WIDTH'b0010: out = sum;
-            OP_WIDTH'b0011: out = sum;
-            OP_WIDTH'b0100: out = sum;
-            OP_WIDTH'b0101: out = sum;
-            OP_WIDTH'b0110: out = sum;
-            OP_WIDTH'b0111: out = sum;
-            OP_WIDTH'b1000: out = SrcA | SrcA; //Or
-            OP_WIDTH'b1001: out = SrcA & SrcB; //And
+            OP_WIDTH'b0010: out = SrcA<<SrcB; //Left shift
+            OP_WIDTH'b0011: out = 1'b1; //Set less then
+            OP_WIDTH'b0100: out = 1'b1; //Unsigned set less than
+            OP_WIDTH'b0101: out = SrcA ^ SrcB; //XOR
+            OP_WIDTH'b0110: out = SrcA>>SrcB; //Right shift logical
+            OP_WIDTH'b0111: out = SrcA>>>SrcB; //Right shift arithmetic
+            OP_WIDTH'b1000: out = SrcA | SrcA; //OR
+            OP_WIDTH'b1001: out = SrcA & SrcB; //AND
         endcase
-        if(out==DATA_WIDTH'b0)
-            ALUResult, Zero <=1'b1;
-        else
+        if(out==DATA_WIDTH'b0) begin
+            Zero <=1'b1;
+            ALUResult <= 1'b0;
+        end
+        else begin
             ALUResult <=out;
+        end
     end
 endmodule
