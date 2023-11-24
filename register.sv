@@ -3,13 +3,13 @@ module register #(
                DATA_WIDTH = 32
 )(
     input logic clk,
-    input logic WE3, //Write Enable
-    input logic [ADDRESS_WIDTH-1:0] AD1, //Operand 1 register select (register read)
-    input logic [ADDRESS_WIDTH-1:0] AD2, //Operand 2 register select (register read)
-    input logic [ADDRESS_WIDTH-1:0] AD3, //Writeback register select (register write)
-    input logic [DATA_WIDTH-1:0] WD3,   // Value to be written to register [AD3] if WE3
-    output logic [DATA_WIDTH-1:0] RD1,  // Driven with value in register [AD1]
-    output logic [DATA_WIDTH-1:0] RD2,  // Driven with value in register [AD2]
+    input logic WE3,
+    input logic [ADDRESS_WIDTH-1:0] AD1,
+    input logic [ADDRESS_WIDTH-1:0] AD2,
+    input logic [ADDRESS_WIDTH-1:0] AD3,
+    input logic [DATA_WIDTH-1:0] WD3,  
+    output logic [DATA_WIDTH-1:0] RD1,
+    output logic [DATA_WIDTH-1:0] RD2, 
     output logic [DATA_WIDTH-1:0] a0 // what is this??
 );
 
