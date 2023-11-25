@@ -1,0 +1,26 @@
+module ROM #(
+
+  parameter ADDR_WIDTH = 32,
+            DATA_WIDTH = 32 
+
+)(
+
+  input  logic [ADDR_WIDTH-1:0] PC,
+  output logic [DATA_WIDTH-1:0] Instr
+
+);
+
+logic [DATA_WIDTH-1:0] rom_array [2**ADDR_WIDTH-1:0];
+
+initial begin
+
+        $display("Loading ROM");
+        $readmemh("Instructions.mem", rom_array);
+
+end;
+
+always_comb
+
+  Instr = rom_array[PC];
+
+endmodule
