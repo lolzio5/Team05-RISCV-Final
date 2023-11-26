@@ -1,6 +1,6 @@
 module EightDeMux(
-    input logic       data_in,   // Single input
-    input logic [2:0] select,    // 3-bit select signal
+    input  logic       data_in,   // Single input
+    input  logic [2:0] select,    // 3-bit select signal
     output logic [7:0] data_out   // 8-bit output, each bit representing one of the outputs
 );
 

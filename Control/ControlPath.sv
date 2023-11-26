@@ -1,13 +1,35 @@
 module ControlPath (
-  input logic [32:1] instruction,
+  input  logic [32:1] iInstruction,
 
-  output logic [4:1]  AluCtrl,
-  output logic [12:1] ImmSrc,
-  output logic        AluSrc,
-  output logic        RegWrite,
+  output logic [ 4:1] oAluControl,
+
+  output logic [12:1] oImmSrc,
+  output logic        oAluSrc,
+  output logic        oPCSrc,
+  output logic        oResultSrc,
+
+  output logic        oMemWrite,
+  output logic        oRegWrite  
+  
+  output logic [5:1]  oRs1,
+  output logic [5:1]  oRs2,
+  output logic [5:1]  oRd
+  
 );
+/*
+TO DO : 
 
-logic [7:1] OpCode;
+Implement logic to determine the following :
+
+PCSrc
+ResultSrc
+MemWrite
+Rs1
+Rs2
+Rd
+
+*/
+logic [7:1] op_code;
 logic [3:1] funct3;
 logic [7:1] funct7;
 
@@ -28,28 +50,21 @@ always_comb begin
   funct3 = instruction[15:13];
   funct7 = instruction[32:26];
   OpCode = instruction[7:1];
+
 end
 
 ControlDecode ControlDecode(
-  .funct3(funct3),
-  .funct7(funct7),
-  .OpCode(OpCode),
+  .iOpCode(op_code),
+  .iFunct3(funct3),
+  .iFunct7(funct7),
 
-  .i_type(i_type),
-  .r_type(r_type),
-
-  .upper(u_type),
-
-  .branch(b_type),
-
-  .store(s_type),
-
-  .jmp_link(jmp_link),
-  .jmp_linkr(jmp_linkr),
-
-  .add_u_pc(add_pc),
-
-  .AluCtrl(AluCtrl)
+  .oAluControl(),
+  .oTypeI(),
+  .oTypeU(),
+  .oTypeJ(),
+  .oTypeS(s_type),
+  .oTypeR(r_type),
+  .oTypeB(b_type)
 );
 
 always_comb begin

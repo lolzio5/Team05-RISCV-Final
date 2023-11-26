@@ -1,132 +1,118 @@
 module ControlDecode(
+  input  logic [7:1] iOpCode,
+  input  logic [3:1] iFunct3,
+  input  logic [7:1] iFunct7,
 
-  input logic [7:1] OpCode,
-  input logic [3:1] funct3,
-  input logic [7:1] funct7,
-
-  output logic         store,
-  output logic         i_type,
-  output logic         add_u_pc,
-  output logic         jmp_link,
-  output logic         jmp_linkr,
-  output logic         upper,
-  output logic         r_type,
-  output logic         branch,
-  output logic [4:1]   AluCtrl
-
+  output logic [4:1] oAluCtrl
+  output logic [2:1] oTypeI,
+  output logic [2:1] oTypeU,
+  output logic [2:1] oTypeJ,
+  output logic       oTypeS,
+  output logic       oTypeR,
+  output logic       oTypeB,
 );
 
-logic I_ins_type_temp;
-
-logic      ldr_byte;
-logic      ldr_half;
-logic      ldr_word;
-
-logic      uldr_byte;
-logic      uldr_half;
-
-logic      str_byte;
-logic      str_half;
-logic      str_word;
-
-logic      addsub;
-logic      shiftl;
-logic      set_less;
-logic      uset_less;
-logic      shifr;
-logic      xor;
-logic      or;
-logic      and;
-
-logic      add;
-logic      sub;
-logic      shiftr_logical;
-logic      shiftr_arith;
+/*
+TO DO : 
 
 
+*/
 
-op_decode OpDecode(
+////////////////////////////
+///Internal Logic Signals///
+////////////////////////////
 
-  .OpCode(OpCode),
+  logic [9:1] instruction_types;
 
-  .imm_manip(i_type),
+  logic flag_ldr;
+  logic flag_str;
+  logic flag_r_type;
+  logic flag_reg_imm_comp;
+  logic flag_shift_right;
+  logic flag_arithmetic;
 
-  .store(store),
-  .load(I_ins_type_temp),
+  logic [3:1] load_types;
+  logic [2:1] uload_types;
+  logic [3:1] store_types;
+  logic [8:1] computation_types;
+  logic [2:1] arithemetic_types;
+  logic [2:1] right_shift_types;
 
-  .add_u_pc(add_u_pc),
-  .r(r_type),
 
-  .upper(upper),
+////////////////////////////////////////
+///First Stage of Decoders : OpDecode///
+////////////////////////////////////////
 
-  .branch(branch),
-  .jmp_link(jmp_link),
-  .jmp_linkr(jmp_linkr)
+  op_decode OpDecode(
+    .OpCode(OpCode),
+    .oInstructionType(instruction_types)
+  );
 
-);
+  always_comb begin
+    TypeB = instruction_types[9];
+    TypeJ = instruction_types[8:7];
+    TypeR = instruction_types[6];
+    TypeU = instruction_types[5:4];
+    TypeI = instruction_types[3:2];
+    TypeS = instruction_types[1];
 
-funct3_decode funct3_decode(
+    flag_reg_imm_comp = instruction_types[3];
+    flag_r_type       = instruction_types[6];
+    flag_ldr          = instruction_types[2];
+    flag_str          = instruction_types[1];
+  end
 
-  .funct3(funct3),
-  .ldr(I_ins_type_temp),
-  .str(store),
-  .R_INS(r_type),
-  .IMM_MANIP_INS(i_type),
 
-  .LDR_BYTE(ldr_byte),
-  .LDR_HALF(ldr_half),
-  .LDR_WORD(ldr_word),
+//////////////////////////////////////////////////////////
+///Second Stage of Decoders : Funct3 and Func7 Decoders///
+//////////////////////////////////////////////////////////
 
-  .ULDR_BYTE(uldr_byte),
-  .ULDR_HALF(uldr_half),
+  Funct3Decode Funct3Decoder(
+    .iFunct3(iFunct3),
+    .iLoad(flag_ldr),
+    .iStore(flag_str),
+    .iTypeR(flag_r_type),
+    .iRegImmComputation(flag_reg_imm_comp),
 
-  .STR_BYTE(str_byte),
-  .STR_HALF(str_half),
-  .STR_WORD(str_word),
+    .oLoadBHW(load_types),
+    .oULoadBH(uload_types),
+    .oStoreBHW(store_types),
+    .oComputationType(computation_types)
+  );
 
-  .ARITH(addsub),
-  .SHIFT_L(shiftl),
-  .SET_LESS(set_less),
-  .U_SET_LESS(uset_less),
-  .SHIFT_R(shiftr),
-  .XOR(xor),
-  .OR(or),
-  .AND(and)
-
-);
-
-funct7_decode(
+  Funct7Decode Funct7Decoder(
   
-  .addsub(addsub),
-  .funct7(funct7),
-  .shift_r(shiftr),
+    .iArithmeticIns(flag_arithmetic),
+    .iShiftRightIns(flag_shift_right),
+    .iFunct7(iFunct7),
 
-  .add(add),
-  .sub(sub),
-  .imm_shiftr_logical(shiftr_logical),
-  .imm_shiftr_arith(shiftr_arith)
+    .oArithmeticType(arithemetic_types),
+    .oRightShiftType(right_shift_types)
+  );
 
-);
 
-logic [9:1] AluMessage;
+////////////////////////////////////////////////
+///ALU Control Encoder - Generates AluControl///
+////////////////////////////////////////////////
 
-always_comb begin
+  logic [9:1] alu_message;
 
-  AluMessage[9] = shiftr_arith;
-  AluMessage[8] = shiftr_logical;
-  AluMessage[7] = shiftl;
-  AluMessage[6] = and;
-  AluMessage[5] = xor;
-  AluMessage[4] = sub;
-  AluMessage[3] = add;
-  AluMessage[2] = uset_less;
-  AluMessage[1] = set_less;
+  //Fill in the alu message you want to encode
+  always_comb begin
+    alu_message[9:8] = right_shift_types;     //{arithmetic, logical}
+    alu_message[7]   = computation_types[1];  //left shift
+    alu_message[6]   = computation_types[8];  //and
+    alu_message[5]   = computation_types[5];  //xor
+    alu_message[4:3] = arithemetic_types;     //{sub, add}
+    alu_message[2:1] = computation_types[4:3] //{usetless, setless}
+  end
 
-end
+  ALU_encode AluEncoder(
+    .iAluOps(AluMessage),
+    .iTypeB(instruction_types[9]),
+    .iTypeS(instruction_types[1]),
 
-ALU_encode AluEncoder(
-  .alu_ins(AluMessage),
-  .AluCtrl(AluCtrl)
-);
+    .oAluCtrl(AluCtrl)
+  );
 
 endmodule
