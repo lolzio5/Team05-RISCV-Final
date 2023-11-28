@@ -1,9 +1,14 @@
 module SignExtend(
-  input logic [12:1] imm_12,
-  output logic[32:1] imm_32ext
+  input  logic [20:1] iImm20,
+  input  logic        iExtendType,
+
+  output logic [32:1] oImmExt
 );
 
-assign imm_32ext = {20'b{imm_12[12]}, imm_12};
+
+always_comb begin
+  oImmExt = iExtendType ? {iImm20, 12{1'b0}} : {12{iImm20[20]}, iImm20};
+end
 
 
 endmodule;
