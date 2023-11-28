@@ -10,6 +10,15 @@ module ControlDecode(
   output logic              oMemWrite
 );
 
+
+  /* TO DO : 
+
+    -Check if the branch case makes sense with the team
+    -Check is this kind of case by case structure is acceptable and makes sense
+    -Add a default case if needed
+    
+  */
+
 initial begin
   assign oRegWrite   = 1'b0;
   assign oAluSrc     = 1'b0;
@@ -20,22 +29,24 @@ initial begin
 end
 
 //Signals determined by Instruction type only
-
 always_comb begin
 
   case(iInstructionType)
 
     REG_COMMPUTATION : oRegWrite = 1'b1;
 
+
     IMM_COMPUTATION  : begin
       oRegWrite = 1'b1;
       oAluSrc   = 1'b1;
     end
 
+
     LOAD   : begin
       oRegWrite  = 1'b1;
       oResultSrc = 1'b1;
     end
+
 
     UPPER  : begin
       if (iInstructionSubType == LOAD_UPPER_IMM) begin
@@ -48,24 +59,27 @@ always_comb begin
       end
     end
 
+
     STORE  : begin
       oMemWrite = 1'b1;
       oAluSrc = 1'b1;
     end
+
 
     JUMP   : begin
       oPCSrc = 1'b1;
       oRegWrite = 1'b1; //Since we write PC+4 to destination for JAL
     end
 
+
     BRANCH : begin
-      case(iInstructionSubType)
+      case(iInstructionSubType) //May need to add cases for other branch instructions
         BNE : oPCSrc = ~iZero; //iZero = 1 -> regs are equal -> thus branch if iZero = 0 (not equal) 
         BEQ : oPCSrc = iZero;
         default oPCSrc = 1'b0;
       endcase
     end
-    
+
   endcase
 end
 
