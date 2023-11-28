@@ -25,11 +25,19 @@ always_comb begin
   op_code = iInstruction[7:1];
   funct7  = iInstruction[32:26];
   funct3  = iInstruction[15:13];
+
+  oRs1 = iInstruction[20:16];
+  oRs2 = iInstruction[25:21];
+  oRd  = iInstruction[12:8];
 end
 
 
 InstructionTypes instruction_type;
 InstructionSubTypes instruction_sub_type;
+
+////////////////////////////////
+////  Instruction Decoder   ////
+////////////////////////////////
 
 InstructionDecode InstructionDecoder(
   .iOpCode(op_code),
@@ -40,6 +48,10 @@ InstructionDecode InstructionDecoder(
   .oInstructionSubType(instruction_sub_type)
 );
 
+
+/////////////////////////////////
+/// Immediate Operand Decoder ///
+/////////////////////////////////
 
 logic [20:1] imm20;
 logic imm_ext_type;
@@ -52,12 +64,30 @@ ImmDecode ImmediateOperandDecoder(
   .oExtendType(imm_ext_type)
 );
 
+
+/////////////////////////////////
+///   Sign-Extension Unit     ///
+/////////////////////////////////
+
 SignExtend SignExtender(
   .iImm20(imm20),
   .iExtendType(imm_ext_type),
 
   .oImmExt(oImmExt)
 );
+
+
+/////////////////////////////////
+///   Control Signal Decoder  ///
+/////////////////////////////////
+
+  /*
+    This decoder is used to generate the various Src signals
+    as well as the memory control signal which is a 4-bit control signal
+    that tells the data memory unit how to interpret the immediate offset
+    given the current instruction executing, in order to make the address
+    byte addressing compatible
+  */
 
 ControlDecode ControlSignalDecoder(
   .iInstructionType(instruction_type),
@@ -71,6 +101,16 @@ ControlDecode ControlSignalDecoder(
   .oRegWrite(oRegWrite),
   .oMemWrite(oMemWrite)
 );
+
+
+/////////////////////////////////
+///   Alu Operation Encoder   ///
+/////////////////////////////////
+
+  /*
+    This component is used to generate a 4-bit control signal
+    that tells the ALU what operation to perform
+  */
 
 AluEncode AluControlEncoder(
   .iInstructionType(instruction_type),
