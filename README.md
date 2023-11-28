@@ -6,8 +6,8 @@
 - Meric: Testbench
 
 
-## PC Logic and Data Memory
-_Completed on 24th November 2023 by Lolézio Viora Marquet_
+## PC Logic, Data Memory, Top
+_Completed by Lolézio Viora Marquet_
 
 ### PC Logic
 - Created two files, pcreg.sv and pcmux.sv. pcreg.sv acts as the top file, so it can be directly connected in the overall top file for the processor
@@ -43,8 +43,12 @@ This was tested for positive ImmExt values using the testbench pc_tb.cpp and the
     - This functionality allows the processor to read the data out of memory, and use it within registers, or store addresses in registers when Jumps occur
 This was tested for all possible cases using the testbench mem_tb.cpp and the command file doit_mem.sh found in the testing folder.
 
-
-
+### Top
+- Created a single file to be directly interfaced with the testbench. Connects all 3 submodules together to ensure everything can run smoothly
+  - **top.sv**
+    - Connect the different parts with different names into one coherent unit
+    - Detected a number of bugs, and outputs/inputs that should be taken care of within the modules
+    - Forced consistency with different bus widths
 
 
 
