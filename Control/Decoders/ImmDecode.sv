@@ -43,6 +43,7 @@ always_comb begin
       oImm20[20:12] = 8{oImm20[12]};
     end
 
+    default : oImm20 = 20{1'b0}; //set imm20 to 0 by default
   endcase
 end
 
