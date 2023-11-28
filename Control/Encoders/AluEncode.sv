@@ -11,7 +11,7 @@ module AluEncode(
 
       REG_COMMPUTATION : oAluCtrl.REG_COMPUTATION  = iInstructionSubType.R;
       IMM_COMPUTATION  : oAluCtrl.IMM_COMPUTATION  = iInstructionSubType.I;
-      STORE            : oAluCtrl.IMM_COMPUTATION  = IMM_ADD; 
+      STORE            : oAluCtrl.IMM_COMPUTATION  = IMM_ADD; //Might need to change this. Instead of ALU computing store/load/branch/jump address, use a seperate unit
       LOAD             : oAluCtrl.IMM_COMPUTATION  = IMM_ADD;
       BRANCH           : oAluCtrl.REG_COMMPUTATION = SUB;
       JUMP             : oAluCtrl.IMM_COMPUTATION  = IMM_ADD;
