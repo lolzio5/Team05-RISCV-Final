@@ -7,7 +7,7 @@ module ControlPath (
   output logic        oAluSrc,
   output logic        oPCSrc,
   output logic        oResultSrc,
-
+  output logic [3:1]  oMemControl, //added for controlling memory addressing
   output logic        oMemWrite,
   output logic        oRegWrite  
   
@@ -59,14 +59,15 @@ SignExtend SignExtender(
   .oImmExt(oImmExt)
 );
 
-
 ControlDecode ControlSignalDecoder(
   .iInstructionType(instruction_type),
   .iInstructionSubType(instruction_sub_type),
+  .iZero(iZero),
 
   .oResultSrc(oResultSrc),
   .oPCSrc(oPCSrc),
   .oAluSrc(oAluSrc),
+  .oMemControl(oMemControl),
   .oRegWrite(oRegWrite),
   .oMemWrite(oMemWrite)
 );
