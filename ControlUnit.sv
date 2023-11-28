@@ -1,4 +1,4 @@
-module ControlMain(
+module ControlUnit(
   input logic [32:1]  iPC,
   input logic         iZero,
 
@@ -10,7 +10,7 @@ module ControlMain(
 
   output logic [4:1]  oAluControl,
   output logic        oAlusrc,
-  
+
   output logic        oImmSrc,
   output logic        oPCsrc,
   output logic        oResultSrc,
