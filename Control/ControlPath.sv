@@ -1,9 +1,9 @@
 module ControlPath (
   input  logic [32:1] iInstruction,
+  input  logic        iZero,
 
-  output logic [ 4:1] oAluControl,
-
-  output logic [12:1] oImmSrc,
+  output logic [4:1]  oAluControl,
+  output logic [32:1] oImmExt,
   output logic        oAluSrc,
   output logic        oPCSrc,
   output logic        oResultSrc,
@@ -16,73 +16,67 @@ module ControlPath (
   output logic [5:1]  oRd
   
 );
-/*
-TO DO : 
 
-Implement logic to determine the following :
-
-PCSrc
-ResultSrc
-MemWrite
-Rs1
-Rs2
-Rd
-
-*/
 logic [7:1] op_code;
-logic [3:1] funct3;
 logic [7:1] funct7;
-
-
-logic i_type;
-logic r_type;
-logic u_type;
-logic s_type;
-logic b_type;
-
-logic jmp_link;
-logic jmp_linkr;
-logic add_pc;
-
-logic [3:1] imm_ins_t;
+logic [3:1] funct3;
 
 always_comb begin
-  funct3 = instruction[15:13];
-  funct7 = instruction[32:26];
-  OpCode = instruction[7:1];
-
+  op_code = iInstruction[7:1];
+  funct7  = iInstruction[32:26];
+  funct3  = iInstruction[15:13];
 end
 
-ControlDecode ControlDecode(
+
+InstructionTypes instruction_type;
+InstructionSubTypes instruction_sub_type;
+
+InstructionDecode InstructionDecoder(
   .iOpCode(op_code),
   .iFunct3(funct3),
   .iFunct7(funct7),
 
-  .oAluControl(),
-  .oTypeI(),
-  .oTypeU(),
-  .oTypeJ(),
-  .oTypeS(s_type),
-  .oTypeR(r_type),
-  .oTypeB(b_type)
+  .oInstructionType(instruction_type),
+  .oInstructionSubType(instruction_sub_type)
 );
 
-always_comb begin
-  imm_ins_t[1] = i_type;
-  imm_ins_t[2] = s_type;
-  imm_ins_t[3] = b_type;
 
-  RegWrite = !(b_type || s_type); 
-  AluSrc =  s_type || i_type;
-end
+logic [20:1] imm20;
+logic imm_ext_type;
 
-imm_decode ImmDecoder(
-  .instruction(instruction),
-  .ins_type(imm_ins_t),
+ImmDecode ImmediateOperandDecoder(
+  .iInstructionType(instruction_type),
+  .iInstruction(iInstruction),
 
-  .imm(ImmSrc)
+  .oImm20(imm20),
+  .oExtendType(imm_ext_type)
 );
 
+SignExtend SignExtender(
+  .iImm20(imm20),
+  .iExtendType(imm_ext_type),
+
+  .oImmExt(oImmExt)
+);
+
+
+ControlDecode ControlSignalDecoder(
+  .iInstructionType(instruction_type),
+  .iInstructionSubType(instruction_sub_type),
+
+  .oResultSrc(oResultSrc),
+  .oPCSrc(oPCSrc),
+  .oAluSrc(oAluSrc),
+  .oRegWrite(oRegWrite),
+  .oMemWrite(oMemWrite)
+);
+
+AluEncode AluControlEncoder(
+  .iInstructionType(instruction_type),
+  .iInstructionSubType(instruction_sub_type),
+
+  .oAluCtrl(oAluControl)
+)
 
 
 endmodule
