@@ -12,10 +12,10 @@ module Funct7Decode(
 ////////////////////////////
 logic type_select;
 
-
-if (funct7 == 7'b01000000) type_select = 1'b1; 
-else type_select = 1'b0; 
-
+always_comb begin
+  if (funct7 == 7'b01000000) type_select = 1'b1; 
+  else                       type_select = 1'b0; 
+end
 
 /////////////////////////////////////////////
 ///2Demux : Determine arithmetic operation///

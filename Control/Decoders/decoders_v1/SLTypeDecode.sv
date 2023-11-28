@@ -9,27 +9,27 @@ module SLTypeDecode(
 );
 
   logic [2:1] funct3_lsbs;
-  logic [8:1] output_ldr;
-  logic [4:1] output_str
+  logic [8:1] buff_load_types;
+  logic [4:1] buff_store_types;
 
   assign funct3_lsbs = funct3[2:1];
 
   EightDeMux demux8(
-    .data_in(Load),
+    .data_in(iLoad),
     .select(funct3),
-    .data_out(output_ldr)
+    .data_out(buff_load_types)
   );
 
   FourDeMux demux4(
-    .data_in(Store),
+    .data_in(iStore),
     .select(funct3_lsbs),
-    .data_out(output_str)
+    .data_out(buff_store_types)
   );
 
   always_comb begin
-    LoadTypes = output_ldr[3:1];
-    ULoadTypes = output_ldr[4:3];
-    StoreTypes = output_str[3:1];
+    oLoadTypes  = buff_load_types[3:1];
+    oULoadTypes = buff_load_types[4:3];
+    oStoreTypes = buff_store_types[3:1];
   end
 
 endmodule

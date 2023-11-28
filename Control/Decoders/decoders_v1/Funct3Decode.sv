@@ -24,14 +24,14 @@ assign computation_ins = iTypeR | iRegImmComputation ;
   */
 
 SLTypeDecode StoreLoadDecoder(
-  .Load(iLoad),
-  .Store(iStore),
+  .iLoad(iLoad),
+  .iStore(iStore),
   .iFunct3(iFunct3),
 
-  .LoadTypes(oLoadBHW),
-  .ULoadTypes(oULoadBH),
+  .oLoadTypes(oLoadBHW),
+  .oULoadTypes(oULoadBH),
 
-  .StoreTypes(oStoreBHW)
+  .oStoreTypes(oStoreBHW)
 );
 
 
@@ -45,9 +45,9 @@ SLTypeDecode StoreLoadDecoder(
                       or, 
                       and}
   */
-  
+
 ComputationDecode ComputationDecoder(
-  .iComputationIns(computational_ins),
+  .iComputationIns(computation_ins),
   .iFunct3(iFunct3),
 
   .oComputationType(oComputationType)

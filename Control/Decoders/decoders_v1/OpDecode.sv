@@ -7,8 +7,8 @@ initial assign oInstructionType = 9'b0_0000_0000; //might need to change placeme
 
 always_comb
 
-  case(OpCode)
-  
+  case(iOpCode)
+
     7'd99  : oInstructionType[9] = 1'b1; //branch
     7'd103 : oInstructionType[8] = 1'b1; //jmp_link
     7'd111 : oInstructionType[7] = 1'b1; //jmp_link_reg

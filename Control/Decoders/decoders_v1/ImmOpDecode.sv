@@ -25,10 +25,15 @@ assign zero = 20'b0000_0000_0000_0000_0000;
 //////////////////////////////////////////////////////////////////////////////
 
 always_comb begin
-  i_type       = instruction[32:21];
-  s_type[12:6] = instruction[32:26];
-  s_type[5:1]  = instruction[12:8];
-  b_type       = {instruction[32], instruction[8], instruction[31:26], instruction[12:9]};
+  i_type[12:1]  = instruction[32:21];
+  i_type[20:12] = i_type[12];
+
+  s_type[12:6]  = instruction[32:26];
+  s_type[5:1]   = instruction[12:8];
+  s_type[20:12] = s_type[12];
+
+  b_type[12:1]  = {instruction[32], instruction[8], instruction[31:26], instruction[12:9]};
+  b_type[20:12] = b_type[12];
 end
 
 EightMux Mux8(
@@ -41,7 +46,7 @@ EightMux Mux8(
   .d6(zero),
   .d7(zero),
   .select(iInsTypeISB),
-  .data_out(imm)
+  .data_out(oImm20)
 );
 
 endmodule
