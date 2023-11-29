@@ -16,6 +16,7 @@ module top(
     logic [31:0] PC;
     logic [31:0] ResultSrc;
     logic [31:0] WriteData;
+    logic [31:0] ALUResult;
 
     pcreg myPcreg(
         .clk (clk),
@@ -38,7 +39,7 @@ module top(
         .ALUControl (ALUctrl),
         .SrcA (rs1),
         .SrcB (rs2),
-        .ALUResult (Resultsrc),
+        .ALUResult (ALUResult),
         .Zero (Zero)
     );
 
