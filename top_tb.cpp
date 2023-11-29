@@ -17,7 +17,10 @@
 #include "VControlDecode.h"
 #include "VImmDecode.h"
 #include "VInstructionDecode.h"
-
+#inlcude "VEightDeMux.h"
+#include "VEightMux.h"
+#include "VFourDeMux.h"
+#include "VTwoDeMux.h"
 
 int main(int argc, char **argv, char **env) {
     int simcyc;     // simulation clock count
