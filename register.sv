@@ -14,7 +14,7 @@ module register #(
 
 logic [DATA_WIDTH-1:0] ram_array [0:2**ADDRESS_WIDTH-1];
 
-always_ff @( posedge clk ) begin
+always_ff @( posedge CLK ) begin
     if(WE3==1'b1&&AD3!=0)
         ram_array[AD3] <= WD3;
         
