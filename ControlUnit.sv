@@ -10,8 +10,6 @@ module ControlUnit(
 
   output logic [4:1]  oAluControl,
   output logic        oAlusrc,
-
-  output logic        oImmSrc,
   output logic        oPCsrc,
   output logic        oResultSrc,
 
