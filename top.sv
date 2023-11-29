@@ -1,8 +1,8 @@
 module top(
     input  logic         clk,         // Clock input
-    input  logic         rst, // Value in instruction register
+    input  logic         rst, 
     input  logic         trigger,
-    output logic [31:0]  data_out // Output data
+    output logic [31:0]  data_out  // Output data
 );
     logic [31:0] MemWrite;
     logic [31:0] rd;
