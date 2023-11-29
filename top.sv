@@ -34,22 +34,17 @@ module top(
         .Result (WD3)
     );
 
-    alu_top myALU_Top(
-        .clk (clk),
-        .rs1 (rs1),
-        .rs2 (rs2),
-        .rd (rd),
-        .RegWrite (RegWrite),
-        .ALUsrc (ALUsrc),
-        .ALUctrl (ALUctrl),
-        .ImmOp (ImmExt),
-        .EQ (EQ),
-        .a0 (data_out)
+    alu myALU(
+        .ALUControl (ALUctrl),
+        .SrcA (rs1),
+        .SrcB (rs2),
+        .ALUResult (Resultsrc),
+        .Zero (Zero)
     );
 
     ControlMain myControlMain(
         .iPC (PC),
-        .iZero (Zero), //missing from the ALU
+        .iZero (Zero), 
         .oImmOpp (ImmExt),
         .oRegWrite (RegWrite),
         .oMemWrite (MemWrite)
