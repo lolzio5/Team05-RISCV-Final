@@ -8,6 +8,12 @@ module InstructionDecode(
   output InstructionSubTypes oInstructionSubType
 );
 
+
+/*
+TO DO : 
+  - Implement the NOP instruciton : addi x0,x0,0
+*/
+
   TypeR r_type;
   TypeI i_type;
   TypeU u_type;
