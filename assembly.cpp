@@ -21,7 +21,7 @@ void random_counter(){
 
 int main(int argc, char **argv, char **env) {
     int vbd_value=0;
-    while (vbd_value<50){
+    while (vbd_value<255){
         std::cout<<vbd_value<<std::endl;
         vbd_value=vbd_value+1;
         counter();
