@@ -55,25 +55,11 @@ InstructionDecode InstructionDecoder(
 /// Immediate Operand Decoder ///
 /////////////////////////////////
 
-logic [19:0] imm20;
-logic imm_ext_type;
 
 ImmDecode ImmediateOperandDecoder(
   .iInstructionType(instruction_type),
+  .iInstructionSubType(instruction_sub_type),
   .iInstruction(iInstruction),
-
-  .oImm20(imm20),
-  .oExtendType(imm_ext_type)
-);
-
-
-/////////////////////////////////
-///   Sign-Extension Unit     ///
-/////////////////////////////////
-
-SignExtend SignExtender(
-  .iImm20(imm20),
-  .iExtendType(imm_ext_type),
 
   .oImmExt(oImmExt)
 );
