@@ -16,6 +16,7 @@ module top(
     logic [31:0] PC;
     logic [31:0] ResultSrc;
     logic [31:0] WriteData;
+    logic [31:0] ALUResult;
 
     pcreg myPcreg(
         .clk (clk),
@@ -34,22 +35,17 @@ module top(
         .Result (WD3)
     );
 
-    alu_top myALU_Top(
-        .clk (clk),
-        .rs1 (rs1),
-        .rs2 (rs2),
-        .rd (rd),
-        .RegWrite (RegWrite),
-        .ALUsrc (ALUsrc),
-        .ALUctrl (ALUctrl),
-        .ImmOp (ImmExt),
-        .EQ (EQ),
-        .a0 (data_out)
+    alu myALU(
+        .ALUControl (ALUctrl),
+        .SrcA (rs1),
+        .SrcB (rs2),
+        .ALUResult (ALUResult),
+        .Zero (Zero)
     );
 
     ControlMain myControlMain(
         .iPC (PC),
-        .iZero (Zero), //missing from the ALU
+        .iZero (Zero), 
         .oImmOpp (ImmExt),
         .oRegWrite (RegWrite),
         .oMemWrite (MemWrite)
