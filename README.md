@@ -67,6 +67,7 @@ This was tested for all possible cases using the testbench mem_tb.cpp and the co
 - This same logic was developed in Assembly Language
   - Only 6 different kinds of instructions were used, to simplify the program as much as possible
     - These are: addi, jal, jalr, beq, sll, xor
+    - Whenever possible, jal was used instead of beq, as this supports a greater offset range and is more robust
   - In the main, variables are initialized to 0, before calling the main while loop with a JAL instruction
   - In loop, a0, correspondong to vbd_value, is incremented
     -  If it is equal to 255, then branch to turning off after a random time
