@@ -80,7 +80,8 @@ This was tested for all possible cases using the testbench mem_tb.cpp and the co
     -  The random result is left shifted a number of times to increase its value (so more time will be wasted)
     -  Then, it is counted down from this number. When the counter is 0, branch to end, which turns off the lights and ends the program
     -  Else, move up 2 instructions using JALR to continue decrementing the counter
-- This can then be translated into machine code, using an online compiler. It is then checked to ensure the right instructions have been outputted
+- This was then translated to machine code using an [online assembler]([(https://riscvasm.lucasteske.dev/#)])
+  - The resulting machine code is stored in instructions.mem, to be loaded by the Instruction ROM
 
 
 
