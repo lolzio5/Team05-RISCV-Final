@@ -1,0 +1,38 @@
+main:
+    addi    a0, zero, 0x0      # load a0 with 0 (a0 is vbd_value, the output)
+    addi    t2, zero, 0b1 
+    addi    t3, zero, 0b1
+    addi    t4, zero, 0b1
+    addi    t5, zero, 0b0
+    j loop
+
+loop:
+    addi    a0, a0, 1 # increment a0 by 1
+    addi    t1, zero, 0x999 # load t1 with a large number to be counted down
+    beq     a0, 0xff, random_time # If a0 is 255, turn off after a random time
+    beq     a0, a0, constant_time # branch to constant_time
+
+constant_time:
+    addi    t1, t1, -1
+    beq     t1, zero, loop # If t1 is equal to zero, return to loop
+    bne     t1, zero, constant_time # Else continue looping
+
+random_logic:
+    xor     t2, t4, t5
+    addi    t6, zero, 0x0
+    addi    t6, zero, t2
+    sll     t3, t3, 1
+    addi    t6, zero, t3
+    sll     t4, t4, 2
+    addi    t6, zero, t4
+    sll     t5, t5, 3
+    addi t6, zero, t5
+    j random_time
+
+random_time:
+    addi    t1, t1, -1
+    beq     t1, zero, end_program # If t1 is equal to zero, return to loop
+    bne     t1, zero, random_time # Else continue looping
+
+end_program:
+    addi    a0, zero, 0x0 #turn off the lights
