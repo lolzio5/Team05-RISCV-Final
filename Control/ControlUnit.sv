@@ -7,12 +7,13 @@ module ControlUnit(
   output logic [31:0] oImmExt,
   output logic        oRegWrite,
   output logic        oMemWrite,
+  
   output logic [3:0]  oMemControl,
+  output logic [3:0]  oAluControl,  
 
-  output logic [3:0]  oAluControl,
+  output logic [1:0]  oResultSrc,
   output logic        oAluSrc,
   output logic        oPCSrc,
-  output logic        oResultSrc,
 
   output logic [4:0]  oRs1,
   output logic [4:0]  oRs2,

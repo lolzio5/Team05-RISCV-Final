@@ -4,8 +4,8 @@ module ControlDecode(
   input InstructionTypes    iInstructionType,
   input InstructionSubTypes iInstructionSubType,
   input  logic              iZero,
-  output logic    [4:1]     oMemControl,
-  output logic              oResultSrc,
+  output logic    [3:0]     oMemControl,
+  output logic    [1:0]     oResultSrc,
   output logic              oPCSrc,
   output logic              oAluSrc,
   output logic              oRegWrite,
@@ -26,7 +26,7 @@ initial begin
   assign oRegWrite   = 1'b0;
   assign oAluSrc     = 1'b0;
   assign oPCSrc      = 1'b0;
-  assign oResultSrc  = 1'b0;
+  assign oResultSrc  = 2'b00;
   assign oMemWrite   = 1'b0;
   assign oMemControl = 4'b1000;
 end
@@ -47,7 +47,7 @@ always_comb begin
 
     LOAD   : begin
       oRegWrite  = 1'b1;
-      oResultSrc = 1'b1;
+      oResultSrc = 2'b01;
     end
 
 
@@ -63,7 +63,8 @@ TO DO :
 */
 
       else begin
-        oPCSrc = 1'b1;
+        oResultSrc = 2'b11; //Data written to register will come from the PC adder
+        oPCSrc = 1'b0; //PC increments by 4
       end
     end
 
@@ -76,6 +77,7 @@ TO DO :
 
     JUMP   : begin
       oPCSrc = 1'b1;
+      oResultSrc = 2'b10; //Store PC + 4 to destination reg
       oRegWrite = 1'b1; //Since we write PC+4 to destination for JAL
     end
 
@@ -92,7 +94,7 @@ TO DO :
       oRegWrite   = 1'b0;
       oAluSrc     = 1'b0;
       oPCSrc      = 1'b0;
-      oResultSrc  = 1'b0;
+      oResultSrc  = 2'b00;
       oMemWrite   = 1'b0;
       oMemControl = 4'b1000;
     end
