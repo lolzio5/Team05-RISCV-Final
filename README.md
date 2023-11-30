@@ -2,7 +2,7 @@
 
 - Sam: Register File and ALU
 - Dima: Control Unit and Instruction Memory and Control
-- Lolézio: PC Logic and Data Memory and Top
+- Lolézio: PC Logic, Data Memory, Top, Assembly Language code
 - Meric: Testbench
 
 
@@ -50,7 +50,21 @@ This was tested for all possible cases using the testbench mem_tb.cpp and the co
     - Detected a number of bugs, and outputs/inputs that should be taken care of within the modules
     - Forced consistency with different bus widths
 
-
+### Assembly Language File
+- To develop this, discussed with Dima over how to achieve the desired F1 lighting up sequence by using sub routines
+- In the testing folder, assembly.cpp contains C++ code that performs the same logic as the assembly.txt file
+  -  This code was first developed to help simplify the assembly code as much as possible
+  -  In the main, the output value (vbd_value) is incremented by 1 until it reaches 255
+    -  vbd_value corresponds to the value passed to vbdBar() to light up the LEDs
+  - Between each increment, a constant wait time is implemented
+    - This is done by calling the counter() function, which counts down from a very large number, taking a constant time to execute
+      - This essentially acts in having cycles be executed but not change the vbd_value
+  - When vbd_value reaches its max value, it must turn off after a random amount of time
+    - To do this, the function random_counter() is called
+      - It uses the pseudo random method using XOR from Lab 3 to wait a random amount of time
+  - After this random amount of time, vbd_value is set to 0, and the lights are off
+- This same logic was developed in Assembly Language
+  - 
 
 
 
