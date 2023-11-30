@@ -57,6 +57,11 @@ always_comb begin
         oAluSrc   = 1'b1;
       end
 
+/*
+TO DO : 
+  - Change the logic here as add upper pc adds the upper immediate to PC and stores it in Rd
+*/
+
       else begin
         oPCSrc = 1'b1;
       end

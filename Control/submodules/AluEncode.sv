@@ -7,8 +7,6 @@ module AluEncode(
   output AluOp oAluCtrl
 );
 
-
-
   always_comb begin
 
     case(iInstructionType)
