@@ -2,11 +2,11 @@
 
 - Sam: Register File and ALU
 - Dima: Control Unit and Instruction Memory and Control
-- Lolézio: PC Logic and Data Memory and Top
+- Lolézio: PC Logic, Data Memory, Top, Assembly Language File
 - Meric: Testbench
 
 
-## PC Logic, Data Memory, Top
+## PC Logic, Data Memory, Top, Assembly Language File
 _Completed by Lolézio Viora Marquet_
 
 ### PC Logic
@@ -50,6 +50,37 @@ This was tested for all possible cases using the testbench mem_tb.cpp and the co
     - Detected a number of bugs, and outputs/inputs that should be taken care of within the modules
     - Forced consistency with different bus widths
 
+### Assembly Language File
+- To develop this, discussed with Dima over how to achieve the desired F1 lighting up sequence by using sub routines
+- In the testing folder, assembly.cpp contains C++ code that performs the same logic as the assembly.txt file
+  -  This code was first developed to help simplify the assembly code as much as possible
+  -  In the main, the output value (vbd_value) is incremented by 1 until it reaches 255
+    -  vbd_value corresponds to the value passed to vbdBar() to light up the LEDs
+  - Between each increment, a constant wait time is implemented
+    - This is done by calling the counter() function, which counts down from a very large number, taking a constant time to execute
+      - This essentially acts in having cycles be executed but not change the vbd_value
+  - When vbd_value reaches its max value, it must turn off after a random amount of time
+    - To do this, the function random_counter() is called
+      - It uses the pseudo random method using XOR from Lab 3 to wait a random amount of time
+  - After this random amount of time, vbd_value is set to 0, and the lights are off
+ 
+- This same logic was developed in Assembly Language
+  - Only 6 different kinds of instructions were used, to simplify the program as much as possible
+    - These are: addi, jal, jalr, beq, sll, xor
+    - Whenever possible, jal was used instead of beq, as this supports a greater offset range and is more robust
+  - In the main, variables are initialized to 0, before calling the main while loop with a JAL instruction
+  - In loop, a0, correspondong to vbd_value, is incremented
+    -  If it is equal to 255, then branch to turning off after a random time
+    -  Else, branch to constant_time, to wait before incrementing again
+  -  In constant_time, a counter counts down from a large number. This wastes cycles, to increase the time between the lights
+    -  If it's zero, return to loop. Else, continue counting down
+  -  In random_time, first a subroutine is started, to find a pseudo random number
+    -  This performs the same pseudorandom logic detailed in Lab 3.
+    -  The JALR instruction then returns to random_time, 1 instruction later than where it was left of
+    -  The random result is left shifted a number of times to increase its value (so more time will be wasted)
+    -  Then, it is counted down from this number. When the counter is 0, branch to end, which turns off the lights and ends the program
+    -  Else, move up 2 instructions using JALR to continue decrementing the counter
+- This can then be translated into machine code, using an online compiler. It is then checked to ensure the right instructions have been outputted
 
 
 
