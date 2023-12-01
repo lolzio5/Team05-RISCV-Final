@@ -44,27 +44,27 @@ module top(
     );
 
     mux myMux1(
-        .iselect (),
-        .iSrcA (),
-        .iSrcB (),
-        .oselected ()
+        .iselect (ALUsrc),
+        .iSrcA (RD2),
+        .iSrcB (ImmExt),
+        .oselected (SrcB)
     );
     mux myMux2(
-        .iselect (),
-        .iSrcA (),
-        .iSrcB (),
-        .oselected ()
+        .iselect (ResultSrc),
+        .iSrcA (ALUResult),
+        .iSrcB (WD3),
+        .oselected (Result)
     );
 
     register myRegister(
         .CLK (clk),
-        .WE3 (),
-        .A1 (),
-        .A2 (),
-        .A3 (),
-        .WD3 (),
-        .RD1 (),
-        .RD2 ()
+        .WE3 (RegWrite),
+        .A1 (rs1),
+        .A2 (rs2),
+        .A3 (rd),
+        .WD3 (Result),
+        .RD1 (SrcA),
+        .RD2 (SrcB)
     );
 
     ControlMain myControlMain(
