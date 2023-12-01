@@ -82,7 +82,3 @@ This was tested for all possible cases using the testbench mem_tb.cpp and the co
     -  Else, move up 2 instructions using JALR to continue decrementing the counter
 - This was then translated to machine code using an [online assembler]([(https://riscvasm.lucasteske.dev/#)])
   - The resulting machine code is stored in instructions.mem, to be loaded by the Instruction ROM
-
-
-
-
