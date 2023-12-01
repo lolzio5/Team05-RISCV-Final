@@ -2,17 +2,17 @@ module mux #(
     parameter  ADDRESS_WIDTH = 5,
                DATA_WIDTH =32
 )(
-    input logic ALUsrc,
-    input logic [DATA_WIDTH-1:0] regOp2,
-    input logic [DATA_WIDTH-1:0] ImmOp,
-    output logic [DATA_WIDTH-1:0] ALUop2
+    input logic iselect,
+    input logic [DATA_WIDTH-1:0] iSrcA,
+    input logic [DATA_WIDTH-1:0] iSrcB,
+    output logic [DATA_WIDTH-1:0] oselected
 );
 
 always_comb begin
-    if(ALUsrc==1'b1)
-        ALUop2<=ImmOp;
+    if(iselect==1'b1)
+        oselected<=iSrcA;
     else
-        ALUop2<=regOp2;
+        oselected<=iSrcB;
 end
 
 endmodule

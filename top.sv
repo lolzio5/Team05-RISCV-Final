@@ -43,6 +43,30 @@ module top(
         .Zero (Zero)
     );
 
+    mux myMux1(
+        .iselect (),
+        .iSrcA (),
+        .iSrcB (),
+        .oselected ()
+    );
+    mux myMux2(
+        .iselect (),
+        .iSrcA (),
+        .iSrcB (),
+        .oselected ()
+    );
+
+    register myRegister(
+        .CLK (clk),
+        .WE3 (),
+        .A1 (),
+        .A2 (),
+        .A3 (),
+        .WD3 (),
+        .RD1 (),
+        .RD2 ()
+    );
+
     ControlMain myControlMain(
         .iPC (PC),
         .iZero (Zero), 
