@@ -33,18 +33,20 @@ TO DO :
 always_comb begin
 
 
-    oImmExt = {32{1'b0}};
+  //oImmExt = {32{1'b0}};
 
   case(iInstructionType)
   
-    IMM_COMPUTATION : begin      
+    IMM_COMPUTATION : begin    
+      oImmExt[11:0]  = iInstruction[31:20];   
       oImmExt[31:12] = {20{oImmExt[11]}};
-      oImmExt[11:0]  = iInstruction[31:20];
+     
     end
 
-    LOAD : begin      
+    LOAD : begin  
+      oImmExt[11:0]  = iInstruction[31:20];    
       oImmExt[31:12] = {20{oImmExt[11]}};
-      oImmExt[11:0]  = iInstruction[31:20];
+      
     end
 
     UPPER : begin
@@ -53,20 +55,23 @@ always_comb begin
     end
  
     STORE : begin      
-      oImmExt[31:12] = {20{oImmExt[11]}};
+      
       oImmExt[11:5]  = iInstruction[31:25];
       oImmExt[4:0]   = iInstruction[11:7];
+      oImmExt[31:12] = {20{oImmExt[11]}};
     end
 
     JUMP : begin
       if(iInstructionSubType == JUMP_LINK_REG) begin        
-        oImmExt[31:12] = {20{oImmExt[11]}};
+        
         oImmExt[11:0]  = iInstruction[31:20];
+        oImmExt[31:12] = {20{oImmExt[11]}};
       end
 
       else begin
-        oImmExt[31:20]  = {12{iInstruction[31]}};
+        
         oImmExt[19:12]  = iInstruction[19:12];
+        oImmExt[31:20]  = {12{iInstruction[31]}};
         oImmExt[11]     = iInstruction[20];
         oImmExt[10:1]   = iInstruction[30:21];
         oImmExt[0]      = 1'b0; 
@@ -74,8 +79,9 @@ always_comb begin
     end
 
     BRANCH : begin      
-      oImmExt[31:13] = {19{oImmExt[11]}};       
+            
       oImmExt[12:1]  = {iInstruction[31], iInstruction[7], iInstruction[30:25], iInstruction[11:8]};
+      oImmExt[31:13] = {19{oImmExt[11]}}; 
       oImmExt[0]     = 1'b0; //Branch immediate encoded in multiples of 2 (lsb = 0)
     end
 
