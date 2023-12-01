@@ -24,12 +24,12 @@ module alu #(
             4'b1001: out = SrcA & SrcB; //AND
             default: out = 32'd5;
         endcase
-        //if(out==32'b0) begin
-          //  Zero =1'b1;
-            //ALUResult = 32'b0;
-        //end
-        //else begin
+        if(out==32'b0) begin
+            Zero =1'b1;
+            ALUResult = 32'b0;
+        end
+        else begin
             ALUResult = out;
-        //end
+        end
     end
 endmodule
