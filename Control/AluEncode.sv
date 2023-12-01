@@ -1,4 +1,4 @@
-`include "include/ControlTypeDefs.svh"
+`include "ControlTypeDefs.svh"
 
 module AluEncode(
   input InstructionTypes iInstructionType,

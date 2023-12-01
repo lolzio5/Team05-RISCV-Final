@@ -1,3 +1,6 @@
+`include "Control/ControlTypeDefs.svh"
+
+
 module top(
     input  logic         clk,         // Clock input
     input  logic         rst, 

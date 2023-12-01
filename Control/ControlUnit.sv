@@ -1,4 +1,4 @@
-`include "./include/ControlTypeDefs.svh"
+`include "ControlTypeDefs.svh"
 module ControlUnit(
   input logic [31:0]  iPC,
   input logic         iZero,

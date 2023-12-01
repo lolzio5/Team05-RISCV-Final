@@ -1,4 +1,4 @@
-`include "include/ControlTypeDefs.svh"
+`include "ControlTypeDefs.svh"
 module ControlPath (
   input  logic [31:0] iInstruction,
   input  logic        iZero,
