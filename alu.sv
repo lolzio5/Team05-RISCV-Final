@@ -3,7 +3,7 @@ module alu #(
     parameter  OP_WIDTH = 4,
                DATA_WIDTH =32
 )(
-    input logic [OPERATION_WIDTH-1:0] ALUControl,
+    input logic [OP_WIDTH-1:0] ALUControl,
     input logic [DATA_WIDTH-1:0]      SrcA,
     input logic [DATA_WIDTH-1:0]      SrcB,
     output logic [DATA_WIDTH-1:0]     ALUResult,
