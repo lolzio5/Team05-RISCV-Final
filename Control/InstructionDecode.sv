@@ -1,4 +1,4 @@
-`include "ControlTypeDefs.svh"
+`include "include/ControlTypeDefs.svh"
 module InstructionDecode(
   input  logic [6:0] iOpCode,
   input  logic [2:0] iFunct3,
@@ -7,7 +7,6 @@ module InstructionDecode(
   output InstructionTypes    oInstructionType,
   output InstructionSubTypes oInstructionSubType
 );
-
 
 /*
 TO DO : 
