@@ -1,4 +1,4 @@
-`include "ControlTypeDefs.svh"
+`include "include/ControlTypeDefs.svh"
 module ControlPath (
   input  logic [31:0] iInstruction,
   input  logic        iZero,
@@ -7,15 +7,14 @@ module ControlPath (
   output logic [31:0] oImmExt,
   output logic        oAluSrc,
   output logic        oPCSrc,
-  output logic [1:0]  oResultSrc,
-  output logic [3:0]  oMemControl, //added for controlling memory addressing
+  output logic [2:0]  oResultSrc,
   output logic        oMemWrite,
   output logic        oRegWrite,  
   
   output logic [4:0]  oRs1,
   output logic [4:0]  oRs2,
-  output logic [4:0]  oRd
-  
+  output logic [4:0]  oRd,
+  output InstructionSubTypes oInstructionSubType
 );
 
 
@@ -50,7 +49,9 @@ InstructionDecode InstructionDecoder(
   .oInstructionSubType(instruction_sub_type)
 );
 
-
+always_comb begin
+  oInstructionSubType = instruction_sub_type;
+end
 /////////////////////////////////
 /// Immediate Operand Decoder ///
 /////////////////////////////////
@@ -85,7 +86,7 @@ ControlDecode ControlSignalDecoder(
   .oResultSrc(oResultSrc),
   .oPCSrc(oPCSrc),
   .oAluSrc(oAluSrc),
-  .oMemControl(oMemControl),
+  //.oMemControl(oMemControl),
   .oRegWrite(oRegWrite),
   .oMemWrite(oMemWrite)
 );
