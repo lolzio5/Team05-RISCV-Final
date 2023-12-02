@@ -29,6 +29,7 @@ module alu #(
             ALUResult = 32'b0;
         end
         else begin
+            Zero =1'b0;
             ALUResult = out;
         end
     end

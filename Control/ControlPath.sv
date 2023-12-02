@@ -1,4 +1,4 @@
-`include "ControlTypeDefs.svh"
+`include "./Control/include/ControlTypeDefs.svh"
 module ControlPath (
   input  logic [31:0] iInstruction,
   input  logic        iZero,
@@ -7,7 +7,7 @@ module ControlPath (
   output logic [31:0] oImmExt,
   output logic        oAluSrc,
   output logic        oPCSrc,
-  output logic [1:0]  oResultSrc,
+  output logic        oResultSrc,
   output logic [3:0]  oMemControl, //added for controlling memory addressing
   output logic        oMemWrite,
   output logic        oRegWrite,  

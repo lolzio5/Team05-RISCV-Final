@@ -1,4 +1,4 @@
-`include "ControlTypeDefs.svh"
+`include "./Control/include/ControlTypeDefs.svh"
 
 module ImmDecode(
   input  InstructionTypes    iInstructionType,

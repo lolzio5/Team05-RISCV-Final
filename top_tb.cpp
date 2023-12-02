@@ -1,6 +1,7 @@
 #include "verilated.h"
 #include "verilated_vcd_c.h"
 #include "Vtop.h"
+#include "vbuddy.cpp"
 
 int main(int argc, char **argv, char **env) {
     int simcyc;     // simulation clock count
@@ -23,7 +24,6 @@ int main(int argc, char **argv, char **env) {
     // initialize simulation input 
     top->clk = 1;
     top->rst = 1;
-    top->trigger = 1;
 
     // run simulation for MAX_SIM_CYC clock cycles
     for (simcyc=0; simcyc<300; simcyc++) {

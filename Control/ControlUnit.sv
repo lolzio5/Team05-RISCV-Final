@@ -1,4 +1,5 @@
-`include "ControlTypeDefs.svh"
+`include "./Control/include/ControlTypeDefs.svh"
+
 module ControlUnit(
   input logic [31:0]  iPC,
   input logic         iZero,
@@ -11,7 +12,7 @@ module ControlUnit(
   output logic [3:0]  oMemControl,
   output logic [3:0]  oAluControl,  
 
-  output logic [1:0]  oResultSrc,
+  output logic        oResultSrc,
   output logic        oAluSrc,
   output logic        oPCSrc,
 
