@@ -32,7 +32,8 @@ module top(
 
     /* [ Current Instruction Type ]           
        -- Output by Control Unit -- */
-    InstructionSubTypes instruction_type;
+    InstructionTypes instruction_type;
+    InstructionSubTypes instruction_sub_type;
 
 
     /* [ Source and Destination Register Addesses ]           
@@ -64,7 +65,8 @@ module top(
         .oRs1(rs1),
         .oRs2(rs2),
         .oRd(rd),
-        .oInstructionSubType(instruction_type)
+        .oInstructionType(instruction_type),
+        .oInstructionSubType(instruction_sub_type)
     );
 
 
@@ -118,7 +120,8 @@ module top(
     DataMemory DataMemory(
         .iClk(iClk),
         .iWriteEn(mem_write_en),
-        .iMemoryInstructionType(instruction_type), 
+        .iInstructionType(instruction_type),
+        .iMemoryInstructionType(instruction_sub_type), 
         .iAddress(alu_result),
         .iMemData(mem_data_in),
         .oMemData(mem_data_out)
@@ -165,7 +168,8 @@ module top(
     PCAdder TargetPCAdder(
         .iPC(pc),
         .iImmExt(imm_ext),
-        .iInstructionSubType(instruction_type),
+        .iInstructionType(instruction_type),
+        .iInstructionSubType(instruction_sub_type),
         .iRegOffset(alu_op1),
         .oPCTarget(target_pc)
     );
