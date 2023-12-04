@@ -13,8 +13,8 @@ module top(
     logic [31:0] rs2;
     logic [31:0] ALUctrl;
     logic [31:0] ALUsrc;
-    logic [31:0] rs1;
-    logic [31:0] rs2;
+    logic [31:0] SrcA;
+    logic [31:0] SrcB;
     logic [31:0] ImmExt;
     logic [31:0] PC;
     logic [31:0] ResultSrc;
@@ -40,8 +40,8 @@ module top(
 
     alu myALU(
         .iALUControl (ALUctrl),
-        .iSrcA (rs1),
-        .iSrcB (rs2),
+        .iSrcA (SrcA),
+        .iSrcB (SrcB),
         .oALUResult (ALUResult),
         .oZero (Zero)
     );
