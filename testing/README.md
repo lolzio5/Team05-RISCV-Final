@@ -1,6 +1,6 @@
 # Team05-RISCV-Final
 
-- Sam: Register File and ALU
+- Sam: ALU, Register File/Muxes and updating processor diagram
 - Dima: Control Unit and Instruction Memory and Control
 - Lolézio: PC Logic, Data Memory, Top, Assembly Language File
 - Meric: Testbench
