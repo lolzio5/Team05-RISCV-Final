@@ -6,6 +6,7 @@ module DataMemory #(
 )(
     input  logic                     iClk,             // clock
     input  logic                     iWriteEn,        // write enable
+    input  InstructionTypes          iInstructionType,
     input  InstructionSubTypes       iMemoryInstructionType,
     input  logic [31:0]              iAddress,        // Write Address
     input  logic [DATA_WIDTH-1:0]    iMemData,        // Write Data
@@ -36,36 +37,64 @@ module DataMemory #(
 
     always_comb begin
 
-    //Write Operation
-        if (iWriteEn == 1'b1) begin
-            case (iMemoryInstructionType)
-                STORE_BYTE : mem_cell[byte_offset*8 +: 8]  = iMemData[7:0];   // Byte
-                STORE_HALF : mem_cell[byte_offset*8 +: 16] = iMemData[15:0];  // Half-word
-                STORE_WORD : mem_cell                      = iMemData;        // Word
 
-                default    : mem_cell                      = iMemData;        // Word
-            endcase
-        end
+        case (iInstructionType) 
+            
+            STORE : begin  //Write Operation
 
-    //Read Operation
-        else begin
-            case(iMemoryInstructionType)
-                LOAD_BYTE  : begin
-                    mem_data[7:0]  = mem_cell[byte_offset*8 +: 8]; 
-                    mem_data[31:8] = {24{mem_data[7]}}; //sign extend
-                end
+                case (iMemoryInstructionType)
 
-                LOAD_HALF  : begin
-                    mem_data[15:0]  = mem_cell[byte_offset*8 +: 16];  
-                    mem_data[31:16] = {16{mem_data[15]}}; //sign extend
-                end
+                    STORE_BYTE : mem_cell[byte_offset*8 +: 8]  = iMemData[7:0];   // Byte
+                    
+                    STORE_HALF : begin
+                        if (byte_offset == 2'b11) mem_cell[31:16]               = iMemData[15:0];
+                        else                      mem_cell[byte_offset*8 +: 16] = iMemData[15:0];  // Half-word
+                    end
+                    
+                    STORE_WORD : mem_cell                      = iMemData;        // Word
 
-                ULOAD_BYTE : mem_data = {{24{1'b0}}, mem_cell[byte_offset*8 +: 8]}; //Zero extend
-                ULOAD_HALF : mem_data = {{16{1'b0}}, mem_cell[byte_offset*8 +: 16]};//Zero extend
-                LOAD_WORD  : mem_data = mem_cell;               
+                    default    : mem_cell                      = iMemData;        // Word
+                endcase
 
-                default    : mem_data = mem_cell; 
-            endcase
-        end
+            end
+
+    //added further classification by insturction type
+            LOAD : begin  //Read Operation
+                case(iMemoryInstructionType)
+
+                    LOAD_BYTE  : begin
+                        mem_data[7:0]  = mem_cell[byte_offset*8 +: 8]; 
+                        mem_data[31:8] = {24{mem_data[7]}}; //sign extend
+                    end
+
+                    LOAD_HALF  : begin
+
+                        if (byte_offset == 2'b11) mem_data[15:0] = mem_cell[31:16];  
+                        else                      mem_data[15:0] = mem_cell[byte_offset*8 +: 16];
+                        
+                        mem_data[31:16] = {16{mem_data[15]}}; //sign extend
+                    end
+
+                    ULOAD_BYTE : mem_data = {{24{1'b0}}, mem_cell[byte_offset*8 +: 8]}; //Zero extend
+                    
+                    ULOAD_HALF : begin
+
+                        if (byte_offset == 2'b11) mem_data[15:0] = mem_cell[31:16];  
+                        else                      mem_data[15:0] = mem_cell[byte_offset*8 +: 16];
+
+                        mem_data[31:16] = {16{1'b0}}; //Zero extend
+                    end
+
+                    LOAD_WORD  : mem_data = mem_cell;               
+
+                    default    : mem_data = mem_cell; 
+                endcase
+            end
+
+            default : mem_data = {32{1'b0}};
+
+        endcase
+
     end
+
 endmodule
