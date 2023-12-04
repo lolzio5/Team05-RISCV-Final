@@ -14,6 +14,7 @@ module ControlPath (
   output logic [4:0]  oRs1,
   output logic [4:0]  oRs2,
   output logic [4:0]  oRd,
+  output InstructionTypes oInstructionType,
   output InstructionSubTypes oInstructionSubType
 );
 
@@ -44,12 +45,12 @@ InstructionDecode InstructionDecoder(
   .iOpCode(op_code),
   .iFunct3(funct3),
   .iFunct7(funct7),
-
   .oInstructionType(instruction_type),
   .oInstructionSubType(instruction_sub_type)
 );
 
 always_comb begin
+  oInstructionType    = instruction_type;
   oInstructionSubType = instruction_sub_type;
 end
 /////////////////////////////////
@@ -82,11 +83,9 @@ ControlDecode ControlSignalDecoder(
   .iInstructionType(instruction_type),
   .iInstructionSubType(instruction_sub_type),
   .iZero(iZero),
-
   .oResultSrc(oResultSrc),
   .oPCSrc(oPCSrc),
   .oAluSrc(oAluSrc),
-  //.oMemControl(oMemControl),
   .oRegWrite(oRegWrite),
   .oMemWrite(oMemWrite)
 );
