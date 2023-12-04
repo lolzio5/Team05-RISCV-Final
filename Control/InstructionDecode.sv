@@ -20,19 +20,21 @@ TO DO :
   TypeJ j_type;
   TypeB b_type;
 
+  InstructionTypes instruction_type;
 
   always_comb begin
+
+    r_type = NULL_R;
+    i_type = NULL_I;
+    u_type = NULL_U;
+    s_type = NULL_S;
+    j_type = NULL_J;
+    b_type = NULL_B;
 
     case(iOpCode)
 
       7'd51 : begin
-        oInstructionType = REG_COMMPUTATION;
-
-        b_type = NULL_B;
-        i_type = NULL_I;
-        u_type = NULL_U;
-        s_type = NULL_S;
-        j_type = NULL_J;
+        instruction_type = REG_COMMPUTATION;
 
         case(iFunct3)
 
@@ -61,13 +63,7 @@ TO DO :
 
 
       7'd19 : begin
-        oInstructionType = IMM_COMPUTATION;
-
-        r_type = NULL_R;
-        u_type = NULL_U;
-        s_type = NULL_S;
-        j_type = NULL_J;
-        b_type = NULL_B;
+        instruction_type = IMM_COMPUTATION;
 
         case(iFunct3)
           3'b000  : i_type = IMM_ADD;
@@ -89,13 +85,7 @@ TO DO :
 
 
       7'd3 : begin
-        oInstructionType = LOAD;
-
-        r_type = NULL_R;
-        u_type = NULL_U;
-        s_type = NULL_S;
-        j_type = NULL_J;
-        b_type = NULL_B;
+        instruction_type = LOAD;
 
         case(iFunct3)
           3'b000  : i_type = LOAD_BYTE;
@@ -109,7 +99,7 @@ TO DO :
 
 
       7'd23 : begin
-        oInstructionType = UPPER;
+        instruction_type = UPPER;
         j_type = NULL_J;
         r_type = NULL_R;
         i_type = NULL_I;
@@ -120,46 +110,25 @@ TO DO :
 
 
       7'd55 : begin
-        oInstructionType = UPPER;
-        j_type = NULL_J;
-        r_type = NULL_R;
-        i_type = NULL_I;
+        instruction_type = UPPER;
         u_type = LOAD_UPPER_IMM;
-        s_type = NULL_S;
-        b_type = NULL_B;
       end
 
 
       7'd103 : begin
-        oInstructionType = JUMP;
+        instruction_type = JUMP;
         j_type = JUMP_LINK;
-        r_type = NULL_R;
-        i_type = NULL_I;
-        u_type = NULL_U;
-        s_type = NULL_S;
-        b_type = NULL_B;
       end
 
 
       7'd111 : begin
-        oInstructionType = JUMP;
+        instruction_type = JUMP;
         j_type = JUMP_LINK_REG;
-        r_type = NULL_R;
-        i_type = NULL_I;
-        u_type = NULL_U;
-        s_type = NULL_S;
-        b_type = NULL_B;
       end
 
 
       7'd99 : begin
-        oInstructionType = BRANCH;
-
-        r_type = NULL_R;
-        i_type = NULL_I;
-        u_type = NULL_U;
-        s_type = NULL_S;
-        j_type = NULL_J;
+        instruction_type = BRANCH;
 
         case(iFunct3)
           3'b000  : b_type = BEQ;
@@ -174,13 +143,7 @@ TO DO :
 
 
       7'd35 : begin
-        oInstructionType = STORE;
-
-        r_type = NULL_R;
-        i_type = NULL_I;
-        u_type = NULL_U;
-        j_type = NULL_J;
-        b_type = NULL_B;
+        instruction_type = STORE;
 
         case(iFunct3)
           3'b000  : s_type = LOAD_BYTE;
@@ -190,14 +153,14 @@ TO DO :
         endcase
       end
 
-      default : oInstructionSubType = NULLINS;
+      default : instruction_type = NULLINS;
     endcase
   end
 
 
   always_comb begin
 
-    case(oInstructionType)
+    case(instruction_type)
       REG_COMMPUTATION : oInstructionSubType.R    = r_type;
       IMM_COMPUTATION  : oInstructionSubType.I    = i_type;
       LOAD             : oInstructionSubType.I    = i_type;
@@ -207,6 +170,8 @@ TO DO :
       BRANCH           : oInstructionSubType.B    = b_type;
       default          : oInstructionSubType.NULL = 4'b1111;
     endcase
+
+    oInstructionType = instruction_type;
 
   end
 
