@@ -6,7 +6,7 @@ module PCAdder(
   input  logic [31:0] iRegOffset,
   output logic [31:0] oPCTarget
 );
-
+//add condition to check instruction type first - if only subtype is checked could lead to error as certain subtype instructions have same enum value : ex. load and add
 always_comb begin
   case(iInstructionType)
 
