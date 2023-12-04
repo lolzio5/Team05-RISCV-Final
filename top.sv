@@ -39,11 +39,11 @@ module top(
     );
 
     alu myALU(
-        .ALUControl (ALUctrl),
-        .SrcA (rs1),
-        .SrcB (rs2),
-        .ALUResult (ALUResult),
-        .Zero (Zero)
+        .iALUControl (ALUctrl),
+        .iSrcA (rs1),
+        .iSrcB (rs2),
+        .oALUResult (ALUResult),
+        .oZero (Zero)
     );
 
     mux myMux1(
@@ -60,14 +60,14 @@ module top(
     );
 
     register myRegister(
-        .CLK (clk),
-        .WE3 (RegWrite),
-        .A1 (rs1),
-        .A2 (rs2),
-        .A3 (rd),
-        .WD3 (Result),
-        .RD1 (SrcA),
-        .RD2 (SrcB)
+        .iCLK (clk),
+        .iWE3 (RegWrite),
+        .iA1 (rs1),
+        .iA2 (rs2),
+        .iA3 (rd),
+        .iWD3 (Result),
+        .oRD1 (SrcA),
+        .oRD2 (SrcB)
     );
 
     ControlMain myControlMain(
