@@ -27,11 +27,14 @@ module DataMemory #(
     
     end
 
-
     always_comb begin
         word_aligned_address = {{iAddress[31:2]}, {2'b00}};
         byte_offset          = iAddress[1:0];
         mem_cell             = mem_array[word_aligned_address];
+    end
+
+    always_comb begin
+
 
         case (iInstructionType) 
             
@@ -86,7 +89,7 @@ module DataMemory #(
                 endcase
             end
 
-            default : mem_data = {32{1'b0}};
+            default : mem_data = mem_cell;
 
         endcase
 
