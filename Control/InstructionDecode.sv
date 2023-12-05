@@ -146,9 +146,9 @@ TO DO :
         instruction_type = STORE;
 
         case(iFunct3)
-          3'b000  : s_type = LOAD_BYTE;
-          3'b001  : s_type = LOAD_HALF;
-          3'b010  : s_type = LOAD_WORD;
+          3'b000  : s_type = STORE_BYTE;
+          3'b001  : s_type = STORE_HALF;
+          3'b010  : s_type = STORE_WORD;
           default : s_type = NULL_S;
         endcase
       end

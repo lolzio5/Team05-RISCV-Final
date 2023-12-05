@@ -21,13 +21,6 @@ module DataMemory #(
     logic [1:0]  byte_offset;
 
 
-    always_comb begin
-        word_aligned_address = {{iAddress[31:2]}, {2'b00}};
-        byte_offset          = iAddress[1:0];
-        mem_cell             = mem_array[word_aligned_address];
-    end
-
-
     always_ff @(posedge iClk) begin
         if (iWriteEn) mem_array[word_aligned_address] <= mem_cell;
         else          oMemData                        <= mem_data;
@@ -36,7 +29,9 @@ module DataMemory #(
 
 
     always_comb begin
-
+        word_aligned_address = {{iAddress[31:2]}, {2'b00}};
+        byte_offset          = iAddress[1:0];
+        mem_cell             = mem_array[word_aligned_address];
 
         case (iInstructionType) 
             
