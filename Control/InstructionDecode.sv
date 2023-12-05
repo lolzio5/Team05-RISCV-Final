@@ -24,18 +24,17 @@ TO DO :
 
   always_comb begin
 
-    r_type = NULL_R;
-    i_type = NULL_I;
-    u_type = NULL_U;
-    s_type = NULL_S;
-    j_type = NULL_J;
-    b_type = NULL_B;
-
     case(iOpCode)
 
       7'd51 : begin
         instruction_type = REG_COMMPUTATION;
-
+        
+        i_type = NULL_I;
+        u_type = NULL_U;
+        s_type = NULL_S;
+        j_type = NULL_J;
+        b_type = NULL_B;
+        
         case(iFunct3)
 
           3'b000  : begin
@@ -64,6 +63,12 @@ TO DO :
 
       7'd19 : begin
         instruction_type = IMM_COMPUTATION;
+        
+        r_type = NULL_R;
+        u_type = NULL_U;
+        s_type = NULL_S;
+        j_type = NULL_J;
+        b_type = NULL_B;
 
         case(iFunct3)
           3'b000  : i_type = IMM_ADD;
@@ -87,6 +92,12 @@ TO DO :
       7'd3 : begin
         instruction_type = LOAD;
 
+        r_type = NULL_R;
+        u_type = NULL_U;
+        s_type = NULL_S;
+        j_type = NULL_J;
+        b_type = NULL_B;
+
         case(iFunct3)
           3'b000  : i_type = LOAD_BYTE;
           3'b001  : i_type = LOAD_HALF;
@@ -100,6 +111,7 @@ TO DO :
 
       7'd23 : begin
         instruction_type = UPPER;
+
         j_type = NULL_J;
         r_type = NULL_R;
         i_type = NULL_I;
@@ -111,24 +123,48 @@ TO DO :
 
       7'd55 : begin
         instruction_type = UPPER;
+
         u_type = LOAD_UPPER_IMM;
+        r_type = NULL_R;
+        i_type = NULL_I;
+        s_type = NULL_S;
+        j_type = NULL_J;
+        b_type = NULL_B;
       end
 
 
       7'd103 : begin
         instruction_type = JUMP;
-        j_type = JUMP_LINK;
+
+        j_type = JUMP_LINK_REG;
+        r_type = NULL_R;
+        u_type = NULL_U;
+        i_type = NULL_I;
+        s_type = NULL_S;
+        b_type = NULL_B;
       end
 
 
       7'd111 : begin
         instruction_type = JUMP;
-        j_type = JUMP_LINK_REG;
+
+        j_type = JUMP_LINK;
+        r_type = NULL_R;
+        u_type = NULL_U;
+        i_type = NULL_I;
+        s_type = NULL_S;
+        b_type = NULL_B;
       end
 
 
       7'd99 : begin
         instruction_type = BRANCH;
+
+        r_type = NULL_R;
+        u_type = NULL_U;
+        i_type = NULL_I;
+        s_type = NULL_S;
+        j_type = NULL_J;
 
         case(iFunct3)
           3'b000  : b_type = BEQ;
@@ -145,6 +181,12 @@ TO DO :
       7'd35 : begin
         instruction_type = STORE;
 
+        r_type = NULL_R;
+        u_type = NULL_U;
+        i_type = NULL_I;
+        j_type = NULL_J;
+        b_type = NULL_B;
+        
         case(iFunct3)
           3'b000  : s_type = STORE_BYTE;
           3'b001  : s_type = STORE_HALF;
