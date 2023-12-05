@@ -55,18 +55,19 @@ always_comb begin
       end
 
       else begin
-        oImmExt[1:0]    = 2'b00; 
-        oImmExt[11:2]   = iInstruction[30:21];
-        oImmExt[12]     = iInstruction[20];
-        oImmExt[20:13]  = iInstruction[19:12];
-        oImmExt[31:21]  = {11{iInstruction[31]}};
+        oImmExt[0]      = 1'b0; 
+        oImmExt[10:1]   = iInstruction[30:21];
+        oImmExt[11]     = iInstruction[20];
+        oImmExt[19:12]  = iInstruction[19:12];
+        oImmExt[31:20]  = {12{iInstruction[31]}};
       end
     end
 
     BRANCH : begin      
-      oImmExt[1:0]   = 2'b00; //Branch immediate encoded in multiples of 4 (lsb = 0)
-      oImmExt[13:2]  = {iInstruction[31], iInstruction[7], iInstruction[30:25], iInstruction[11:8]};
-      oImmExt[31:14] = {18{oImmExt[11]}};
+      oImmExt[0]     = 1'b0; //Branch immediate encoded in multiples of 4 (lsb = 0)
+      oImmExt[4:1]   = iInstruction[11:8];
+      oImmExt[12:5]  = {iInstruction[31], iInstruction[7], iInstruction[30:25]};
+      oImmExt[31:13] = {19{iInstruction[31]}};
     end
 
     default : oImmExt = {32{1'b0}}; //set imm20 to 0 by default
