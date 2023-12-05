@@ -14,7 +14,7 @@ module InstructionMemory #(
   initial begin
           $display("Loading ROM");
           //$readmemb("InstructionsBin.mem", rom_array, 32'hBFC00000, 32'hBFC00FFF);
-          $readmemh("F1.mem", rom_array);
+          $readmemh("F1.hex", rom_array);
   end;
 
   always_comb begin
