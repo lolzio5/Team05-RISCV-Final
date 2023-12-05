@@ -15,21 +15,16 @@ module RegisterFile #(
 
     logic [DATA_WIDTH-1:0] ram_array [0:2**ADDRESS_WIDTH-1];
 
-    always_comb begin
+    always_comb begin //read register is async
         ram_array[0] = {DATA_WIDTH{1'b0}};
+        oRegData1 = ram_array[iReadAddress1];
+        oRegData2 = ram_array[iReadAddress2];
     end
 
-    always_ff @ (posedge iClk ) begin
+    always_ff @ (posedge iClk) begin
 
         if(iWriteEn == 1'b1) begin
             ram_array[iWriteAddress] <= iDataIn;
-            oRegData1 <= ram_array[iReadAddress1]; //still need to output register data if we are writing
-            oRegData2 <= ram_array[iReadAddress2];
-        end
-        
-        else begin
-            oRegData1 <= ram_array[iReadAddress1];
-            oRegData2 <= ram_array[iReadAddress2];
         end
 
     end
