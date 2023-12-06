@@ -3,20 +3,41 @@ module PCRegister (
     input  logic         iRst,
     input  logic         iPCSrc,
     input  logic [31:0]  iTargetPC,
+    
     output logic [31:0]  oPC
 );
 
-initial oPC = {32{1'b0}};
+////////////////////////////////////
+////     Initialize Output       ///
+////////////////////////////////////
 
-logic [31:0] PCNext;
+  initial oPC = {32{1'b0}};
 
-always_comb begin
-  PCNext = iPCSrc ? iTargetPC : oPC + 32'd4;
-end
 
-always_ff @ (posedge iClk or posedge iRst) begin 
-  if (iRst) oPC <= {32{1'b0}};
-  else      oPC <= PCNext;
-end
+////////////////////////////////////
+////     Internal Logic       //////
+////////////////////////////////////
+
+  logic [31:0] PCNext;
+
+
+//////////////////////////////////////////////////
+////   PC Mux - Select PCNext given PCSrc   //////
+//////////////////////////////////////////////////
+
+  always_comb begin
+    PCNext = iPCSrc ? iTargetPC : oPC + 32'd4;
+  end
+
+
+//////////////////////////////////////////////////
+////          PC Flip Flop Register           ////
+//////////////////////////////////////////////////
+
+  always_ff @ (posedge iClk or posedge iRst) begin 
+    if (iRst) oPC <= {32{1'b0}};
+    else      oPC <= PCNext;
+  end
+
 
 endmodule

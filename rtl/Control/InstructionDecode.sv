@@ -1,17 +1,16 @@
 `include "include/ControlTypeDefs.svh"
 module InstructionDecode(
-  input  logic [6:0] iOpCode,
-  input  logic [2:0] iFunct3,
-  input  logic [6:0] iFunct7,
+  input  logic [6:0]         iOpCode,
+  input  logic [2:0]         iFunct3,
+  input  logic [6:0]         iFunct7,
 
   output InstructionTypes    oInstructionType,
   output InstructionSubTypes oInstructionSubType
 );
 
-/*
-TO DO : 
-  - Implement the NOP instruciton : addi x0,x0,0
-*/
+//////////////////////////////////////////////////
+////   Internal Logic - Instruction Types   //////
+//////////////////////////////////////////////////
 
   TypeR r_type;
   TypeI i_type;
@@ -21,6 +20,11 @@ TO DO :
   TypeB b_type;
 
   InstructionTypes instruction_type;
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+////   Logic To Determine Instruction Type and Sub Type Given OpCode, funct3, funct7   //////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
   always_comb begin
 
@@ -200,6 +204,10 @@ TO DO :
   end
 
 
+/////////////////////////////////////////////////////////////
+////       Assign Instruction Type and Sub Type        //////
+/////////////////////////////////////////////////////////////
+
   always_comb begin
 
     case(instruction_type)
@@ -214,7 +222,7 @@ TO DO :
     endcase
 
     oInstructionType = instruction_type;
-
   end
+
 
 endmodule

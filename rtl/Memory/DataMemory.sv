@@ -1,5 +1,4 @@
 `include "include/ControlTypeDefs.svh"
-
 module DataMemory #(
     parameter ADDRESS_WIDTH = 32,
               DATA_WIDTH = 32
@@ -10,36 +9,60 @@ module DataMemory #(
     input  InstructionSubTypes       iMemoryInstructionType,
     input  logic [31:0]              iAddress,        // Write Address
     input  logic [DATA_WIDTH-1:0]    iMemData,        // Write Data
+
     output logic [DATA_WIDTH-1:0]    oMemData         // output
 );
 
-    logic [31:0] mem_array [2**ADDRESS_WIDTH - 1 : 0];
-    logic [31:0] mem_cell;
+//////////////////////////////////////////////
+////  Internal Memory, Data and Addresses  ////
+//////////////////////////////////////////////
 
+    //RAM Array
+    logic [31:0] mem_array [2**ADDRESS_WIDTH - 1 : 0]; 
+
+    //Memory Cell - Data stored in memory location we want to access
+    logic [31:0] mem_cell; 
+
+    //Holds the data out of memory cell 
     logic [31:0] mem_data;
+
+    //Word address and byte offset within the address
     logic [31:0] word_aligned_address;
     logic [1:0]  byte_offset;
 
 
-    always_ff @(posedge iClk) begin
+////////////////////////////////////////
+////     Read/Write Data Flip Flop  ////
+////////////////////////////////////////
+
+    //Write or Read data on falling edge of clk
+    always_ff @(negedge iClk) begin
         if (iWriteEn) mem_array[word_aligned_address] <= mem_cell;
         else          oMemData                        <= mem_data;
     
     end
 
+
+//////////////////////////////////////////////
+////      Internal Signal Initialisation  ///
+/////////////////////////////////////////////
+
     always_comb begin
-        word_aligned_address = {{iAddress[31:2]}, {2'b00}};
-        byte_offset          = iAddress[1:0];
-        mem_cell             = mem_array[word_aligned_address];
+        word_aligned_address = {{iAddress[31:2]}, {2'b00}};     //Word aligned address -> multiple of 4
+        byte_offset          = iAddress[1:0];                   //2 LSBs of iAddress define byte offset within the word
+        mem_cell             = mem_array[word_aligned_address]; //Init accessed memory cell with data at the word aligned address
     end
 
+
+/////////////////////////////////////////////////
+////   Logic to compute what is written/read  ///
+/////////////////////////////////////////////////
+
     always_comb begin
-
-
         case (iInstructionType) 
-            
-            STORE : begin  //Write Operation
 
+            //Write Operation
+            STORE : begin
                 case (iMemoryInstructionType)
 
                     STORE_BYTE : mem_cell[byte_offset*8 +: 8]  = iMemData[7:0];   // Byte
@@ -53,11 +76,10 @@ module DataMemory #(
 
                     default    : mem_cell                      = iMemData;        // Word
                 endcase
-
             end
 
-    //added further classification by insturction type
-            LOAD : begin  //Read Operation
+            //Read Operation
+            LOAD : begin  
                 case(iMemoryInstructionType)
 
                     LOAD_BYTE  : begin
@@ -66,7 +88,6 @@ module DataMemory #(
                     end
 
                     LOAD_HALF  : begin
-
                         if (byte_offset == 2'b11) mem_data[15:0] = mem_cell[31:16];  
                         else                      mem_data[15:0] = mem_cell[byte_offset*8 +: 16];
                         
@@ -76,7 +97,6 @@ module DataMemory #(
                     ULOAD_BYTE : mem_data = {{24{1'b0}}, mem_cell[byte_offset*8 +: 8]}; //Zero extend
                     
                     ULOAD_HALF : begin
-
                         if (byte_offset == 2'b11) mem_data[15:0] = mem_cell[31:16];  
                         else                      mem_data[15:0] = mem_cell[byte_offset*8 +: 16];
 
@@ -92,7 +112,6 @@ module DataMemory #(
             default : mem_data = mem_cell;
 
         endcase
-
     end
 
 endmodule

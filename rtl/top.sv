@@ -1,12 +1,10 @@
 `include "include/ControlTypeDefs.svh"
-
 module top(
     input  logic         iClk,         // Clock input
-    input  logic         iRst, 
-    //input  logic         iTrigger, commented out until implemented
-    output logic [31:0]  oDataOut // Output data
-);
+    input  logic         iRst,         // Reset Signal
 
+    output logic [31:0]  oRega0        // Output Register a0
+);
 
 ////////////////////////////////
 ////      PC Register       ////
@@ -95,7 +93,8 @@ module top(
         .iWriteAddress(rd),
         .iDataIn(reg_data_in),
         .oRegData1(reg_data_out1),
-        .oRegData2(reg_data_out2)
+        .oRegData2(reg_data_out2),
+        .oRega0(oRega0)
     );
 
 
@@ -189,11 +188,5 @@ module top(
         .iUpperImm(imm_ext),
         .oRegDataIn(reg_data_in)
     );  
-
-//Assign Output As Register Write Back Value
-
-    always_comb begin
-        oDataOut = reg_data_in;
-    end
 
 endmodule
