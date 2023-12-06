@@ -8,9 +8,11 @@ sll s2, s2, 2 //Should output 0x8
 
 srl s0, s2, 2 //should output 0x2
 
+and s3, s0, s2 //should output 
+
 slt 
 
-sltu 
+sltu
 
 and 
 
