@@ -1,5 +1,5 @@
 `include "include/ControlTypeDefs.svh"
-module ImmDecode(
+module ImmDecodeD(
   input  InstructionTypes    iInstructionType,
   input  InstructionSubTypes iInstructionSubType,
   /* verilator lint_off UNUSED */

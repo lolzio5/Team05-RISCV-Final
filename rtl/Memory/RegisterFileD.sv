@@ -1,4 +1,4 @@
-module RegisterFile #(
+module RegisterFileD #(
     parameter  ADDRESS_WIDTH = 5,
                DATA_WIDTH = 32
 )(
@@ -25,7 +25,7 @@ module RegisterFile #(
 ////     Asynchronous Read Operation      ////
 //////////////////////////////////////////////
 
-    //Read Register Operation -> Async
+    //Read Register Operation -> Async ( may need to be made sync - write on rising edge, read on falling edge to avoid data hazards)
     always_comb begin 
         ram_array[0] = {DATA_WIDTH{1'b0}}; // Wire register 0 to constant 0
 
@@ -40,8 +40,8 @@ module RegisterFile #(
 ////     Synchronous Write Operation      ////
 //////////////////////////////////////////////
 
-    //Write to register on falling edge of clk
-    always_ff @ (negedge iClk) begin
+    //Write to register on positive edge of clk - needec for pipeline architecture when data dependancies occur
+    always_ff @ (posedge iClk) begin
         if(iWriteEn == 1'b1) ram_array[iWriteAddress] <= iDataIn;
     end
 

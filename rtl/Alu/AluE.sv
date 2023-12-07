@@ -1,4 +1,4 @@
-module Alu #(
+module AluE #(
     parameter  OP_WIDTH = 4,
                DATA_WIDTH =32
 )(

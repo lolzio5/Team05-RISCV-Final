@@ -1,5 +1,5 @@
 `include "include/ControlTypeDefs.svh"
-module DataMemory #(
+module DataMemoryM #(
     parameter ADDRESS_WIDTH = 32,
               DATA_WIDTH = 32
 )(

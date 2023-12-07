@@ -1,4 +1,4 @@
-module ResultMux(
+module ResultMuxW(
   input  logic [2:0]  iResultSrc,
   input  logic [31:0] iMemDataOut,
   input  logic [31:0] iAluResult,

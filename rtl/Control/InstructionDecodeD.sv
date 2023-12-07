@@ -1,5 +1,5 @@
 `include "include/ControlTypeDefs.svh"
-module InstructionDecode(
+module InstructionDecodeD(
   input  logic [6:0]         iOpCode,
   input  logic [2:0]         iFunct3,
   input  logic [6:0]         iFunct7,

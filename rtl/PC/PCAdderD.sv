@@ -1,4 +1,4 @@
-module PCAdder(  
+module PCAdderD(  
   input  InstructionTypes    iInstructionType,
   input  InstructionSubTypes iInstructionSubType,
   input  logic [31:0]        iPC,

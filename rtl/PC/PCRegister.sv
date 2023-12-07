@@ -1,4 +1,4 @@
-module PCRegister (
+module PCRegisterF(
     input  logic         iClk,
     input  logic         iRst,
     input  logic         iPCSrc,

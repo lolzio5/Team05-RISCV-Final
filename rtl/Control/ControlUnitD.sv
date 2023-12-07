@@ -1,5 +1,5 @@
 `include "include/ControlTypeDefs.svh"
-module ControlUnit(
+module ControlUnitD(
   input  logic [31:0]        iPC,
   input  logic               iZero,
 
@@ -31,7 +31,7 @@ module ControlUnit(
 //// Instruction Memory ROM ////
 ////////////////////////////////
 
-  InstructionMemory InstructionMem(
+  InstructionMemoryF InstructionMem(
     .iPC(iPC),
     .oInstruction(current_instruction)
   );
