@@ -1,8 +1,10 @@
-module PCRegisterF(
+module PCRegister (
     input  logic         iClk,
     input  logic         iRst,
-    input  logic         iPCSrc,
+    input  logic         iPCSrcF,
+    input  logic         iPCSrcD,
     input  logic [31:0]  iTargetPC,
+    input  logic [31:0]  iBranchTarget,
     
     output logic [31:0]  oPC
 );
@@ -26,7 +28,8 @@ module PCRegisterF(
 //////////////////////////////////////////////////
 
   always_comb begin
-    PCNext = iPCSrc ? iTargetPC : oPC + 32'd4;
+    if (iPCSrcF == 1'b0) PCNext = iPCSrcD ? iTargetPC : oPC + 32'd4;
+    else                 PCNext = iBranchTarget ;
   end
 
 
