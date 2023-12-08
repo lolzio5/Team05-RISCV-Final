@@ -3,7 +3,7 @@ module cache_controller (
     input  logic [26:0]  iHit,
     output logic  oReadCache
 );
-always_ff @(negedge iClk) begin
+always_ff @(posedge iClk) begin
     if (iHit==1) oReadCache=1;
     else    oReadCache=0;   
 end
