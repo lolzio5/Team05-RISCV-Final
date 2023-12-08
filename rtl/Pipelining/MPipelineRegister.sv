@@ -1,27 +1,24 @@
 module MPipelineRegister (
-    input  logic        iCLk,
-    input  logic        iRegWriteM,
-    input  logic [1:0]  iResultSrcM,
-    input  logic [31:0] iALUResultM,
-    input  logic [31:0] iReadDataM,
-    input  logic [4:0]  iRdM,
-    input  logic [31:0] iPCPlus4M,
+    input   logic        iCLk,
+    input   logic        iRegWriteM,
+    input   logic        iMemToRegM,
+    input   logic [31:0] iReadDataM,
+    input   logic [31:0] iALUOutM,
+    input   logic [4:0]  iWriteRegM,
 
     output  logic        oRegWriteW,
-    output  logic [1:0]  oResultSrcW,
-    output  logic [31:0] oALUResultW,
+    output  logic        oMemToRegW,
     output  logic [31:0] oReadDataW,
-    output  logic [4:0]  oRdW,
-    output  logic [31:0] oPCPlus4W,
+    output  logic [31:0] oALUOutW,
+    output  logic [4:0]  oWriteRegW
 );
   
     always_ff @ (posedge iClk) begin 
         oRegWriteW <= iRegWriteM;
-        oResultSrcW <= iResultSrcM;
-        oALUResultW <= iALUResultM;
+        oMemToRegW <= iMemToRegM;
+        oALUOutW <= iALUOutM;
         oReadDataW <= iReadDataM;
-        oRdW <= iRdM;
-        oPCPlus4W <= iPCPlus4M;
+        oWriteRegW <= iWriteRegM;
     end
     
 endmodule
