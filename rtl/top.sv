@@ -6,11 +6,9 @@ module top(
     output logic [31:0]  oRega0        // Output Register a0
 );
 
-//--------FETCH PIPELINE REGISTER---------------------
-
-    logic           stall_d;    
-    logic   [31:0]  instruction_f;
-    logic   [31:0]  pc_plus_4_f;
+////////////////////////////////
+////      PC Register       ////
+////////////////////////////////
 
     FPipelineRegister FPipelineRegister(
         .iCLk(iClk),
@@ -21,23 +19,21 @@ module top(
         .oPCPlus4D(pc_plus_4_d)
     );
 
-////////////////////////////////
-////      PC Register       ////
-////////////////////////////////
-
     logic [31:0] pc_f; //pc from fetch stage
-    logic [31:0] target_pc;
-    logic [31:0] branch_target;
-    logic        pc_src;
-    logic        pc_src_f;
+    logic [31:0] target_pc_d;
+    logic [31:0] instruction_f; //instruction out of fetch
+    logic [31:0] jb_target;
+ 
+    logic        take_jb_f;
+    logic        stall_f;
 
     PCRegisterF PCRegister(
         .iClk(iClk),
         .iRst(iRst),
-        .iPCSrcD(pc_src),
-        .iPCSrcF(pc_src_f),
-        .iTargetPC(target_pc),
-        .iBranchTarget(branch_target),
+        .iPCSrcD(pc_src_d),
+        .iPCSrcF(take_jb_f),
+        .iTargetPC(target_pc_d),
+        .iBranchTarget(jb_target),
         .oPC(pc_f)
     );
 
@@ -46,33 +42,156 @@ module top(
         .oInstruction(instruction_f)
     );
 
-    //if we have a branch instruction that branches backward then take the branch(static branch prediction)
-    BranchPredictorF BranchPredictorF(
+    //if we have a branch instruciton that branches backward then take the branch(static branch prediction)
+    JumpBranchHandlerF JumpBranchHandlerF(
         .iInstructionF(instruction_f),
-        .oTakeBranch(pc_src_f),
-        .oBranchTarget(branch_target)
+        .oTakeJBF(take_jb_f),
+        .oJBTarget(jb_target),
     );
+
 
 //--------DECODE PIPELINE REGISTER---------------------
     
+    InstructionTypes    instruction_type_d;
+    InstructionSubTypes instruction_sub_type_d;
+    logic [31:0] instruction_d
+    logic [31:0] pc_d
     logic [31:0] reg_data_out1_d;
     logic [31:0] reg_data_out2_d;
-    logic [31:0] sign_imm_d;  
+    logic [31:0] reg_jump_offset_d;
+    logic [31:0] imm_ext_d;  
 
-    logic [4:0]  rs_d;
-    logic [4:0]  rt_d;
+    logic [4:0]  rs1_d;
+    logic [4:0]  rs2_d;
     logic [4:0]  rd_d;
 
-    logic [1:0]  result_src_d;    
-    logic [2:0]  alu_control_d;
-    logic        alu_src_d;
-    logic        reg_dst_d;
-    logic        mem_to_reg_d;
-    logic        mem_write_d;
-    logic        reg_write_d;
-    logic        zero_d;
+    logic [31:0] reg_data_in_w;
 
-    DPipelineRegister DPipelineRegister(
+    logic [2:0]  result_src_d;    
+    logic [3:0]  alu_control_d;
+    logic        alu_src_d;
+
+    logic        mem_write_en_d;
+    logic        reg_write_en_d;
+
+    logic        zero_d;
+    logic        flush_d;
+    logic        stall_d;
+
+    logic        pc_src_d;
+    logic        take_branch_d;
+    logic        recover_pc_d;
+
+    logic        comparator_op1_select;
+    logic        comparator_op2_select;
+    logic        comparator_op1_d;
+    logic        comparator_op2_d;
+    logic        forward_reg_offset;
+
+    OperandForwarderD OperandForwarderD(
+        .iRegData1D(reg_data_out1_d),
+        .iRegData2D(reg_data_out2_d),
+        .iAluResultOutM(alu_result_m),
+        .iCompOp1Select(comparator_op1_select),
+        .iCompOp2Select(comparator_op2_select),
+        .iForwardRegOffset(forward_reg_offset),
+        .oCompOp1(comparator_op1_d),
+        .oCompOp2(comparator_op2_d),
+        .oRegOffset(reg_jump_offset_d)
+    );
+
+    ComparatorD RegComparator(
+        .iInstructionTypeD(instruction_d),
+        .iBranchTypeD(instruction_sub_type_d),
+        .iRegData1D(comparator_op1_d),
+        .iRegData2D(comparator_op2_d),
+        .iImmExtD(imm_ext_d),
+        .iTakeBranchF(take_branch_d),
+        .oRecoverPC(recover_pc_d),
+        .oPCSrcD(pc_src_d)
+    );
+
+//////////////////////////////////////////////////////////
+//// Control Unit : Control Path + Instruction Memory ////
+//////////////////////////////////////////////////////////
+
+
+    ControlPathD ControlPath(
+        .iInstruction(instruction_d),
+        .iZero(zero_d), 
+        .oImmExt(imm_ext_d),
+        .oRegWrite(reg_write_en),
+        .oMemWrite(mem_write_en),
+        .oAluControl(alu_control_d),
+        .oAluSrc(alu_src_d),
+        .oResultSrc(result_src_d),
+        .oPCSrc(pc_src_d), //change pc_src output
+        .oRs1(rs1_d),
+        .oRs2(rs2_d),
+        .oRd(rd_d),
+        .oInstructionType(instruction_type_d),
+        .oInstructionSubType(instruction_sub_type_d)
+    );
+
+
+///////////////////////////////////////////
+////  PC Adder : Target PC Calculator  ////
+///////////////////////////////////////////
+
+
+
+    PCAdderD TargetPCAdder(
+        .iPC(pc_d),
+        .iImmExt(imm_ext_d),
+        .iInstructionType(instruction_type_d),
+        .iInstructionSubType(instruction_sub_type_d),
+        .iRegOffset(reg_jump_offset_d),
+        .iRecoverPCD(recover_pc_d),
+        .oPCTarget(target_pc_d)
+    );
+
+
+/////////////////////////////////
+////      Register File      ////
+/////////////////////////////////
+
+
+    RegisterFile RegisterFile(
+        .iClk(iClk),
+        .iWriteEn(reg_write_en_w),
+        .iReadAddress1(rs1_d),
+        .iReadAddress2(rs2_d),
+        .iWriteAddress(rd_d),
+        .iDataIn(reg_data_in),
+        .oRegData1(reg_data_out1_d),
+        .oRegData2(reg_data_out2_d),
+        .oRega0(oRega0)
+    );
+
+    HazardUnit HazardControl(
+        .iInstructionTypeD(instruction_type_d),
+        .iInstructionTypeE(instruction_type_e),
+        .iInstructionTypeM(instruction_type_m),
+        .iDestRegE(rd_e),
+        .iDestRegM(rd_m),
+        .iDestRegW(rd_w),
+        .iRegWriteEnM(reg_write_en_m),
+        .iRegWriteEnW(reg_write_en_w),
+        .iSrcReg1D(rs1_d),
+        .iSrcReg2D(rs2_d),
+        .iSrcReg1E(rs1_e),
+        .iSrcReg2E(rs2_e),
+        .oForwardAluOp1E(alu_op1_select),
+        .oForwardAluOp2E(alu_op2_select),
+        .oForwardCompOp1D(comparator_op1_select),
+        .oForwardCompOp2D(comparator_op2_select),
+        .oForwardRegOffsetD(forward_reg_offset),
+        .oStallF(stall_f),
+        .oStallD(stall_d),
+        .oFlushE(flush_e)
+    );
+
+    DPipelineRegister PipelineRegisterE(
         .iCLk(iClk),
         .iFlushE(flush_e),
         .iRegWriteD(reg_write_d),
@@ -95,88 +214,10 @@ module top(
         .oRegDstE(reg_dst_e),
         .oRD1E(reg_data_out1_e),
         .oRD2E(reg_data_out2_e),
-        .oRsE(rs_e),
-        .oRtE(rt_e),
+        .oRsE(rs1_e),
+        .oRtE(rs2_e),
         .oRdE(rd_e),
-        .oSignImmE(sign_imm_e)
-    );
-
-
-//////////////////////////////////////////////////////////
-//// Control Unit : Control Path + Instruction Memory ////
-//////////////////////////////////////////////////////////
-    
-    InstructionTypes    instruction_type_d;
-    InstructionSubTypes instruction_sub_type_d;
-
-    ControlPathD ControlPath(
-        .iInstruction(instruction_d),
-        .iZero(zero_d), 
-        .oImmExt(imm_ext_d),
-        .oRegWrite(reg_write_d),
-        .oMemWrite(mem_write_d),
-        .oAluControl(alu_control_d),
-        .oAluSrc(alu_src_d),
-        .oResultSrc(result_src_d),
-        .oPCSrc(pc_src),
-        .oRs1(rs1_d),
-        .oRs2(rs2_d),
-        .oRd(rd_d),
-        .oInstructionType(instruction_type_d),
-        .oInstructionSubType(instruction_sub_type_d)
-    );
-
-
-///////////////////////////////////////////
-////  PC Adder : Target PC Calculator  ////
-///////////////////////////////////////////
-
-
-    PCAdder TargetPCAdder(
-        .iPC(pc),
-        .iImmExt(imm_ext_d),
-        .iInstructionType(instruction_type_d),
-        .iInstructionSubType(instruction_sub_type_d),
-        .iRegOffset(alu_op1),
-        .oPCTarget(target_pc)
-    );
-
-
-/////////////////////////////////
-////      Register File      ////
-/////////////////////////////////
-
-
-    RegisterFile RegisterFile(
-        .iClk(iClk),
-        .iWriteEn(reg_write_en_w),
-        .iReadAddress1(rs1_d),
-        .iReadAddress2(rs2_d),
-        .iWriteAddress(rd_d),
-        .iDataIn(reg_data_in),
-        .oRegData1(reg_data_out1_d),
-        .oRegData2(reg_data_out2_d),
-        .oRega0(oRega0)
-    );
-
-    HazardUnit HazardControl(
-        .iInstructionTypeE(instruction_type_e),
-        .iDestRegE(rd_e),
-        .iDestRegM(rd_m),
-        .iDestRegW(rd_w),
-        .iRegWriteEnM(reg_write_en_m),
-        .iRegWriteEnW(reg_write_en_w),
-        .iSrcReg1D(rs1_d),
-        .iSrcReg2D(rs2_d),
-        .iSrcReg1E(rs1_e),
-        .iSrcReg2E(rs2_e),
-        .oForwardAluOp1E(alu_op1_select),
-        .oForwardAluOp2E(alu_op2_select),
-        .oForwardCompOp1D(),
-        .oForwardCompOp2D(),
-        .oStallF(),
-        .oStallE(),
-        .oFlushE()
+        .oSignImmE(imm_ext_d)
     );
 
 //--------EXECUTION STAGE PIPELINE REGISTER---------------------
@@ -184,33 +225,24 @@ module top(
     InstructionTypes    instruction_type_e;
     InstructionSubTypes instruction_sub_type_e;
 
-    logic [31:0] write_data_e;
+    logic [31:0] alu_result_e;
     logic [31:0] reg_data_out1_e;
     logic [31:0] reg_data_out2_e;
-    logic [31:0] sign_imm_e;  
+    logic [31:0] imm_ext_e;  
 
-    logic [2:0]  alu_control_e;
-    logic [31:0] alu_out_e;
-    logic        mem_write_e;
-    logic        reg_write_e;
-    logic        mem_to_reg_e;
-    logic [4:0]  write_reg_e;
+    logic [4:0]  rs1_e;
+    logic [4:0]  rs2_e;
+    logic [4:0]  rd_e;
 
-    EPipelineRegister EPipelineRegister(
-        .iCLk(iClk),
-        .iRegWriteE(reg_write_e),
-        .iMemToRegE(mem_to_reg_e),
-        .iMemWriteE(mem_write_e),
-        .iALUOutE(alu_out_e),
-        .iWriteDataE(write_data_e),
-        .iWriteRegE(write_reg_e),
-        .oRegWriteM(reg_write_m),
-        .oMemToRegM(mem_to_reg_m),
-        .oMemWriteM(mem_write_m),
-        .oALUOutM(alu_out_m),
-        .oWriteDataM(write_data_m),
-        .oWriteRegM(write_reg_m)
-    );
+    logic [2:0]  result_src_e;
+    logic [3:0]  alu_control_e;
+    logic        alu_src_e;
+    logic        mem_write_en_e;
+    logic        reg_write_en_e;
+    logic        zero_e;
+
+    logic        flush_e;
+
 
 
 /////////////////////////////////
@@ -250,50 +282,53 @@ module top(
         .oZero(zero_e)
     );    
 
+    EPipelineRegister PipelineRegisterM(
+        .iCLk(iClk),
+        .iRegWriteE(reg_write_e),
+        .iMemToRegE(mem_to_reg_e),
+        .iMemWriteE(mem_write_e),
+        .iALUOutE(alu_out_e),
+        .iWriteDataE(write_data_e),
+        .iWriteRegE(write_reg_e),
+        .oRegWriteM(reg_write_m),
+        .oMemToRegM(mem_to_reg_m),
+        .oMemWriteM(mem_write_m),
+        .oALUOutM(alu_out_m),
+        .oWriteDataM(write_data_m),
+        .oWriteRegM(write_reg_m)
+    );
+
 //--------MEMORY STAGE PIPELINE REGISTER---------------------
 
     InstructionTypes    instruction_type_m;
     InstructionSubTypes instruction_sub_type_m;
-    logic [31:0] alu_out_m;
+    logic [31:0] alu_result_m;
     logic [31:0] reg_data_out1_m;
+    logic [31:0] alu_op2_m;
     logic [31:0] reg_data_out2_m;
-    logic [31:0] sign_imm_m;  
+    logic [31:0] imm_ext_m;  
 
-    logic        reg_write_m;
-    logic        mem_to_reg_m;
+    logic [4:0]  rs1_m;
+    logic [4:0]  rs2_m;
+    logic [4:0]  rd_m;
+
+    logic        zero_m;
+
+    logic [2:0]  result_src_m;
+    logic [3:0]  alu_control_m;
     logic        alu_src_m;
-    logic [31:0] alu_out_m;
-    logic [31:0] read_data_m;
     logic        mem_write_en_m;
     logic        reg_write_en_m;
-    logic [4:0]  write_reg_m;
-    
-
-    logic        reg_write_w;
-    logic        mem_to_reg_w;
-    logic [31:0] alu_out_w;
-    logic [31:0] read_data_w;
-    logic [4:0]  write_reg_w;
-
-
-     MPipelineRegister MPipelineRegister(
-        .iCLk(iClk),
-        .iRegWriteM(reg_write_m),
-        .iMemToRegM(mem_to_reg_m),
-        .iReadDataM(read_data_m),
-        .iALUOutM(alu_out_m),
-        .iWriteRegM(write_reg_m),
-        .oRegWriteW(reg_write_w),
-        .oMemToRegW(mem_to_reg_w),
-        .oALUROutW(alu_out_w),
-        .oReadDataW(read_data_w),
-        .oWriteRegW(write_reg_w)
-    );
 
 
 /////////////////////////////////
 ////      Data Memory        ////
 /////////////////////////////////
+
+    //Memory Data I/O 
+    logic [31:0] mem_data_in;
+    logic [31:0] mem_data_out_m;
+
 
     //Control Signals     -   Output From Control Unit
     logic        mem_write_en;
@@ -301,30 +336,55 @@ module top(
 
     // Data that is to be written to data memory is the value stored in the second source register
     always_comb begin
-        mem_data_in = reg_data_out2_m;
+        mem_data_in = alu_op2_m;
     end
 
     DataMemory DataMemory(
         .iClk(iClk),
-        .iWriteEn(mem_write_m),
+        .iWriteEn(mem_write_en),
         .iInstructionType(instruction_type_m),
         .iMemoryInstructionType(instruction_sub_type_m), 
-        .iAddress(alu_out_m),
-        .iMemData(write_data_m),
-        .oMemData(read_data_m)
+        .iAddress(alu_result_m),
+        .iMemData(mem_data_in),
+        .oMemData(mem_data_out_m)
     );
+
+//--------MEMORY STAGE PIPELINE REGISTER---------------------
+
+
+    InstructionTypes    instruction_type_w;
+    InstructionSubTypes instruction_sub_type_w;
+    logic [31:0] mem_data_out_w;
+    logic [31:0] alu_result_w;
+    logic [31:0] reg_data_out1_w;
+    logic [31:0] reg_data_out2_w;
+    logic [31:0] imm_ext_w;  
+
+    logic [4:0]  rs1_w;
+    logic [4:0]  rs2_w;
+    logic [4:0]  rd_w;
+
+    logic [2:0]  result_src_w;
+    logic [3:0]  alu_control_w;
+    logic        alu_src_w;
+    logic        mem_write_en_w;
+    logic        reg_write_en_w;
+    logic        zero_w;
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 ////  Write Back Result Selector : Choses What Is Written Back To Register File  /////
 //////////////////////////////////////////////////////////////////////////////////////
 
-    logic [31:0] result_out_w;
+    logic [31:0] result_out_w
 
-    ResultMux ResultSelector(
-        .iMemToRegW(mem_to_reg_w),
-        .iALUOutW(alu_out_w),
-        .iReadDataW(read_data_w),
-        .oResultW(result_out_w)
+    ResultMuxW ResultSelector(
+        .iResultSrc(result_src_w),
+        .iAluResult(alu_result_w),
+        .iMemDataOut(mem_data_out_w),
+        .iPC(pc),//
+        .iUpperImm(imm_ext_w),
+        .oRegDataIn(result_out_w)
     );  
 
 endmodule
