@@ -11,8 +11,10 @@
       - [Imm Decode](#134-imm-decode)
       - [Alu Encode](#135-alu-encode)
       - [Control Path](#136-control-path)
-
-   - [Hazard Control](#14-hazard-control)
+   - [PC Adder](#14-pc-adder)
+   - [Hazard Control](#15-hazard-control)
+      - [Hazard Unit](#151-hazard-unit)
+      - [Jump Handling And Static Branch Prediction](#152-jump-handling-and-static-branch-prediction)
    - [Limitations](#15-limitations)
 
 2. [Co-Created Modules](#2-co-created-modules)
@@ -589,7 +591,157 @@ Determines the ALU operation to be performed based on the instruction type and s
 
 ## (1.4) PC Adder
 
+
+>**Description :** The `PCAdderD` module is designed for calculating the target program counter (PC) address in the Decode (D) stage of a processor. It is essential for handling jumps, branches, and other PC-relative instructions, facilitating the correct flow of control in the processor pipeline.
+
+## Module Interface
+
+### Inputs
+
+| Input                | Type                   | Description                                                  |
+|----------------------|------------------------|--------------------------------------------------------------|
+| `iInstructionType`   | `InstructionTypes`     | The type of the current instruction.                         |
+| `iInstructionSubType`| `InstructionSubTypes`  | The subtype of the current instruction.                      |
+| `iRecoverPCD`        | `logic`                | A flag to indicate whether to recover the original PC.       |
+| `iPCD`               | `logic [31:0]`         | The current program counter value in the decode (D) stage.                           |
+| `iImmExt`            | `logic [31:0]`         | The extended immediate value for the instruction representing the branch/jump offset.            |
+| `iRegOffset`         | `logic [31:0]`         | A register offset value, used in the JALR instruction.  |
+
+<br>
+
+### Output
+
+
+| Output         | Type          | Description                                        |
+|----------------|---------------|----------------------------------------------------|
+| `oPCTarget`    | `logic [31:0]`| The calculated target address for the program counter. |
+
+<br>
+
+---
+
+<br>
+
+### Target Address Calculation
+>The module calculates the target PC address based on the instruction type:
+
+- **Jump Instructions (`JUMP`)**: 
+  - For `JUMP_LINK_REG` subtype, it calculates the target by adding `iImmExt` to `iRegOffset`.
+  - For other jump instructions, it adds `iImmExt` to `iPCD`.
+- **Branch Instructions (`BRANCH`)**: Adds `iImmExt` to `iPCD`.
+- **Default Case**: Also adds `iImmExt` to `iPCD`.
+
+<br>
+
+### Address Alignment
+Ensures that the target address is correctly aligned. For `JUMP_LINK_REG`, it explicitly aligns the address to set the lsb to 0 (make the address even).
+
+The immediate operand for other branch/jump instructions is already word aligned via the `ImmDecode` module
+
+In the pipelined version, the register offset is forwarded via the `OperandForwarderD` module in the case that there is a data dependancy occuring (ie. the register used as offset in JALR is being written to by the instruction in the memory stage whilst the JALR instruction is in the decode stage)
+
+<br>
+
+### Recovery of Original PC - Pipelined Version
+If `iRecoverPCD` is set, it returns `iPCD + 4`, effectively recovering the original PC address. This is performed in the case that the branch prediction was incorrect (ie. branch was taken incorrectly)
+
+
+---
+
+<br>
+
 ## (1.5) Hazard Control
+
+## (1.5.1) Hazard Unit
+
+>**Description :** The `HazardUnit` module detects and resolves various types of hazards, such as data hazards and control hazards, to ensure smooth and correct execution of instructions in a pipelined processor.
+
+### Module Interface
+
+---
+
+### Inputs
+
+| Input                    | Type                  | Description                                        |
+|--------------------------|-----------------------|----------------------------------------------------|
+| `iInstructionTypeD`      | `InstructionTypes`    | The type of the instruction in the Decode stage.   |
+| `iInstructionSubTypeD`   | `InstructionSubTypes` | The subtype of the instruction in the Decode stage.|
+| `iInstructionTypeE`      | `InstructionTypes`    | The type of the instruction in the Execute stage.  |
+| `iInstructionTypeM`      | `InstructionTypes`    | The type of the instruction in the Memory stage.   |
+| `iSrcReg1D`, `iSrcReg2D` | `logic [4:0]`         | Source register identifiers in the Decode stage.   |
+| `iDestRegE`, `iSrcReg1E`, `iSrcReg2E` | `logic [4:0]` | Destination and source registers in the Execute stage. |
+| `iRegWriteEnE`           | `logic`               | Register write enable signal for the Execute stage.|
+| `iDestRegM`              | `logic [4:0]`         | Destination register in the Memory stage.          |
+| `iRegWriteEnM`           | `logic`               | Register write enable signal for the Memory stage. |
+| `iDestRegW`              | `logic [4:0]`         | Destination register in the Write Back stage.      |
+| `iRegWriteEnW`           | `logic`               | Register write enable signal for the Write Back stage. |
+
+<br>
+
+### Outputs
+
+| Output                   | Type        | Description                                        |
+|--------------------------|-------------|----------------------------------------------------|
+| `oForwardAluOp1E`, `oForwardAluOp2E` | `logic [1:0]` | Forwarding control signals for ALU operands in the Execute stage. |
+| `oForwardCompOp1D`, `oForwardCompOp2D` | `logic`   | Forwarding control signals for operands in the Decode stage. |
+| `oStallF`, `oStallD`     | `logic`     | Stall signals for the Fetch and Decode stages.     |
+| `oFlushE`                | `logic`     | Flush signal for the Execute stage.                |
+
+
+---
+
+<br>
+
+### Hazard Resolution :
+
+---
+
+### Load Dependencies
+
+1. **Detection**: 
+   - Load dependency occurs when an instruction in the Decode (D) stage needs data that is being loaded by an instruction in the Execute (E) stage.
+   - The module checks if the current instruction in the Execute stage is a load instruction (`iInstructionTypeE == LOAD`) and if the destination register of this load instruction (`iDestRegE`) matches any of the source registers (`iSrcReg1D` or `iSrcReg2D`) of the instruction in the Decode stage.
+
+2. **Resolution**:
+   - If a load dependency is detected, the module stalls the Fetch (F) and Decode (D) stages by setting `oStallF` and `oStallD` to 1.
+   - Additionally, it flushes the Execute stage (`oFlushE` set to 1) to prevent the instruction in the Execute stage from proceeding further in the pipeline.
+
+
+### RAW Hazards In Branch And Jump Instructions
+
+1. **Detection**:
+
+   - The module checks for RAW hazards in branch and jump instructions by comparing the source registers of the current instruction in the Decode stage with the destination register of instructions in the Execute (E) and Memory (M) stages.
+
+   - It also checks if there is an additional load data dependancy, in which case the pipeline is stalled at the fetch and decode stage and the execution stage is flushed. The overall effect of having a load instruction following by a branch/jump instruction is a two cycle stall. 
+   
+2. **Resolution**:
+
+   - In the case of a load data dependancy being detected, with a branch/jump instruction in the decode stage, the pipeline is stalled and flushed. This action is also taken if there is a data dependancy with the instruction in the execution stage
+
+   - In the case of no load data dependancy, the appropriate forwarding control signals are set and output
+
+
+### Raw Hazards In Other Instruction Types
+
+1. **Detection**:
+
+   - The module checks if the destination registers either in the memory (M) or write-back (W) stages match either of the source registers in the execute (E) stage.
+
+2. **Resolution**:
+
+   - If a RAW hazard is detected, the module forwards the needed data from the Memory or Write Back stage to the Execute stage, using `oForwardAluOp1E` and `oForwardAluOp2E`.
+
+---
+
+<br>
+
+## (1.5.2) Jump Handling And Static Branch Prediction
+
+
+---
+
+<br>
 
 ## (1.6) Limitations
 
