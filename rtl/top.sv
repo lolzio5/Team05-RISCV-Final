@@ -15,7 +15,7 @@ module top(
         .iStallD(stall_d),
         .iRDF(instruction_f),
         .iPCPlus4F(pc_plus_4_f),
-        .oInstrD(instr_d),
+        .oInstrD(instruction_d),
         .oPCPlus4D(pc_plus_4_d)
     );
 
@@ -42,7 +42,7 @@ module top(
         .oInstruction(instruction_f)
     );
 
-    //if we have a branch instruciton that branches backward then take the branch(static branch prediction)
+    //if we have a branch instruciton that branches backward then take the branch (static branch prediction)
     JumpBranchHandlerF JumpBranchHandlerF(
         .iInstructionF(instruction_f),
         .oTakeJBF(take_jb_f),
@@ -54,8 +54,8 @@ module top(
     
     InstructionTypes    instruction_type_d;
     InstructionSubTypes instruction_sub_type_d;
-    logic [31:0] instruction_d
-    logic [31:0] pc_d
+    logic [31:0] instruction_d;
+    logic [31:0] pc_d;
     logic [31:0] reg_data_out1_d;
     logic [31:0] reg_data_out2_d;
     logic [31:0] reg_jump_offset_d;
@@ -73,6 +73,7 @@ module top(
 
     logic        mem_write_en_d;
     logic        reg_write_en_d;
+    logic        mem_reg_d;
 
     logic        zero_d;
     logic        flush_d;
@@ -139,7 +140,6 @@ module top(
 ///////////////////////////////////////////
 
 
-
     PCAdderD TargetPCAdder(
         .iPC(pc_d),
         .iImmExt(imm_ext_d),
@@ -191,33 +191,33 @@ module top(
         .oFlushE(flush_e)
     );
 
-    DPipelineRegister PipelineRegisterE(
+    DPipelineRegister DPipelineRegister(
         .iCLk(iClk),
         .iFlushE(flush_e),
-        .iRegWriteD(reg_write_d),
+        .iInstructionTypeD(instruction_type_d),
+        .iInstructionSubTypeD(instruction_sub_type_d),
+        .iRegWriteD(reg_write_en_d),
         .iMemToRegD(mem_to_reg_d),
-        .iMemWriteD(mem_write_d),
+        .iMemWriteD(mem_write_en_d),
         .iALUControlD(alu_control_d),
         .iALUSrcD(alu_src_d),
-        .iRegDstD(reg_dst_d),
         .iRD1D(reg_data_out1_d),
         .iRD2D(reg_data_out2_d),
-        .iRsD(rs_d),
-        .iRtD(rt_d),
+        .iRsD(rs1_d),
+        .iRtD(rs2_d),
         .iRdD(rd_d),
-        .iSignImmD(sign_imm_d),
+        .iSignImmD(imm_ext_d),
         .oRegWriteE(reg_write_e),
         .oMemToRegE(mem_to_reg_e),
         .oMemWriteE(mem_write_e),
         .oALUControlE(alu_control_e),
         .oALUSrcE(alu_src_e),
-        .oRegDstE(reg_dst_e),
         .oRD1E(reg_data_out1_e),
         .oRD2E(reg_data_out2_e),
         .oRsE(rs1_e),
         .oRtE(rs2_e),
         .oRdE(rd_e),
-        .oSignImmE(imm_ext_d)
+        .oSignImmE(imm_ext_e)
     );
 
 //--------EXECUTION STAGE PIPELINE REGISTER---------------------
@@ -234,11 +234,13 @@ module top(
     logic [4:0]  rs2_e;
     logic [4:0]  rd_e;
 
-    logic [2:0]  result_src_e;
     logic [3:0]  alu_control_e;
+    logic [31:0] alu_out_e;
+    logic [31:0] write_data_e;
     logic        alu_src_e;
     logic        mem_write_en_e;
     logic        reg_write_en_e;
+    logic [4:0]  write_reg_e;
     logic        zero_e;
 
     logic        flush_e;
@@ -282,17 +284,21 @@ module top(
         .oZero(zero_e)
     );    
 
-    EPipelineRegister PipelineRegisterM(
+    EPipelineRegister EPipelineRegister(
         .iCLk(iClk),
-        .iRegWriteE(reg_write_e),
+        .iInstructionTypeE(instruction_type_e),
+        .iInstructionSubTypeE(instruction_sub_type_e),
+        .iRegWriteE(reg_write_en_e),
         .iMemToRegE(mem_to_reg_e),
-        .iMemWriteE(mem_write_e),
+        .iMemWriteE(mem_write_en_e),
         .iALUOutE(alu_out_e),
         .iWriteDataE(write_data_e),
         .iWriteRegE(write_reg_e),
-        .oRegWriteM(reg_write_m),
+        .oInstructionTypeM(instruction_type_m),
+        .oInstructionSubTypeM(instruction_sub_type_m),
+        .oRegWriteM(reg_write_en_m),
         .oMemToRegM(mem_to_reg_m),
-        .oMemWriteM(mem_write_m),
+        .oMemWriteM(mem_write_en_m),
         .oALUOutM(alu_out_m),
         .oWriteDataM(write_data_m),
         .oWriteRegM(write_reg_m)
@@ -302,24 +308,19 @@ module top(
 
     InstructionTypes    instruction_type_m;
     InstructionSubTypes instruction_sub_type_m;
-    logic [31:0] alu_result_m;
-    logic [31:0] reg_data_out1_m;
-    logic [31:0] alu_op2_m;
-    logic [31:0] reg_data_out2_m;
-    logic [31:0] imm_ext_m;  
 
-    logic [4:0]  rs1_m;
-    logic [4:0]  rs2_m;
     logic [4:0]  rd_m;
-
-    logic        zero_m;
 
     logic [2:0]  result_src_m;
     logic [3:0]  alu_control_m;
     logic        alu_src_m;
+    logic [31:0] write_data_m;
+    logic [31:0] read_data_m;
+    logic        mem_to_reg_m;
     logic        mem_write_en_m;
     logic        reg_write_en_m;
-
+    logic [31:0] alu_out_m;
+    logic [4:0]  write_reg_m;
 
 /////////////////////////////////
 ////      Data Memory        ////
@@ -329,19 +330,14 @@ module top(
     logic [31:0] mem_data_in;
     logic [31:0] mem_data_out_m;
 
-
-    //Control Signals     -   Output From Control Unit
-    logic        mem_write_en;
-
-
     // Data that is to be written to data memory is the value stored in the second source register
     always_comb begin
-        mem_data_in = alu_op2_m;
+        mem_data_in = write_data_m;
     end
 
     DataMemory DataMemory(
         .iClk(iClk),
-        .iWriteEn(mem_write_en),
+        .iWriteEn(mem_write_en_m),
         .iInstructionType(instruction_type_m),
         .iMemoryInstructionType(instruction_sub_type_m), 
         .iAddress(alu_result_m),
@@ -349,42 +345,38 @@ module top(
         .oMemData(mem_data_out_m)
     );
 
-//--------MEMORY STAGE PIPELINE REGISTER---------------------
+//--------WRITE STAGE PIPELINE REGISTER---------------------
+
+    logic [31:0] read_data_w;
+    logic [31:0] alu_out_w;
+    logic [4:0]  write_reg_w;
+    logic        mem_to_reg_w;
 
 
-    InstructionTypes    instruction_type_w;
-    InstructionSubTypes instruction_sub_type_w;
-    logic [31:0] mem_data_out_w;
-    logic [31:0] alu_result_w;
-    logic [31:0] reg_data_out1_w;
-    logic [31:0] reg_data_out2_w;
-    logic [31:0] imm_ext_w;  
-
-    logic [4:0]  rs1_w;
-    logic [4:0]  rs2_w;
-    logic [4:0]  rd_w;
-
-    logic [2:0]  result_src_w;
-    logic [3:0]  alu_control_w;
-    logic        alu_src_w;
-    logic        mem_write_en_w;
-    logic        reg_write_en_w;
-    logic        zero_w;
+    MPipelineRegister MPipelineRegister(
+        .iClk(iClk),
+        .iMemToRegM(mem_to_reg_m),
+        .iReadDataM(read_data_m),
+        .iALUOutM(alu_out_m),
+        .iWriteRegM(write_reg_m),
+        .oMemToRegW(mem_to_reg_w),
+        .oReadDataW(read_data_w),
+        .oALUOutW(alu_out_w),
+        .oWriteRegW(write_reg_w)
+    );
 
 
 //////////////////////////////////////////////////////////////////////////////////////
 ////  Write Back Result Selector : Choses What Is Written Back To Register File  /////
 //////////////////////////////////////////////////////////////////////////////////////
 
-    logic [31:0] result_out_w
+    logic [31:0] result_out_w;
 
-    ResultMuxW ResultSelector(
-        .iResultSrc(result_src_w),
-        .iAluResult(alu_result_w),
-        .iMemDataOut(mem_data_out_w),
-        .iPC(pc),//
-        .iUpperImm(imm_ext_w),
-        .oRegDataIn(result_out_w)
+    ResultMux ResultSelector(
+        .iMemToRegW(mem_to_reg_w),
+        .iALUOutW(alu_out_w),
+        .iReadDataW(read_data_w),
+        .oResultW(result_out_w)
     );  
 
 endmodule
