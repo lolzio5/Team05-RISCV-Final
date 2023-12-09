@@ -1,27 +1,23 @@
 # Team-05 RISC-V CPU
 
 ## Table of Contents
-1. [Directory Information](#directory-information)
-
-2. [Design Process](#design-process)
-   - [Task Allocation](#task-allocation)
-   - [Style and Naming](#style-and-naming)
-   - [Note On Custom Logic Types](#note-on-custom-logic-types)
-   - [Design Principles](#design-principles)
-
-3. [About The CPU](#about-the-cpu)
-   - [Overview](#overview)
-   - [Single Cycle Architecture](#single-cycle-architecture)
-   - [Pipelined Architecture](#pipelined-architecture)
-   - [Limitations](#limitations)
-
-4. [Contributing](#contributing)
-5. [Code of Conduct](#code-of-conduct)
-6. [License](#license)
-7. [Contact](#contact)
-8. [Acknowledgements](#acknowledgements)
+1. [Directory Information](#1-directory-information)
+2. [Design Process](#2-design-process)
+   - [Task Allocation](#21-task-allocation)
+   - [Style and Naming](#22-style-and-naming)
+   - [Note On Custom Logic Types](#23-note-on-custom-logic-types)
+   - [Design Principles](#24-design-principles)
+3. [About The CPU](#3-about-the-cpu)
+   - [Overview](#31-overview)
+   - [Single Cycle Architecture](#32-single-cycle-architecture)
+   - [Pipelined Architecture](#33-pipelined-architecture)
+   - [Limitations](#34-limitations)
+4. [Contributing](#4-contributing)
+5. [Contact](#5-contact)
+6. [Acknowledgements](#6-acknowledgements)
 
 ---
+
 <br>
 
 # (1) Directory Information
@@ -82,7 +78,7 @@ Content for the Advanced Features subsection...
 
 <br>
 
-# Contributing
+# (4) Contributing
 Content for the Contributing section...
 
 <br>
@@ -91,7 +87,7 @@ Content for the Contributing section...
 
 <br>
 
-# Contact
+# (5) Contact
 Content for the Contact section...
 
 <br>
@@ -100,6 +96,6 @@ Content for the Contact section...
 
 <br>
 
-# Acknowledgements
+# (6) Acknowledgements
 
 *Acknowledge/credit Peter Cheung and the computer architecture book*
