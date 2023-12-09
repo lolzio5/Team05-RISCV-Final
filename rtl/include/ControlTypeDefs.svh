@@ -1,4 +1,4 @@
-`ifndef CONTROL_TYPE_DEFS_SVH
+`ifndef CONTROL_TYPE_DEFS_SVH //Header Guards - Prevent recursive inclusion
 `define CONTROL_TYPE_DEFS_SVH
   typedef enum logic[3:0] { 
     BRANCH, 
