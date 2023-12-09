@@ -28,8 +28,10 @@ module PCRegister (
 //////////////////////////////////////////////////
 
   always_comb begin
-    if (iPCSrcF == 1'b0) PCNext = iPCSrcD ? iTargetPC : oPC + 32'd4;
-    else                 PCNext = iBranchTarget ;
+    //Must first check that the branch outcome in decode stage 
+    //If we didnt branch when we needed to and the instruction in fetch is a backward branch, we should not execute the backward branch
+    if (iPCSrcD == 1'b0) PCNext = iPCSrcF ? iBranchTarget : oPC + 32'd4;
+    else                 PCNext = iTargetPC;
   end
 
 
