@@ -1,34 +1,43 @@
 `include "include/ControlTypeDefs.svh"
-module EPipelineRegister (
-    input   logic               iCLk,
+module EPipelineRegisterM(
+    input   logic               iClk,
+
     input   InstructionTypes    iInstructionTypeE,
     input   InstructionSubTypes iInstructionSubTypeE,
-    input   logic               iRegWriteE,
-    input   logic               iMemToRegE,
-    input   logic               iMemWriteE,
-    input   logic [31:0]        iALUOutE,
-    input   logic [31:0]        iWriteDataE,
-    input   logic [4:0]         iWriteRegE,
+    input   logic [31:0]        iPCE,
+    input   logic [31:0]        iImmExtE,
 
-    output  InstructionTypes    iInstructionTypeM,
-    output  InstructionSubTypes iInstructionSubTypeM,
-    output  logic               oRegWriteM,
-    output  logic               oMemToRegM,
-    output  logic               oMemWriteM,
-    output  logic [31:0]        oALUOutM,
-    output  logic [31:0]        oWriteDataM,
-    output  logic [4:0]         oWriteRegM
+    input   logic [31:0]        iAluOutE,
+    input   logic [31:0]        iMemDataInE,
+    input   logic [4:0]         iDestRegE,
+    input   logic [2:0]         iResultSrcE,
+    input   logic               iRegWriteEnE,
+    input   logic               iMemWriteEnE,
+
+    output  InstructionTypes    oInstructionTypeM,
+    output  InstructionSubTypes oInstructionSubTypeM,
+    output  logic [31:0]        oPCM,
+    output  logic [31:0]        oImmExtM,
+
+    output  logic [31:0]        oAluOutM,
+    output  logic [31:0]        oMemDataInM,
+    output  logic [4:0]         oDestRegM,
+    output  logic [2:0]         oResultSrcM,
+    output  logic               oRegWriteEnM,
+    output  logic               oMemWriteEnM
 );
-  
+
     always_ff @ (posedge iClk) begin 
+        oInstructionTypeM    <= iInstructionTypeE;
         oInstructionSubTypeM <= iInstructionSubTypeE;
-        oInstructionTypeM <= iInstructionTypeE;
-        oRegWriteM <= iRegWriteE;
-        oMemToRegM <= iMemToRegE;
-        oMemWriteM <= iMemWriteE;
-        oALUOutM <= iALUOutE;
-        oWriteDataM <= iWriteDataE;
-        oWriteRegM <= iWriteRegE;
+        oPCM                 <= iPCE;
+        oImmExtM             <= iImmExtE;
+        oAluOutM             <= iAluOutE;
+        oMemDataInM          <= iMemDataInE;
+        oDestRegM            <= iDestRegE;
+        oResultSrcM          <= iResultSrcE;
+        oRegWriteEnM         <= iRegWriteEnE;
+        oMemWriteEnM         <= iMemWriteEnE;
     end
     
 endmodule
