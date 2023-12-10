@@ -1,4 +1,4 @@
-module InstructionMemoryF#(
+module InstructionMemoryF #(
   parameter DATA_WIDTH = 32
 )(
    /* verilator lint_off UNUSED */
@@ -21,7 +21,7 @@ module InstructionMemoryF#(
 
   initial begin
           $display("Loading ROM");
-          $readmemh("F1.hex", rom_array);
+          $readmemh("F1.s.hex", rom_array);
   end;
 
 
