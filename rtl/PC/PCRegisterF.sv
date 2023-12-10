@@ -1,6 +1,7 @@
-module PCRegister (
+module PCRegisterF (
     input  logic         iClk,
     input  logic         iRst,
+    input  logic         iStallF,
     input  logic         iPCSrcF,
     input  logic         iPCSrcD,
     input  logic [31:0]  iTargetPC,
@@ -40,8 +41,8 @@ module PCRegister (
 //////////////////////////////////////////////////
 
   always_ff @ (posedge iClk or posedge iRst) begin 
-    if (iRst) oPC <= {32{1'b0}};
-    else      oPC <= PCNext;
+    if      (iRst)       oPC <= {32{1'b0}};
+    else if (!iStallF)    oPC <= PCNext;
   end
 
 

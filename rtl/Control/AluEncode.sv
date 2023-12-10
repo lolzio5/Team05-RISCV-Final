@@ -1,5 +1,5 @@
 `include "include/ControlTypeDefs.svh"
-module AluEncodeD(
+module AluEncode(
   input  InstructionTypes    iInstructionType,
   input  InstructionSubTypes iInstructionSubType,
 

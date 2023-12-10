@@ -1,23 +1,39 @@
-module FPipelineRegister (
-    input  logic        iCLk,
+module FPipelineRegisterD(
+    input  logic        iClk,
     input  logic        iStallD,
-    input  logic [31:0] iRDF,
-    input  logic [31:0] iPCPlus4F,
+    input  logic        iFlushD,
 
-    output logic [31:0] oInstrD,
-    output logic [31:0] oPCPlus4D
+    input  logic [31:0] iInstructionF,
+    input  logic [31:0] iPCF,
+    input  logic        iTakeJBF,
+
+    output logic [31:0] oInstructionD,
+    output logic [31:0] oPCD,
+    output logic        oTakeJBD
 );
-    always_ff @ (posedge iClk) begin 
-        if(iStallD==0) begin
-                oInstrD <= iRDF;
-                oPCPlus4D <= iPCPlus4F;
-            end
+
+    initial begin
+        oInstructionD = 32'b0;
+        oPCD = 32'b0;
+        oTakeJBD = 1'b0;
     end
 
-    always_comb begin
-        if(iStallD) begin
-            oInstrD = iRDF;
-            oPCPlus4D = iPCPlus4F;
+    always_ff @ (posedge iClk) begin 
+
+        if (iFlushD) begin
+            // Reset the outputs when the pipeline is flushed
+            oInstructionD <= 32'b0;
+            oPCD          <= 32'b0;
+            oTakeJBD      <= 1'b0;
+        end 
+        
+        else if (!iStallD) begin
+            // Update the outputs with new values when not stalled
+            oInstructionD <= iInstructionF;
+            oPCD          <= iPCF;
+            oTakeJBD      <= iTakeJBF;
         end
+        // When stalled, retain the current values (no else branch needed)
     end
+    
 endmodule

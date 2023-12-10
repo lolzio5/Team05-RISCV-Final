@@ -1,5 +1,5 @@
 `include "include/ControlTypeDefs.svh"
-module ControlUnitD(
+module ControlUnit(
   input  logic [31:0]        iPC,
   input  logic               iZero,
 
