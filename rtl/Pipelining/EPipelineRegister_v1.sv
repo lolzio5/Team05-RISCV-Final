@@ -1,5 +1,5 @@
 `include "include/ControlTypeDefs.svh"
-module EPipelineRegisterM(
+module EPipelineRegister_v1(
     input   logic               iClk,
 
     input   InstructionTypes    iInstructionTypeE,
