@@ -1,5 +1,4 @@
 module OperandForwarderD(
-  
   input  logic [31:0] iRegData1D,
   input  logic [31:0] iRegData2D,
   input  logic [31:0] iAluResultOutM,
