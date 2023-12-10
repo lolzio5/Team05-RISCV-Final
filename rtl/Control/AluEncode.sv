@@ -13,7 +13,7 @@ module AluEncode(
       IMM_COMPUTATION  : oAluCtrl.IMM_COMPUTATION  = iInstructionSubType.I;
       STORE            : oAluCtrl.IMM_COMPUTATION  = IMM_ADD; 
       LOAD             : oAluCtrl.IMM_COMPUTATION  = IMM_ADD;
-      BRANCH           : oAluCtrl.REG_COMPUTATION  = SUB;                   //Sub in order to compare registers
+      BRANCH           : oAluCtrl.REG_COMPUTATION  = 4'b1111;        //Comparator now compares reg
       JUMP             : oAluCtrl.NULL = 4'b1111;
       UPPER            : oAluCtrl.NULL = 4'b1111;
       default          : oAluCtrl.NULL = 4'b1111;
