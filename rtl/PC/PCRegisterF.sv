@@ -42,7 +42,11 @@ module PCRegisterF (
 
   always_ff @ (posedge iClk or posedge iRst) begin 
     if      (iRst)       oPC <= {32{1'b0}};
+<<<<<<< Updated upstream:rtl/PC/PCRegisterF.sv
     else if (!iStallF)    oPC <= PCNext;
+=======
+    else if (!StallF)    oPC <= PCNext;
+>>>>>>> Stashed changes:rtl/PC/PCRegister.sv
   end
 
 

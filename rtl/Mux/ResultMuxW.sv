@@ -1,9 +1,17 @@
 module ResultMuxW(
+<<<<<<< Updated upstream
   input  logic [2:0]  iResultSrcW,
   input  logic [31:0] iMemDataOutW,
   input  logic [31:0] iAluResultW,
   input  logic [31:0] iPCW,
   input  logic [31:0] iUpperImmW,
+=======
+  input  logic [ 2:0] iResultSrc,
+  input  logic [31:0] iMemDataOut,
+  input  logic [31:0] iAluResult,
+  input  logic [31:0] iPC,
+  input  logic [31:0] iUpperImm,
+>>>>>>> Stashed changes
 
   output logic [31:0] oRegDataInW
 );
