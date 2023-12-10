@@ -1,5 +1,5 @@
 `include "include/ControlTypeDefs/svh"
-module FPipelineRegister(
+module FPipelineRegister_v1(
     input  logic        iClk,
     input  logic        iStallD,
     input  logic        iFlushD,
