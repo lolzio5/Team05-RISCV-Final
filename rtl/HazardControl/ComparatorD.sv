@@ -12,7 +12,7 @@ module ComparatorD(
 
 always_comb begin
 
-  case(iInstructionTypeD) :
+  case(iInstructionTypeD)
 
     BRANCH : begin
 
@@ -22,13 +22,13 @@ always_comb begin
 
           if      (iRegData1D == iRegData2D & iTakeJBD == 1'b0) begin // If registers are equal and we didnt take the branch
             oPCSrcD    = 1'b1;
-            oFlushD    = 1'b1; //note that flushd = pcsrcd
+            oFlushD    = 1'b0; //note that flushd = pcsrcd
             oRecoverPC = 1'b0; 
           end 
 
           else if (iRegData1D != iRegData2D & iTakeJBD == 1'b1) begin // If registers aren't equal and we did take the branch
             oPCSrcD    = 1'b1;
-            oFlushD    = 1'b1;
+            oFlushD    = 1'b0;
             oRecoverPC = 1'b1; //If we have branched when we were not supposed to -> must recover PC of instruction after BEQ
           end
 
@@ -44,13 +44,13 @@ always_comb begin
 
           if      (iRegData1D != iRegData2D & iTakeJBD == 1'b0) begin // If registers arent equal and we didnt take the branch
             oPCSrcD    = 1'b1;
-            oFlushD    = 1'b1;
+            oFlushD    = 1'b0;
             oRecoverPC = 1'b0;
           end 
 
           else if (iRegData1D == iRegData2D & iTakeJBD == 1'b1) begin // If registers are equal and we did take the branch
             oPCSrcD    = 1'b1;
-            oFlushD    = 1'b1;
+            oFlushD    = 1'b0;
             oRecoverPC = 1'b1;
           end
 
@@ -75,7 +75,7 @@ always_comb begin
 
       case(iJBTypeD)
 
-        JALR : begin
+        JUMP_LINK_REG : begin
           oPCSrcD    = 1'b1;
           oFlushD    = 1'b1;
           oRecoverPC = 1'b0;
