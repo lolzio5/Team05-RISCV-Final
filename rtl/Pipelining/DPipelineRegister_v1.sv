@@ -1,6 +1,6 @@
 `include "include/ControlTypeDefs.svh"
 
-module DPipelineRegisterE(
+module DPipelineRegister_v1(
     input   logic                   iClk,
     input   logic                   iFlushE,
 
