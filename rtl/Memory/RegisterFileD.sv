@@ -22,17 +22,19 @@ module RegisterFileD #(
 
 
 //////////////////////////////////////////////
-////     Asynchronous Read Operation      ////
+////     Synchronous Read Operation      ////
 //////////////////////////////////////////////
 
-    //Read Register Operation -> Async ( may need to be made sync - write on rising edge, read on falling edge to avoid data hazards)
     always_comb begin 
         ram_array[0] = {DATA_WIDTH{1'b0}}; // Wire register 0 to constant 0
+    end
 
-        oRegData1 = ram_array[iReadAddress1];
-        oRegData2 = ram_array[iReadAddress2];
+    //Read on negative edge to allow data in writeback stage to be written
+    always_ff @ (negedge iClk) begin
+        oRegData1 <= ram_array[iReadAddress1];
+        oRegData2 <= ram_array[iReadAddress2];
 
-        oRega0    = ram_array[5'd10];      // Output Register a0
+        oRega0    <= ram_array[5'd10];      // Output Register a0
     end
 
 
