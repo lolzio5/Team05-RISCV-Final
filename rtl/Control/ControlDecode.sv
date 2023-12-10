@@ -5,7 +5,6 @@ module ControlDecode(
   input  logic               iZero,
 
   output logic    [2:0]      oResultSrc,
-  output logic               oPCSrc,
   output logic               oAluSrc,
   output logic               oRegWrite,
   output logic               oMemWrite
@@ -20,7 +19,6 @@ module ControlDecode(
     //Initialise Output Signals
     oRegWrite   = 1'b0;
     oAluSrc     = 1'b0;
-    oPCSrc      = 1'b0;
     oResultSrc  = 3'b000;
     oMemWrite   = 1'b0;
 
@@ -48,9 +46,9 @@ module ControlDecode(
           oResultSrc = 3'b011;
         end
 
+        //Add Upper Immediate
         else begin
-          oResultSrc = 3'b100; //Data written to register will come from the PC adder
-          oPCSrc     = 1'b0;  //PC increments by 4
+          oResultSrc = 3'b100; //Data written to register will come from the result selector 
         end
       end
 
@@ -62,24 +60,13 @@ module ControlDecode(
 
 
       JUMP   : begin
-        oPCSrc     = 1'b1;
         oResultSrc = 3'b010;  //Store PC + 4 to destination reg
         oRegWrite  = 1'b1;    //Since we write PC+4 to destination for JAL
-      end
-
-
-      BRANCH : begin
-        case(iInstructionSubType)
-          BNE     : oPCSrc   = ~iZero;  //iZero = 1 -> regs are equal -> thus branch if iZero = 0 (not equal) 
-          BEQ     : oPCSrc   = iZero;
-          default : oPCSrc   = 1'b0;
-        endcase
       end
 
       default : begin
         oRegWrite   = 1'b0;
         oAluSrc     = 1'b0;
-        oPCSrc      = 1'b0;
         oResultSrc  = 3'b000;
         oMemWrite   = 1'b0;
       end
