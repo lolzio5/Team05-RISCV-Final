@@ -1,4 +1,4 @@
-module MPipelineRegisterW(
+module MPipelineRegister_v1(
     input   logic        iClk,
     input   logic [31:0] iPCM,
     input   logic [31:0] iImmExtM,
