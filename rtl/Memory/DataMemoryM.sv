@@ -35,8 +35,8 @@ module DataMemoryM #(
 ////     Read/Write Data Flip Flop  ////
 ////////////////////////////////////////
 
-    //Write or Read data on falling edge of clk
-    always_ff @(negedge iClk) begin
+    //Write or Read data on rising edge of clk
+    always_ff @(posedge iClk) begin
         if (iWriteEn) mem_array[word_aligned_address] <= mem_cell;
         else          oMemData                        <= mem_data;
     
