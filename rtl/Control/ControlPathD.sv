@@ -10,7 +10,6 @@ module ControlPathD(
   output logic [ 3:0]        oAluControl,  
   output logic [ 2:0]        oResultSrc,
   output logic               oAluSrc,
-  output logic               oPCSrc,
   output logic               oMemWrite,
   output logic               oRegWrite,  
   
@@ -101,7 +100,6 @@ ControlDecode ControlSignalDecoder(
   .iInstructionSubType(instruction_sub_type),
   .iZero(iZero),
   .oResultSrc(oResultSrc),
-  .oPCSrc(oPCSrc),
   .oAluSrc(oAluSrc),
   .oRegWrite(oRegWrite),
   .oMemWrite(oMemWrite)
