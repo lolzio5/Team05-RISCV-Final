@@ -56,17 +56,6 @@ module top(
         .oTakeJBD(take_branch_d)
     );
 
-    FPipelineRegisterD PipelineRegister1(
-        .iCLk(iClk),
-        .iStallD(stall_d),
-        .iFlushD(flush_d),
-        .iInstructionF(instruction_f),
-        .iPCF(pc_f),
-        .iTakeJBF(take_jb_f),
-        .oInstructionD(instruction_d),
-        .oPCD(pc_d),
-        .oTakeJBD(take_branch_d)
-    );
 
 
 //--------DECODE PIPELINE REGISTER---------------------
@@ -178,15 +167,8 @@ module top(
 
         .iReadAddress1(rs1_d),
         .iReadAddress2(rs2_d),
-<<<<<<< Updated upstream
         .iWriteAddress(rd_w),
-
         .iDataIn(reg_data_in_w),
-=======
-        .iWriteAddress(rd_d),
-
-        .iDataIn(reg_data_in),
->>>>>>> Stashed changes
         .iWriteEn(reg_write_en_w),
 
         .oRegData1(reg_data_out1_d),
@@ -292,14 +274,11 @@ module top(
 
     logic [ 1:0] alu_op1_select;
     logic [ 1:0] alu_op2_select;
-<<<<<<< Updated upstream
-/* verilator lint_off UNUSED */
-    logic        zero_e;
-/* verilator lint_off UNUSED */
-=======
 
+/* verilator lint_off UNUSED */
     logic        zero_e;
->>>>>>> Stashed changes
+/* verilator lint_off UNUSED */
+
     logic        flush_e;
 
 
@@ -364,13 +343,8 @@ module top(
     logic [31:0] imm_ext_m;
 
     logic [31:0] alu_result_m;
-<<<<<<< Updated upstream
     logic [ 2:0] result_src_m;
-=======
-    logic [ 3:0] alu_control_m;
-    logic [ 2:0] result_src_m;
-    logic        alu_src_m;    
->>>>>>> Stashed changes
+
 
     logic [ 4:0] rd_m;
     logic        reg_write_en_m;
@@ -385,11 +359,7 @@ module top(
 /////////////////////////////////
 
 
-<<<<<<< Updated upstream
     DataMemoryM DataMemory(
-=======
-    DataMemory DataMemory(
->>>>>>> Stashed changes
         .iClk(iClk),
         .iWriteEn(mem_write_en_m),
         .iInstructionType(instruction_type_m),
@@ -429,10 +399,8 @@ module top(
     logic [31:0] alu_result_w;
     logic [ 4:0] rd_w;
     logic [ 2:0] result_src_w;
-<<<<<<< Updated upstream
     logic        reg_write_en_w;
-=======
->>>>>>> Stashed changes
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -440,21 +408,12 @@ module top(
 //////////////////////////////////////////////////////////////////////////////////////
 
     ResultMuxW ResultSelector(
-<<<<<<< Updated upstream
         .iResultSrcW(result_src_w),
         .iMemDataOutW(mem_data_out_w),
         .iAluResultW(alu_result_w),
         .iPCW(pc_w),
         .iUpperImmW(imm_ext_w),
         .oRegDataInW(reg_data_in_w)
-=======
-        .iResultSrc(result_src_w),
-        .iMemDataOut(mem_data_out_w),
-        .iAluResult(alu_result_w),
-        .iPC(pc_w),
-        .iUpperImm(imm_ext_w),
-        .oRegDataIn(reg_data_in_w)
->>>>>>> Stashed changes
     );  
 
 endmodule
