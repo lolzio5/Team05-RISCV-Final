@@ -21,7 +21,7 @@ module HazardUnit (
 
   output logic [1:0]     oForwardAluOp1E,
   output logic [1:0]     oForwardAluOp2E,
-  output logic           oForward
+  output logic           oForwardRegOffsetD,
   output logic           oForwardCompOp1D,
   output logic           oForwardCompOp2D,
   output logic           oStallF,
@@ -36,8 +36,8 @@ module HazardUnit (
 
   always_comb begin
     
-    oForwardAluOp1     = 2'b00;
-    oForwardAluOp2     = 2'b00;
+    oForwardAluOp1E    = 2'b00;
+    oForwardAluOp2E    = 2'b00;
     oForwardCompOp1D   = 1'b0;
     oForwardCompOp2D   = 1'b0;
     oForwardRegOffsetD = 1'b0;
@@ -104,14 +104,14 @@ module HazardUnit (
     //-------------------- Handle RAW Data Hazard Due To Other Instructions-----------------
 
     //If destination register in memory stage is the same as source1 register in execution stage
-    if      (iSrcReg1E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg1E) oForwardAluOp1 = 2'b01;    //Forward data in memory stage to execution stage
-    else if (iSrcReg1E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg1E) oForwardAluOp1 = 2'b10;    //Forward writeback value to execution stage
-    else                                                                oForwardAluOp1 = 2'b00;    //If there is no data dependancy hazard for source register 1
+    if      (iSrcReg1E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg1E) oForwardAluOp1E = 2'b01;    //Forward data in memory stage to execution stage
+    else if (iSrcReg1E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg1E) oForwardAluOp1E = 2'b10;    //Forward writeback value to execution stage
+    else                                                                oForwardAluOp1E = 2'b00;    //If there is no data dependancy hazard for source register 1
 
     //If destination register in memory stage is the same as source2 register in execution stage
-    if      (iSrcReg2E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg2E) oForwardAluOp2 = 2'b01;     //Forward data in memory stage to execution stage
-    else if (iSrcReg2E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg2E) oForwardAluOp2 = 2'b10;     //Forward writeback value to execution stage
-    else                                                                oForwardAluOp2 = 2'b00;     //If there is no data dependancy hazard for source register 2
+    if      (iSrcReg2E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg2E) oForwardAluOp2E = 2'b01;     //Forward data in memory stage to execution stage
+    else if (iSrcReg2E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg2E) oForwardAluOp2E = 2'b10;     //Forward writeback value to execution stage
+    else                                                                oForwardAluOp2E = 2'b00;     //If there is no data dependancy hazard for source register 2
 
 
 
