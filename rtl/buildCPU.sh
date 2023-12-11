@@ -4,6 +4,11 @@
 rm -rf obj_dir
 rm -f top.vcd
 
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <program_filename>"
+    exit 1
+fi
+
 # run Verilator to translate Verilog into C++, including C++ testbench
 verilator -Wall --cc --trace --top-module top -I./include ./Mux/*.sv  ./Control/*.sv  ./Memory/*.sv  ./PC/*.sv ./Alu/*.sv top.sv --exe top_tb.cpp
 
@@ -11,4 +16,4 @@ verilator -Wall --cc --trace --top-module top -I./include ./Mux/*.sv  ./Control/
 make -j -C obj_dir/ -f Vtop.mk Vtop
 
 #run executable simulation file
-obj_dir/Vtop
+obj_dir/Vtop "$1"

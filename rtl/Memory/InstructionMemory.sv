@@ -19,11 +19,10 @@ module InstructionMemory #(
 ////     Load Instructions Into ROM       ////
 //////////////////////////////////////////////
 
-  initial begin
+  function void load_program(string file_name);
           $display("Loading ROM");
-          $readmemh("F1.hex", rom_array);
-  end;
-
+          $readmemh(file_name, rom_array);
+  endfunction
 
 //////////////////////////////////////////////
 ////   Read Instruction Word From ROM     ////

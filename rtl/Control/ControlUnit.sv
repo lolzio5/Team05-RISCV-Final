@@ -2,9 +2,10 @@
 module ControlUnit(
   input  logic [31:0]        iPC,
   input  logic               iZero,
+  input  string              iFileName,
 
   output InstructionTypes    oInstructionType,
-  output InstructionSubTypes oInstructionSubType
+  output InstructionSubTypes oInstructionSubType,
 
   output logic [31:0]        oImmExt,
   output logic               oRegWrite,
@@ -17,7 +18,7 @@ module ControlUnit(
 
   output logic [ 4:0]        oRs1,
   output logic [ 4:0]        oRs2,
-  output logic [ 4:0]        oRd,
+  output logic [ 4:0]        oRd
 );
 
 ////////////////////////////////
@@ -36,7 +37,9 @@ module ControlUnit(
     .oInstruction(current_instruction)
   );
 
-
+initial begin
+    InstructionMem.load_program(iFileName);
+end
 ////////////////////////////////
 ////      Control Path      ////
 ////////////////////////////////
@@ -57,7 +60,6 @@ module ControlUnit(
     .oInstructionType(oInstructionType),
     .oInstructionSubType(oInstructionSubType)
   );
-
 
 endmodule
 

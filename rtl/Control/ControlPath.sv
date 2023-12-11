@@ -4,19 +4,19 @@ module ControlPath (
   input  logic               iZero,
 
   output InstructionTypes    oInstructionType,
-  output InstructionSubTypes oInstructionSubType
+  output InstructionSubTypes oInstructionSubType,
   output logic [31:0]        oImmExt,
 
-  output logic [ 3:0]        oAluControl,  
-  output logic [ 2:0]        oResultSrc,
+  output logic [3:0]         oAluControl,  
+  output logic [2:0]         oResultSrc,
   output logic               oAluSrc,
   output logic               oPCSrc,
   output logic               oMemWrite,
   output logic               oRegWrite,  
   
-  output logic [ 4:0]        oRs1,
-  output logic [ 4:0]        oRs2,
-  output logic [ 4:0]        oRd,
+  output logic [4:0]        oRs1,
+  output logic [4:0]        oRs2,
+  output logic [4:0]        oRd
 );
 
 /////////////////////////////////////////////////////////

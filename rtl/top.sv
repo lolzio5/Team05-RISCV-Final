@@ -2,6 +2,7 @@
 module top(
     input  logic         iClk,         // Clock input
     input  logic         iRst,         // Reset Signal
+    input  string        iFileName,    // File to be loaded into InstructionMemory
 
     output logic [31:0]  oRega0        // Output Register a0
 );
@@ -53,6 +54,7 @@ module top(
     ControlUnit ControlUnit(
         .iPC(pc),
         .iZero(zero), 
+        .iFileName(iFileName),
         .oImmExt(imm_ext),
         .oRegWrite(reg_write_en),
         .oMemWrite(mem_write_en),

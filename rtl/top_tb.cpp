@@ -1,6 +1,9 @@
 #include "verilated.h"
 #include "verilated_vcd_c.h"
 #include "Vtop.h"
+#include "vbuddy.cpp"
+#include <string>
+#include <iostream>
 
 int main(int argc, char **argv, char **env) {
     int simcyc;     // simulation clock count
@@ -10,6 +13,20 @@ int main(int argc, char **argv, char **env) {
     // init top verilog instance
     Vtop* top = new Vtop;
 
+    // Retrieve and load the program to be loaded into instruction memory
+    std::string programFileName = argv[1];
+    top->iFileName = programFileName;
+
+    // init Vbuddy
+    if (vbdOpen()!=1) return(-1);
+
+    // Display the name of the program
+    std::string programName;
+    size_t lastDot = programFileName.find_last_of(".");
+    std::cout<<lastDot<<std::endl;
+    programName = programFileName.substr(0,lastDot);
+    vbdHeader(programName.c_str());
+    
     // init trace dump
     Verilated::traceEverOn(true);
     VerilatedVcdC* tfp = new VerilatedVcdC;
@@ -21,7 +38,7 @@ int main(int argc, char **argv, char **env) {
     top->iRst = 0;
 
     // run simulation for MAX_SIM_CYC clock cycles
-    for (simcyc=0; simcyc<300; simcyc++) 
+    for (simcyc=0; simcyc<1000000; simcyc++) 
     {
         // dump variables into VCD file and toggle clock
         for (tick=0; tick<2; tick++) 
@@ -31,9 +48,12 @@ int main(int argc, char **argv, char **env) {
             top->eval ();
         }
 
-        if (Verilated::gotFinish()) exit(0);
-    }
+        vbdBar(top->oRega0);
+        vbdCycle(simcyc);
 
+        if (Verilated::gotFinish() || vbdGetkey()=='q') exit(0);
+    }
+    vbdClose();
     tfp->close(); 
     printf("Exiting\n");
     exit(0);
