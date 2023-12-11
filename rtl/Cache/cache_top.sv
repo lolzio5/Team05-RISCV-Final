@@ -14,6 +14,10 @@ logic [3:0]  FlushIndex,
 logic [31:0] CData;
 logic CValid,
 logic hit;
+logic [31:0] MainMemoryData;
+logic [31:0] MainMemoryAdress;
+logic ReadMainMemory;
+
 
 cache_decode cache_decode(
     .iAddress(iAddress),
@@ -26,10 +30,15 @@ cache_decode cache_decode(
 cache cache(
     .iCLK(iClk),
     .iIndex(AIndex),
+    .iFlush(iFlush),
+    .iAddress(iAddress),
+    .iFlushAddress(FlushIndex),
+    .iMainMemoryData(MainMemoryData),
+    .oMainMemoryAdress(MainMemoryAdress)
+    .oReadMainMemory(ReadMainMemory),
     .oTag(CTag),
     .oV(CValid),
     .oData(CData)
-
 );
 
 findhit findhit(
