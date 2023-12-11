@@ -19,7 +19,6 @@ module DPipelineRegisterE(
     input   logic [ 4:0]            iRdD,
     input   logic                   iRegWriteEnD,
     input   logic                   iMemWriteEnD,
-
     output  InstructionTypes    oInstructionTypeE,
     output  InstructionSubTypes oInstructionSubTypeE,
     output  logic [31:0]        oPCE,

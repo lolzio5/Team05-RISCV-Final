@@ -26,13 +26,16 @@ module RegisterFileD #(
 //////////////////////////////////////////////
 
     always_comb begin 
-        ram_array[0] = {DATA_WIDTH{1'b0}}; // Wire register 0 to constant 0
+        ram_array[0] = {32{1'b0}}; // Wire register 0 to constant 0
     end
 
     //Read on negative edge to allow data in writeback stage to be written
     always_ff @ (negedge iClk) begin
-        oRegData1 <= ram_array[iReadAddress1];
-        oRegData2 <= ram_array[iReadAddress2];
+        if (iReadAddress1 != 5'b0 ) oRegData1 <= ram_array[iReadAddress1];
+        else                         oRegData1 <= 32'b0;
+
+        if (iReadAddress2 != 5'b0)  oRegData2 <= ram_array[iReadAddress2];
+        else                         oRegData2 <= 32'b0;
 
         oRega0    <= ram_array[5'd10];      // Output Register a0
     end
@@ -43,8 +46,8 @@ module RegisterFileD #(
 //////////////////////////////////////////////
 
     //Write to register on positive edge of clk - needec for pipeline architecture when data dependancies occur
-    always_ff @ (posedge iClk) begin
-        if(iWriteEn == 1'b1) ram_array[iWriteAddress] <= iDataIn;
+    always_ff @ (posedge iClk, posedge iWriteEn) begin
+        if(iWriteEn == 1'b1 & iWriteAddress != 5'b0) ram_array[iWriteAddress] <= iDataIn;
     end
 
 

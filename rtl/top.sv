@@ -28,6 +28,7 @@ module top(
         .iTargetPC(target_pc_d),
         .iBranchTarget(jb_target),
         .iStallF(stall_f),
+        .iRecoverPC(recover_pc_d),
         .oPC(pc_f)
     );
 
@@ -51,11 +52,12 @@ module top(
         .iInstructionF(instruction_f),
         .iPCF(pc_f),
         .iTakeJBF(take_jb_f),
+        .iRecoverPCD(recover_pc_d),
         .oInstructionD(instruction_d),
         .oPCD(pc_d),
+        .oRecoverPC(recover_pc_e),
         .oTakeJBD(take_branch_d)
     );
-
 
 
 //--------DECODE PIPELINE REGISTER---------------------
@@ -152,7 +154,7 @@ module top(
         .iInstructionSubType(instruction_sub_type_d),
 
         .iRegOffset(reg_jump_offset_d),
-        .iRecoverPCD(recover_pc_d),
+        .iRecoverPCD(recover_pc_d | recover_pc_e),
         .oPCTarget(target_pc_d)
     );
 
@@ -168,6 +170,7 @@ module top(
         .iReadAddress1(rs1_d),
         .iReadAddress2(rs2_d),
         .iWriteAddress(rd_w),
+
         .iDataIn(reg_data_in_w),
         .iWriteEn(reg_write_en_w),
 
@@ -222,7 +225,6 @@ module top(
         .iResultSrcD(result_src_d),  
         .iAluControlD(alu_control_d),
         .iAluSrcD(alu_src_d),
-
         .iRegDataOut1D(reg_data_out1_d),
         .iRegDataOut2D(reg_data_out2_d),
         .iRs1D(rs1_d),
@@ -239,7 +241,6 @@ module top(
         .oResultSrcE(result_src_e),  
         .oAluControlE(alu_control_e),
         .oAluSrcE(alu_src_e),
-
         .oRegDataOut1E(reg_data_out1_e),
         .oRegDataOut2E(reg_data_out2_e),
         .oRs1E(rs1_e),
@@ -265,7 +266,7 @@ module top(
     logic [3:0]  alu_control_e;    
     logic [2:0]  result_src_e;
     logic        alu_src_e;    
-
+    logic        recover_pc_e;
     logic [31:0] mem_data_in_e;
     logic        mem_write_en_e;
 
@@ -274,11 +275,9 @@ module top(
 
     logic [ 1:0] alu_op1_select;
     logic [ 1:0] alu_op2_select;
-
 /* verilator lint_off UNUSED */
     logic        zero_e;
 /* verilator lint_off UNUSED */
-
     logic        flush_e;
 
 
@@ -315,6 +314,7 @@ module top(
 
     EPipelineRegisterM PipelineRegister3(
         .iClk(iClk),
+        //.iFlushE(flush_e),
         .iInstructionTypeE(instruction_type_e),
         .iInstructionSubTypeE(instruction_sub_type_e),
         .iPCE(pc_e),
@@ -344,7 +344,6 @@ module top(
 
     logic [31:0] alu_result_m;
     logic [ 2:0] result_src_m;
-
 
     logic [ 4:0] rd_m;
     logic        reg_write_en_m;
@@ -400,7 +399,6 @@ module top(
     logic [ 4:0] rd_w;
     logic [ 2:0] result_src_w;
     logic        reg_write_en_w;
-
 
 
 //////////////////////////////////////////////////////////////////////////////////////

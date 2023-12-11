@@ -16,10 +16,9 @@ module JumpBranchHandlerF(
       oJBTarget  = branch_target; 
     end
 
-    else if (iInstructionF[6:0] == 7'd103) begin
+    else if (iInstructionF[6:0] == 7'd111) begin
       oTakeJBF  = 1'b1;
       oJBTarget = iPCF + {{12{iInstructionF[31]}}, iInstructionF[19:12], iInstructionF[20], iInstructionF[30:21], 1'b0};
-
     end
 
     else begin

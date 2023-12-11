@@ -4,6 +4,9 @@ module PCRegisterF (
     input  logic         iStallF,
     input  logic         iPCSrcF,
     input  logic         iPCSrcD,
+    /* verilator lint_off UNUSED */
+    input  logic         iRecoverPC,
+    /* verilator lint_off UNUSED */
     input  logic [31:0]  iTargetPC,
     input  logic [31:0]  iBranchTarget,
     
@@ -41,12 +44,8 @@ module PCRegisterF (
 //////////////////////////////////////////////////
 
   always_ff @ (posedge iClk or posedge iRst) begin 
-    if      (iRst)       oPC <= {32{1'b0}};
-<<<<<<< Updated upstream:rtl/PC/PCRegisterF.sv
-    else if (!iStallF)    oPC <= PCNext;
-=======
-    else if (!StallF)    oPC <= PCNext;
->>>>>>> Stashed changes:rtl/PC/PCRegister.sv
+    if      (iRst)                     oPC <= {32{1'b0}};
+    else if (!iStallF )    oPC <= PCNext;
   end
 
 

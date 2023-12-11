@@ -1,7 +1,7 @@
 `include "include/ControlTypeDefs.svh"
 module EPipelineRegisterM(
     input   logic               iClk,
-
+    //input   logic               iFlushE,
     input   InstructionTypes    iInstructionTypeE,
     input   InstructionSubTypes iInstructionSubTypeE,
     input   logic [31:0]        iPCE,
@@ -28,16 +28,33 @@ module EPipelineRegisterM(
 );
 
     always_ff @ (posedge iClk) begin 
-        oInstructionTypeM    <= iInstructionTypeE;
-        oInstructionSubTypeM <= iInstructionSubTypeE;
-        oPCM                 <= iPCE;
-        oImmExtM             <= iImmExtE;
-        oAluOutM             <= iAluOutE;
-        oMemDataInM          <= iMemDataInE;
-        oDestRegM            <= iDestRegE;
-        oResultSrcM          <= iResultSrcE;
-        oRegWriteEnM         <= iRegWriteEnE;
-        oMemWriteEnM         <= iMemWriteEnE;
+
+        /*if (iFlushE) begin
+            oInstructionTypeM    <= NULLINS;
+            oInstructionSubTypeM.NULL <= 4'b1111;
+            oPCM                 <= 32'b0;
+            oImmExtM             <= 32'b0;
+            oAluOutM             <= 32'b0;
+            oMemDataInM          <= 32'b0;
+            oDestRegM            <= 5'b0;
+            oResultSrcM          <= 3'b0;
+            oRegWriteEnM         <= 1'b0;
+            oMemWriteEnM         <= 1'b0;
+        end*/
+
+        //else begin
+            oInstructionTypeM    <= iInstructionTypeE;
+            oInstructionSubTypeM <= iInstructionSubTypeE;
+            oPCM                 <= iPCE;
+            oImmExtM             <= iImmExtE;
+            oAluOutM             <= iAluOutE;
+            oMemDataInM          <= iMemDataInE;
+            oDestRegM            <= iDestRegE;
+            oResultSrcM          <= iResultSrcE;
+            oRegWriteEnM         <= iRegWriteEnE;
+            oMemWriteEnM         <= iMemWriteEnE;
+        //end
+
     end
     
 endmodule
