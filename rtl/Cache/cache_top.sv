@@ -47,13 +47,4 @@ findhit findhit(
     .iTagTarget(ATag),
     .oHit(hit)
 );
-
-DataMemory DataMemory(
-    .iClk(iClk),
-    .iWriteEn(mem_write_en),
-    .iInstructionType(instruction_type),
-    .iMemoryInstructionType(instruction_sub_type), 
-    .iAddress(alu_result),
-    .iMemData(mem_data_in),
-    .oMemData(mem_data_out)
-);
+endmodule
