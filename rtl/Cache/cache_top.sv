@@ -10,13 +10,15 @@ module cahe_top(
 logic [25:0] ATag;
 logic [25:0] CTag
 logic [3:0]  AIndex;
+logic [3:0]  FlushIndex,
 logic [31:0] CData;
 logic CValid,
 logic hit;
 
 cache_decode cache_decode(
-    .iClk(iClk),
     .iAddress(iAddress),
+    .iFlushAddress(iFlushAddress),
+    .oIndexFlush(FlushIndex),
     .oTag(ATag),
     .oIndex(AIndex)
 );
@@ -35,4 +37,14 @@ findhit findhit(
     .iTagCache(CTag),
     .iTagTarget(ATag),
     .oHit(hit)
+);
+
+DataMemory DataMemory(
+    .iClk(iClk),
+    .iWriteEn(mem_write_en),
+    .iInstructionType(instruction_type),
+    .iMemoryInstructionType(instruction_sub_type), 
+    .iAddress(alu_result),
+    .iMemData(mem_data_in),
+    .oMemData(mem_data_out)
 );
