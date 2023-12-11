@@ -33,12 +33,12 @@ module cache #(
 
     always_comb begin
         oReadMainMemory <= 0;
-        if (iHit==1)begin //hit
+        if (iHit==1)begin
             always_ff @(posedge iClk) begin
                 oData<=data_cache_array[iIndex];
             end
         end
-        else begin //miss
+        else begin
             oMainMemoryAdress <= iAddress;
             oReadMainMemory <= 1;
             always_ff @(posedge iClk) begin
@@ -47,7 +47,6 @@ module cache #(
                 valid_cache_array[iIndex]<=1;
                 data_cache_array[iIndex];
             end
-            //write to cache
         end  
 end
 endmodule

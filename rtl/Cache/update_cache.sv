@@ -23,10 +23,10 @@ module cache #(
     end
 
     always_comb begin
-    if (iFlush==1) begin
+        if (iFlush==1) begin
         valid_cache_array[]
+        end
     end
-end
 
 
 end 

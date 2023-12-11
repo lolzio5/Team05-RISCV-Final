@@ -1,4 +1,4 @@
-module cahe_top(
+module cache_top(
     input  logic         iClk,     
     input  logic         iRst, 
     input  logic         iFlush,
