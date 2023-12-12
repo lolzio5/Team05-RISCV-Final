@@ -755,6 +755,73 @@ If `iRecoverPCD` is set, it returns `iPCD + 4`, effectively recovering the origi
 
 ## (2.1) Data Memory
 
+>**Description :** The Data Memory module consists of a memory array `mem_array` with a size of $32 \text{ x }(2^{x} - 1)$, accommodating addresses from `0x10000` to `0x1FFFF` as specified by the reference program. In the case of loading data into memory from a file, the data memory assumes a little endian byte addressable memory architecture.
+
+### Module Specification
+
+**Table 2.1.1: Module Parameters and I/O**
+
+| Parameter/IO               | Type                | Description                                                    |
+|----------------------------|---------------------|----------------------------------------------------------------|
+| `DATA_WIDTH`               | Parameter           | Width of the data bus, default is 32 bits.                     |
+| `iClk`                     | Input               | System clock signal.                                           |
+| `iWriteEn`                 | Input               | Write enable signal.                                           |
+| `iInstructionType`         | Input               | Type of the current instruction.                               |
+| `iMemoryInstructionType`   | Input               | Subtype of the memory instruction.                             |
+| `iAddress`                 | Input               | Memory address for read/write operations.                      |
+| `iMemData`                 | Input               | Data to be written to memory.                                  |
+| `oMemData`                 | Output              | Data read from memory.                                         |
+
+---
+
+<br>
+
+### Internal Memory Configuration
+
+Additional internal signals are used to temporarily carry memory signals to ease process of determining what data has to be loaded/stored.
+
+**Table 2: Internal Memory Configuration**
+
+| Element                | Description                                                  |
+|------------------------|--------------------------------------------------------------|
+| `mem_array`            | An array representing RAM, where each element is 32 bits.    |
+| `mem_cell`             | Data stored at the currently accessed memory location.       |
+| `mem_data`             | Data to be outputted based on the read operation.            |
+| `word_aligned_address` | Adjusted memory address, aligned to word boundaries.         |
+| `byte_offset`          | Byte offset within the word-aligned address.                 |
+
+---
+
+<br>
+
+### Operational Logic
+
+#### Read/Write Operations
+
+The module performs read or write operations on the rising edge of `iClk`. 
+
+1. **Write Operation**: 
+   - If `iWriteEn` is high, the data (`mem_cell`) is written to `mem_array` at the address specified by `word_aligned_address`.
+
+2. **Read Operation**: 
+   - If `iWriteEn` is low, `oMemData` is set to the value of `mem_data`, which contains the data read from the memory.
+
+<br>
+
+#### Address and Data Handling
+
+The module calculates the word-aligned address and byte offset for any given memory address. It then constructs the `mem_cell` by combining bytes from `mem_array` based on this calculated address.
+
+<br>
+
+#### Instruction-Specific Logic
+
+The module uses `iInstructionType` and `iMemoryInstructionType` to determine the appropriate action for LOAD and STORE instructions, handling different sizes (byte, half-word, word) and types (signed, unsigned) of data.
+
+---
+
+<br>
+
 ## (2.2) Instruction Memory
 
 ## (2.3) Result Mux
