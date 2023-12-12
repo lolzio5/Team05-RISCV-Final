@@ -3,7 +3,6 @@
 #include "Vtop.h"
 #include "vbuddy.cpp"
 #include <string>
-#include <iostream>
 
 int main(int argc, char **argv, char **env) {
     int simcyc;     // simulation clock count
@@ -23,7 +22,6 @@ int main(int argc, char **argv, char **env) {
     // Display the name of the program
     std::string programName;
     size_t lastDot = programFileName.find_last_of(".");
-    std::cout<<lastDot<<std::endl;
     programName = programFileName.substr(0,lastDot);
     vbdHeader(programName.c_str());
     
