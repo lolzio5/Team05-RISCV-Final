@@ -59,7 +59,10 @@ oZero: Indicates whether the result is zero.
 ## Register <a name="register"></a>
 
 ## Processor Diagram <a name="diagram"></a>
+As the processor got more complicated and we deviated from the supplied diagram it became much more difficult to understand how each of our modules linked together. To help with this I created this diagram to show how the modules interfaced with each other on a high level. This diagram shows how individual modules of the single cycle processor before the addition of pipelining and cache should be connected.
 
+
+![](HLv0.6.png)
 ## Top File <a name="top"></a>
 
 ## Assembly <a name="assembly"></a>
