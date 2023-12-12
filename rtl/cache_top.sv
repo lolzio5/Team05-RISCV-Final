@@ -32,6 +32,7 @@ cache cache(
     .iIndex(AIndex),
     .iFlush(iFlush),
     .iAddress(iAddress),
+    .iHit(hit),
     .iFlushAddress(FlushIndex),
     .iMainMemoryData(MainMemoryData),
     .oMainMemoryAdress(MainMemoryAdress),

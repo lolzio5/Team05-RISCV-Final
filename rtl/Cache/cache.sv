@@ -5,7 +5,8 @@ module cache #(
     input logic iCLK,
     input logic [INDEX_WIDTH-1:0] iIndex,
     input logic  iFlush,
-    input logic  iAddress,
+    input logic  [31:0] iAddress,
+    input logic iHit,
     input logic  [INDEX_WIDTH-1:0] iFlushAddress,
     input logic [DATA_WIDTH-1:0] iMainMemoryData,
     output logic [31:0] oMainMemoryAdress,
@@ -25,9 +26,9 @@ module cache #(
 
     always_comb begin
 
-        oTag <= tag_cache_array[iIndex];
-        oV <= valid_cache_array[iIndex];
-        oData <= data_cache_array[iIndex];
+        oTag = tag_cache_array[iIndex];
+        oV = valid_cache_array[iIndex];
+        oData = data_cache_array[iIndex];
         
     end
 //////////////////////////////////////////////
@@ -36,18 +37,17 @@ module cache #(
     always_comb begin
         if (iFlush==1) begin
 
-            valid_cache_array[iFlushAddress] = 0;
+            valid_cache_array[iFlushAddress] <= 0;
         end
     end
 //////////////////////////////////////////////
 ////         hit/miss handling            ////
 //////////////////////////////////////////////
-    always_comb begin
+    always_ff @(negedge iCLK) begin
         oReadMainMemory <= 0;
-        if (iHit==1)begin
-            oData<=data_cache_array[iIndex];
+        if (iHit==1)begin 
             //always_ff @(posedge iClk) begin
-                
+            oData = data_cache_array[iIndex];   
             //end
 
         end
@@ -57,7 +57,7 @@ module cache #(
             oReadMainMemory <= 1;
             //always_ff @(posedge iClk) begin
 
-            oData<=iMainMemoryData;
+            oData=iMainMemoryData;
             tag_cache_array[iIndex]<=iAddress[31:6];
             valid_cache_array[iIndex]<=1;
             data_cache_array[iIndex]<=iMainMemoryData;
