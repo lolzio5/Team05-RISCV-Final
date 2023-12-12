@@ -1,10 +1,10 @@
 module cache_top(
-    input  logic         iClk,     
-    input  logic         iRst, 
-    input  logic         iFlush,
-    input logic [31:0]   iFlushAddress,
+    input  logic         iClk,
+    input logic          iWriteEn,
+    input logic          iInstructionType,
+    input logic          iMemoryInstructionType,     
     input logic [31:0]   iAddress,
-    output logic [31:0]  oData  
+    output logic [31:0]  oMemData  
 );
 
 logic [25:0] ATag;
@@ -17,8 +17,22 @@ logic hit;
 logic [31:0] MainMemoryData;
 logic [31:0] MainMemoryAdress;
 logic ReadMainMemory;
+logic iFlush;
+logic [31:0] iFlushAddress;
+logic [31:0] tData;
 
+always_comb begin
 
+    if (iWriteEn==1) begin
+        iFlush <= 1;
+        iFlushAddress <= iAddress;
+    end
+        
+end
+
+always_ff @(negedge iClk) begin
+    oData=tData;
+end
 cache_decode cache_decode(
     .iAddress(iAddress),
     .iFlushAddress(iFlushAddress),
@@ -39,7 +53,11 @@ cache cache(
     .oReadMainMemory(ReadMainMemory),
     .oTag(CTag),
     .oV(CValid),
-    .oData(CData)
+    .oData(tData)
+);
+
+DataMemory DataMemory(
+    
 );
 
 findhit findhit(
