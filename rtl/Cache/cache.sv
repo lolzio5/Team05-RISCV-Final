@@ -34,10 +34,10 @@ module cache #(
 ////         Logic to flush cache         ////
 //////////////////////////////////////////////
     always_comb begin
-    if (iFlush==1) begin
+        if (iFlush==1) begin
 
-        valid_cache_array[iFlushAddress] = 0;
-
+            valid_cache_array[iFlushAddress] = 0;
+        end
     end
 //////////////////////////////////////////////
 ////         hit/miss handling            ////
@@ -45,24 +45,24 @@ module cache #(
     always_comb begin
         oReadMainMemory <= 0;
         if (iHit==1)begin
-
-            always_ff @(posedge iClk) begin
-                oData<=data_cache_array[iIndex];
-            end
+            oData<=data_cache_array[iIndex];
+            //always_ff @(posedge iClk) begin
+                
+            //end
 
         end
 
         else begin
             oMainMemoryAdress <= iAddress;
             oReadMainMemory <= 1;
-            always_ff @(posedge iClk) begin
+            //always_ff @(posedge iClk) begin
 
-                oData<=iMainMemoryData;
-                tag_cache_array[iIndex]<=iAddress[31:6];
-                valid_cache_array[iIndex]<=1;
-                data_cache_array[iIndex];
+            oData<=iMainMemoryData;
+            tag_cache_array[iIndex]<=iAddress[31:6];
+            valid_cache_array[iIndex]<=1;
+            data_cache_array[iIndex]<=iMainMemoryData;
 
-            end
+            //end
         end  
-end
+    end
 endmodule
