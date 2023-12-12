@@ -1,8 +1,7 @@
 # RISC-V RV32I Processor Coursework
 ___
 # Personal Statement of Contributions
-## _Lolézio Viora Marquet_
-## November - December 2023
+### _Lolézio Viora Marquet November-December 2023_
 <br>
 ___
 # Table of contents
