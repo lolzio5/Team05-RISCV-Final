@@ -18,7 +18,7 @@ Sam Barber - Team 5: Risk V 32i Processor Project
 The ALU module is module designed to perform various arithmetic and logical operations on two input operands based on a control signal. It supports a variety of operations including addition, subtraction, left shift, right shift (logical and arithmetic), set less than, set less than (unsigned), XOR, OR, and AND. The module is parameterized to allow customisation of the operation and data width.
 
 
-Dima and I worked together to determind what instuctions where required and how they would be impliamented by the ALU and Control Path. Below is a table showing the various control input for the ALU from the Control unit:
+Dima and I worked together to determind what instuctions where required and how they would be impliamented by the ALU and Control Path. Below is a table showing the various control inputs for the ALU from the Control unit:
 
 <br>
 
@@ -64,6 +64,8 @@ As the processor got more complicated and we deviated from the supplied diagram 
 
 ![](HLv0.6.png)
 ## Top File <a name="top"></a>
+
+My contribution to the top file was to impliament all the modules I wrote into the top file. Along with altering the top file to resolve errors found after I created the high level diagram above.
 
 ## Assembly <a name="assembly"></a>
 
