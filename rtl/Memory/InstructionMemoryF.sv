@@ -21,7 +21,7 @@ module InstructionMemoryF #(
 
   initial begin
           $display("Loading ROM");
-          $readmemh("F1.s.hex", rom_array);
+          $readmemh("pdf.hex", rom_array);
   end;
 
 
