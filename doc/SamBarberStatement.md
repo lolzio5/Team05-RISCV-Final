@@ -10,7 +10,6 @@ Sam Barber - Team 5: Risk V 32i Processor Project
 5. [Assembly](#assembly)
 6. [Cache](#cache)
 7. [Conclusion and Reflection](#conclusion)
-8. [Fish](#fish)
 
 
 
@@ -69,7 +68,4 @@ oZero: Indicates whether the result is zero.
 
 ## Conculsion and Reflection <a name="conclusion"></a>
 
-<marquee direction="left" scrollamount="1200" width="100%">
-    <img src="https://pngfre.com/wp-content/uploads/fish-44.png" alt="no">
-</marquee>
-<a name="fish"></a>
+
