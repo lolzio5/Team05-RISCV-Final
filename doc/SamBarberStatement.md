@@ -9,7 +9,11 @@ Sam Barber - Team 5: Risk V 32i Processor Project
 4. [Top File](#top)
 5. [Assembly](#assembly)
 6. [Cache](#cache)
-7. [Conclusion and Reflection](#conclusion)
+     - [Hit decetion](#hit)
+     - [Miss handling](#miss)
+     - [Decode Module](#decode)
+     - [Flushing](#flushing)
+8. [Conclusion and Reflection](#conclusion)
 
 
 
