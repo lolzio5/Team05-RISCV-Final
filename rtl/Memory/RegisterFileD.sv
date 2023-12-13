@@ -19,18 +19,37 @@ module RegisterFileD #(
 //////////////////////////////////////////////
 
     logic [DATA_WIDTH-1:0] ram_array [0:2**ADDRESS_WIDTH-1];
-
+    logic [31:0] data_out1;
+    logic [31:0] data_out2;
 
 //////////////////////////////////////////////
 ////     Synchronous Read Operation      ////
 //////////////////////////////////////////////
 
-    always_comb begin 
-        ram_array[0] = {32{1'b0}}; // Wire register 0 to constant 0
+    always_comb begin
+        ram_array[0] = {32{1'b0}}; // Wire register 0 to constant 0 
+
+        data_out1 = ram_array[iReadAddress1];
+        data_out2 = ram_array[iReadAddress2];
+
+        if (iWriteAddress == iReadAddress1 & iWriteAddress != 5'b0 & iWriteEn) data_out1 = iDataIn;
+        else if (iWriteAddress == iReadAddress2 & iWriteAddress != 5'b0 & iWriteEn) data_out2 = iDataIn;
     end
 
+    always_ff@ (posedge iClk, posedge iWriteEn) begin
+        if(iWriteEn & iWriteAddress != 5'b0) ram_array[iWriteAddress] <= iDataIn;
+    end
+
+    always_ff @ (negedge iClk) begin 
+        oRega0 <= ram_array[5'd10];
+        oRegData1 <= data_out1;
+        oRegData2 <= data_out2;
+    end
+
+
+
     //Read on negative edge to allow data in writeback stage to be written
-    always_ff @ (negedge iClk) begin
+   /* always_ff @ (negedge iClk) begin
         if (iReadAddress1 != 5'b0 ) oRegData1 <= ram_array[iReadAddress1];
         else                         oRegData1 <= 32'b0;
 
@@ -38,7 +57,7 @@ module RegisterFileD #(
         else                         oRegData2 <= 32'b0;
 
         oRega0    <= ram_array[5'd10];      // Output Register a0
-    end
+    end*/
 
 
 //////////////////////////////////////////////
@@ -46,9 +65,10 @@ module RegisterFileD #(
 //////////////////////////////////////////////
 
     //Write to register on positive edge of clk - needec for pipeline architecture when data dependancies occur
-    always_ff @ (posedge iClk, posedge iWriteEn) begin
-        if(iWriteEn == 1'b1 & iWriteAddress != 5'b0) ram_array[iWriteAddress] <= iDataIn;
-    end
+    /*always_latch begin
+        if(iWriteEn & iWriteAddress != 5'b0) ram_array[iWriteAddress] = iDataIn;
+    end*/
+
 
 
 endmodule
