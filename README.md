@@ -21,13 +21,54 @@
 <br>
 
 # (1) Directory Information
-Directory Organisation Information
+
+
+
+## (1.0) Repository Branch Descriptions : 
+
+The tables below describes the usage of various branches for development and deployment purposes
+
+
+**Table(1.0.1) :** Assessed/Deployment Repository Branches
+
+---
+| Branch |  Purpose | Verified Functionality |
+|----------|-------------|----------|
+| Single-Cycle-CPU  | Holds the files corresponding to the Single Cycle implementation of the CPU  |  Fully Tested and Verified|
+| Pipelined-CPU    | Holds the files corresponding to the Pipelined version of the CPU that implements static branch prediction and hazard handling | Majority Tested and Verified|
+|  Cache_And_Pipeline   | Holds the files corresponding to the Pipelined CPU with an additional Data Cache Impelmentation | Partly Tested and Verified| 
+| main    | Holds repository information | |
+
+---
+
+<br>
+
+**Table(1.0.2) :** Development Purpose Repository Branches
+
+---
+| Branch |  Purpose | Verified Functionality |
+|----------|-------------|----------|
+| Control-Unit  | Holds the files corresponding to the Single Cycle implementation of the CPU  |  Fully Tested and Verified|
+| control-unit   | Holds the files corresponding to the Pipelined version of the CPU that implements static branch prediction and hazard handling | Majority Tested and Verified|
+|  compiling-solution   | Holds the files corresponding to the Pipelined CPU with an additional Data Cache Impelmentation | Partly Tested and Verified| 
+| Pipeline-Architecture-Dev    | Holds repository information | |
+
+---
+
+
+## (1.1) Directory Organisation : 
+
+```
+-rtl
+--Control
+```
+
 
 # (2) Design Process
 
-## (2.1) Task Allocation
+## (2.0) Task Allocation
 
-### (2.1.1) Single Cycle CPU
+### (2.0.1) Single Cycle CPU
  #### **Arithmetic Logic Unit** 
  - Sam Barber 
 
@@ -47,14 +88,212 @@ Directory Organisation Information
 
  #### **Testing**
 
+<br>
+
+## (2.1) Design Principles
+
+The driving design principles throughout the development of components for the Single Cycle CPU and the Pipelined CPU were the following :
+
+>- **Modularity** : Components were broken down into specialised units that performed a singluar or a limited set of tasks
+
+>- **Ease of intergration and development** : The ability to easily integrate sub modules together was always a key consideration during design and development
+
+>- **Transparency of operation** : The ability to easily interpret and understand the operation of modules and sub-modules was the main consideration when implementing them. The implications of this approach on the efficiency and cost of the design is explored in *Limitations*
+
+<br>
+
 ## (2.2) Style and Naming
-Content for the Installing subsection...
+
+In order to allow quick and clear development, naming conventions and styles were upheld throughout the design and development of modules. The naming conventions and styles used in this project are listed below
+
+**Table (2.2.1)** : Style and Naming Conventions
+
+---
+| Subject |  Style/Naming Guide | Example |
+|----------|-------------|----------|
+| Module Names   | CamelCase and Pipeline Stage Identifier Suffix (To indicate in which pipeline stage the module operates $(F,D,E,M,W)$)  |  `ControlPathD` - Control Path Module in the Decode Stage|
+| Input Signals     | CamelCase, Input Identifier Pre-Fix and Optional Pipeline Stage Operation Suffix |   `iInstructionTypeE` - An input of Instruction type from the execution stage  <br> `iClk` - Clock signal input|
+| Output Signals    | CamelCase, Output Identifier Pre-Fix and Optional Pipeline Stage Operation Suffix  | `oRecoverPC` - Output Flag to Indicate Incorrect Branch <br> `oTakeJBD` - Output Flag into the Decode stage to indicate that a jump/branch has been taken  | 
+| Internal Logic Signals    | Snake case with a Pipeline Stage Identifier Suffix (only in top sheet) | `instruction_type_e` - Type of Instruction Executing in the Execute Stage <br> `reg_data_in_w` - Data Written Back Into Register File From the Write-Back Stage | 
+| Pipeline Register Naming| CamelCase with a Pipeline Stage Identifier Prefix and Suffix| `DPipelineRegisterE` - Pipeline Register Taking Signals From Decode Stage and Outputing Them Into The Execution Stage |
+
+---
 
 ## (2.3) Note On Custom Logic Types
 
-## (2.4) Design Principles
+To increase the readability of modules and make their operation more transparent and understandable, frequently used control and data signals were encoded into custom logic types using enums and unions. 
+
+These logic types are defined in the 'ControlTypeDefs.svh' file that is included in each module that utilises the respective logic types - shown in **Listing (1.2.1)**.
+
+**Listing (2.3.1)** : Include header example
+
+```verilog
+`include "include/ControlTypeDefs.svh" //Include Header
+```
 
 <br>
+
+**Table (2.3.1)** Shows the definition of the enum InstructionTypes. This enum was used to store the type of instruction executing as decoded by the control unit. Using this enum made the modules easier to understand as the viewer could easily tell what specific instruction would trigger a given set of outputs. 
+
+**Table (2.3.2)** : Enum - InstructionTypes Definition
+
+---
+| InstructionTypes[3:0] |  Enum Value | Note |
+|----------|-------------|----------|
+| BRANCH   | 0000  | **Branch Instruction** (b-type)|
+| LOAD     | 0001 | **Load Instruction** (i-type) |
+| STORE    | 0010 | **Store Instruction** (s-type) | 
+| UPPER    | 0011 | **Upper Instruction** (u-type)| 
+| IMM_COMPUTATION | 0100 | **Register-Immediate Computation** : An instruction that performs logical/arithmetic operations on an immediate and register value | 
+| REG_COMPUTATION | 0101 | **Register-Register Computation** : An instruction that performs logical/arithmetic operations on two register values  | 
+| JUMP    | 0110 | **Jump Insturction** (j-type) | 
+| NULLINS | 1111 | **NULL** : Used to represent 'no-instruction'. Helps determine when the decoding of a given isntruction word has failed |
+---
+
+<br>
+
+
+To further classify a given instruction, a union InstructionSubType was implemented. At any given time, this union would take on the value of an enum type representing the specific instruction sub type. The definition of the 'TypeR' enum is shown in **Table (2.3.4)** as example. For the case of an r-type class of instructions, the InstructionSubTypes union would take on the enum value of the specific r-type instruction.
+
+<br>
+
+**Table (2.3.3)** : Enum - TypeR Definition
+
+---
+| TypeR[3:0] |  Enum Value | Note |
+|----------|-------------|----------|
+| ADD   | 0000  | **Register Addition** |
+| SUB   | 0001 | **Register Subtraction** |
+| SHIFT_LEFT_LOGICAL | 0010 | **Logical Shift Left** | 
+| SET_LESS_THAN      | 0011 | **Set Less Than** | 
+| USET_LESS_THAN     | 0100 | **Set Less Than Unsigned** |
+| XOR | 0101 | **Bit-Wise XOR of Register Operands** | 
+| SHIFT_RIGHT_LOGICAL | 0110 | **Logical Shift Right**  | 
+| SHIFT_RIGHT_ARITHMETIC    | 0111 | **Arithmetic Shift Right** | 
+| OR | 1000 |**Bit-Wise OR of Register Operands** |
+| AND    | 1001 | **Bit-Wise AND of Register Operands** | 
+| NULL_R    | 1111 |  **NULL** : Used to represent 'no-instruction'. Helps determine when the decoding of a given isntruction word has failed | 
+---
+
+<br>
+
+
+**Table (2.3.4)** : Union - InstructionSubTypes Definition
+
+---
+| InstructionSubTypes[3:0] | Value |
+|----------|----------|
+| TypeR    | **Register-Register Instruction Type** |
+| TypeI    | **Register-Immediate Instruction Type** |
+| TypeU    | **Upper Instruction Type** | 
+| TypeS    | **Store Instruction Type** | 
+| TypeJ    | **Jump Instruction Type** |
+| TypeB    | **Branch Instruction Type** | 
+| NULL     | **NULL :** Helps determine when decoding the instruction sub type has failed  |  
+---
+
+<br>
+
+**Listing(2.3.2) :** Example of instruction type and sub type assignment in InstructionDecode module given the instructin OpCode, funct3 and funct7 values
+
+```verilog
+  TypeR r_type;
+  TypeI i_type;
+  TypeU u_type;
+  TypeS s_type;
+  TypeJ j_type;
+  TypeB b_type;
+
+  InstructionTypes instruction_type;
+
+always_comb begin
+  case(iOpCode)
+
+      7'd51 : begin
+        instruction_type = REG_COMMPUTATION;
+        
+        i_type = NULL_I;
+        u_type = NULL_U;
+        s_type = NULL_S;
+        j_type = NULL_J;
+        b_type = NULL_B;
+        
+        case(iFunct3)
+
+          3'b000  : begin
+            if      (iFunct7 == 7'b0000000) r_type = ADD;
+            else if (iFunct7 == 7'b0100000) r_type = SUB;
+            else                            r_type = NULL_R;
+          end
+
+          3'b001  : r_type = SHIFT_LEFT_LOGICAL;
+          3'b010  : r_type = SET_LESS_THAN;
+          3'b011  : r_type = USET_LESS_THAN;
+          3'b100  : r_type = XOR;
+          
+          3'b101  : begin
+            if      (iFunct7 == 7'b0000000) r_type = SHIFT_RIGHT_LOGICAL;
+            else if (iFunct7 == 7'b0100000) r_type = SHIFT_RIGHT_ARITHMETIC  ;
+            else                            r_type = NULL_R;
+          end
+
+          3'b110  : r_type = OR;
+          3'b111  : r_type = AND;    
+
+        endcase
+      end
+
+  endcase
+end
+```
+
+<br>
+
+**Listing(2.3.4) :** Example usage of InstructionTypes enum and InstructionSubTypes union in producing control signals
+
+```verilog
+  always_comb begin
+
+    //Initialise Output Signals
+    oRegWrite   = 1'b0;
+    oAluSrc     = 1'b0;
+    oPCSrc      = 1'b0;
+    oResultSrc  = 3'b000;
+    oMemWrite   = 1'b0;
+
+    case(iInstructionType)
+
+      REG_COMMPUTATION : oRegWrite = 1'b1;
+
+
+      IMM_COMPUTATION  : begin
+        oRegWrite = 1'b1;
+        oAluSrc   = 1'b1;
+      end
+
+
+      LOAD   : begin
+        oRegWrite  = 1'b1;
+        oResultSrc = 3'b001;
+      end
+
+
+      UPPER  : begin
+        if (iInstructionSubType == LOAD_UPPER_IMM) begin
+          oRegWrite  = 1'b1;
+          oAluSrc    = 1'b1;
+          oResultSrc = 3'b011;
+        end
+
+        else begin
+          oResultSrc = 3'b100;  //Data written to register will come from the PC adder
+          oPCSrc     = 1'b0;    //PC increments by 4
+        end
+      end
+```
+
+<br>
+
 
 ---
 
@@ -63,10 +302,31 @@ Content for the Installing subsection...
 # (3) About The CPU
 
 ## (3.1) Overview
-Content for the Basic Usage subsection...
+
+**Table(3.1.1) :** Implemented Instructions
+
+---
+| Instruction Type | Implemented Instructions|
+|------------------|-------------------------|
+| R-Type | Add, Sub <br> Logical Shift Left <br> Set Less Than, Set Less Than Unsigned <br> XOR <br> Shift Right Logical, Shift Right Arithmetic <br> OR  <br> AND  |
+| I-Type | Load Byte, Load Half, Load Word <br> Load Byte Unsigned, Load Half Unsigned <br> Add Immediate <br> Logical Shift Left Immediate <br> Set Less Than Immediate, Set Less Than Immediate Unsigned <br> XOR Immediate <br> Shift Right Logical Immediate, Shift Right Arithmetic Immediate <br> OR Immediate <br> AND Immediate|
+| U-Type | Load Upper Immediate <br> Add Upper Immediate PC |
+| S-Type | Store Byte, Store Half, Store Word <br> Store Byte Unsigned, Store Half Unsigned|
+| J-Type | Jump And Link <br> Jump And Link Register| 
+| B-Type | Branch Equal To <br> Branch Not Equal To|
+
+---
+
+<br>
+
+> *The decision to leave out the other branch instructions was made to reduce the complexity of the CPU. If accurate implementations of other branch instructions were to be made, like BGE, the use of additional flags that indicate arithmetic overflow may have been needed to determine the branch condition outcome.*
+
+---
+
+<br>
+
 
 ## (3.2) Single Cycle Architecture
-Content for the Advanced Features subsection...
 
 ## (3.3) Pipelined Architecture
 
