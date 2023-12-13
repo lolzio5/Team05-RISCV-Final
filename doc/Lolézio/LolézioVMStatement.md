@@ -292,7 +292,47 @@ Since the same testbench is used for any program, the header on the screen of Vb
 ___
 
 ## 7 - Pipelining
-### fs
+<br>
+Pipelining requires the implementation of 4 different registers, in between the Fetch, Decode, Execute, Memory and Write stages of the processor. Since they all have different outputs and inputs, I created 4 different files, and connected them all in the Top file in between the modules they are connected to. 
+<br>
+
+### Fetch Pipeline Register [FPipelineRegisterD.sv](FPipelineRegisterD.sv)
+This file was designed to take in the values from the fetch stage, such as the current PC value, and output them in the next cycle. Due to how Dima Askarov designed the Hazard Handling unit, there must be a possibility to flush, or stall this register, which means the following logic was implemented:
+
+| FlushD | StallD | Outputs to the Decode stage |
+|--------|--------|-----------------------------|
+|   0    |    0   |     Fetch stage Values      |
+|   1    |    0   |            All 0            |
+|   0    |    1   | Previous Fetch stage Values |
+|   1    |    1   | Previous Fetch stage Values |
+
+The stall is important as the pipeline was designed to automatically take Jumps backwards. If this turns out to be the wrong choice, then a stall must be call, so the correct PC value is not lost.
+
+<br>
+
+### Decode Pipeline Register [DPipelineRegisterE.sv](DPipelineRegisterE.sv)
+This file takes in the values from the Decode stage, and outputs them to the Execute stage a clock cycle later. While it has significantly more inputs than in the previous stage, as it includes all the signals from the Control Unit, the logic is simpler, as no stall was necessary to implement here (since at this stage, jumping logic would have been rectified). The logic is as follows:
+
+<br>
+
+| FlushE | Outputs to the Execute stage |
+|--------|------------------------------|
+|   0    |     Decode stage Values      |
+|   1    |         All default          |
+
+<br>
+
+### Execute Pipeline Register [EPipelineRegisterM.sv](EPipelineRegisterM.sv)
+This file takes in the values from the Decode stage, and outputs them to the Execute stage a clock cycle later. Here, no flushing or stalling is required, significantly simplifying the logic, as the module simply set the outputs to the same value as the inputs on the rising edge of the clock.
+
+<br>
+This is because, at this stage, all hazards have been handled, and so the values being passed through can always be handled.
+
+### Memory Pipeline Register [MPipelineRegisterW.sv](MPipelineRegisterW.sv)
+Very similarly to the Execute Pipeline Register above, this file takes in the values from the Memory stage, and outputs them to the Write stage a clock cycle later. Here, no flushing or stalling is required, significantly simplifying the logic, as the module simply set the outputs to the same value as the inputs on the rising edge of the clock.
+
+<br>
+This is because, at this stage, all hazards have been handled, and so the values being passed through can always be handled.
 
 ___
 
