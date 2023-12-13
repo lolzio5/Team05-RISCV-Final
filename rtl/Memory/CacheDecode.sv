@@ -1,4 +1,4 @@
-module cache_decode (
+module CacheDecode (
     input  logic [31:0] iAddress,
     input logic [31:0] iFlushAddress,
     output logic [3:0] oIndexFlush,

@@ -1,4 +1,4 @@
-module cache #(
+module Cache #(
     parameter  INDEX_WIDTH = 4,
                DATA_WIDTH =32
 )(
@@ -8,9 +8,6 @@ module cache #(
     input logic  [31:0] iAddress,
     input logic iHit,
     input logic  [INDEX_WIDTH-1:0] iFlushAddress,
-    input logic [DATA_WIDTH-1:0] iMainMemoryData,
-    output logic [31:0] oMainMemoryAdress,
-    output logic oReadMainMemory,
     output logic [25:0] oTag,
     output logic oV,
     output logic [DATA_WIDTH-1:0]    oData
@@ -43,18 +40,9 @@ module cache #(
 ////         hit/miss handling            ////
 //////////////////////////////////////////////
     always_ff @(negedge iCLK) begin
-        oReadMainMemory <= 0;
         if (iHit==1)begin 
             oData = data_cache_array[iIndex];   
 
         end
-        else begin
-            oMainMemoryAdress <= iAddress;
-            oReadMainMemory <= 1;
-            oData=iMainMemoryData;
-            tag_cache_array[iIndex]<=iAddress[31:6];
-            valid_cache_array[iIndex]<=1;
-            data_cache_array[iIndex]<=iMainMemoryData;
-        end  
     end
 endmodule

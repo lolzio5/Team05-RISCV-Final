@@ -1,4 +1,4 @@
-module findhit (
+module FindHit (
     input  logic iV,
     input  logic [25:0]  iTagCache,
     input  logic [25:0]  iTagTarget,

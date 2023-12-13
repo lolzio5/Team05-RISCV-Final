@@ -1,9 +1,10 @@
 `include "include/ControlTypeDefs.svh"
 
-module cache_top(
+module DataMemoryController #(
+    parameter DATA_WIDTH = 32
+ )(
     input  logic         iClk,
     input logic          iWriteEn,
-    input logic          iInstructionType,
     input InstructionTypes  iMemoryInstructionType, 
     input  InstructionTypes          iInstructionType,   
     input logic [31:0]   iAddress,
@@ -27,6 +28,49 @@ logic [31:0] cData;
 logic [31:0] mData;
 logic [31:0] word_aligned_address;
 logic [1:0] byte_offset;
+logic [7:0] byte1;
+logic [7:0] byte2;
+logic [7:0] byte3;
+logic [7:0] byte4;
+
+CacheDecode CacheDecode(
+    .iAddress(iAddress),
+    .iFlushAddress(iFlushAddress),
+    .oIndexFlush(FlushIndex),
+    .oTag(ATag),
+    .oIndex(AIndex)
+);
+
+Cache Cache(
+    .iCLK(iClk),
+    .iIndex(AIndex),
+    .iFlush(iWriteEn),
+    .iAddress(iAddress),
+    .iHit(hit),
+    .iFlushAddress(FlushIndex),
+    .oTag(CTag),
+    .oV(CValid),
+    .oData(cData)
+);
+
+DataMemoryM DataMemoryM(
+    .iClk(iClk),
+    .iWriteEn(iWriteEn),
+    .iInstructionType(iInstructionType),
+    .iMemoryInstructionType(iMemoryInstructionType), 
+    .iAddress(iAddress),
+    .iMemData(iM),
+    .oMemData(mData)
+);
+
+
+FindHit FindHit(
+    .iV(CValid),
+    .iTagCache(CTag),
+    .iTagTarget(ATag),
+    .iWriteEn(iWriteEn),
+    .oHit(hit)
+);
 
 always_comb begin
 
@@ -108,51 +152,8 @@ always_comb begin
             default : oMemData = {byte4, byte3, byte2, byte1};
         endcase
     end
-    else (iWriteEn==0) begin
+    else if (iWriteEn==0) begin
         oMemData<=mData;
-    end
-        
+    end   
 end
-
-cache_decode cache_decode(
-    .iAddress(iAddress),
-    .iFlushAddress(iFlushAddress),
-    .oIndexFlush(FlushIndex),
-    .oTag(ATag),
-    .oIndex(AIndex)
-);
-
-cache cache(
-    .iCLK(iClk),
-    .iIndex(AIndex),
-    .iFlush(iWriteEn),
-    .iAddress(iAddress),
-    .iHit(hit),
-    .iFlushAddress(FlushIndex),
-    .iMainMemoryData(MainMemoryData),
-    .oMainMemoryAdress(MainMemoryAdress),
-    .oReadMainMemory(ReadMainMemory),
-    .oTag(CTag),
-    .oV(CValid),
-    .oData(cData)
-);
-
-DataMemoryM DataMemoryM(
-    .iClk(iClk),
-    .iWriteEn(iWriteEn),
-    .iInstructionType(iInstructionType),
-    .iMemoryInstructionType(iMemoryInstructionType), 
-    .iAddress(iAddress),
-    .iMemData(iM),
-    .oMemData(mData)
-);
-
-
-findhit findhit(
-    .iV(CValid),
-    .iTagCache(CTag),
-    .iTagTarget(ATag),
-    .iWriteEn(iWriteEn),
-    .oHit(hit)
-);
 endmodule
