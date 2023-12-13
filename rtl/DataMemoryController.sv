@@ -48,6 +48,7 @@ Cache Cache(
     .iAddress(iAddress),
     .iHit(hit),
     .iFlushAddress(FlushIndex),
+    .iWriteCacheData(mData),
     .oTag(CTag),
     .oV(CValid),
     .oData(cData)
@@ -59,7 +60,7 @@ DataMemoryM DataMemoryM(
     .iInstructionType(iInstructionType),
     .iMemoryInstructionType(iMemoryInstructionType), 
     .iAddress(iAddress),
-    .iMemData(iM),
+    .iMemData(iMemData),
     .oMemData(mData)
 );
 
@@ -75,12 +76,13 @@ FindHit FindHit(
 always_comb begin
 
     if (iWriteEn==1) begin
-        iFlushAddress <= iAddress;
+        iFlushAddress = iAddress;
     end
         
 end
 
-always_comb begin
+//always_comb begin
+always_ff @(negedge iClk) begin
     if (hit==1&&iWriteEn==0) begin
         word_aligned_address = {{iAddress[31:2]}, {2'b00}};                 //Word aligned address -> multiple of 4
         byte_offset          = iAddress[1:0];                               //2 LSBs of iAddress define byte offset within the word
@@ -152,8 +154,9 @@ always_comb begin
             default : oMemData = {byte4, byte3, byte2, byte1};
         endcase
     end
-    else if (iWriteEn==0) begin
-        oMemData<=mData;
+    else begin
+        #2ps
+        oMemData=mData;
     end   
 end
 endmodule

@@ -8,14 +8,13 @@ module DataMemoryM #(
     input  InstructionSubTypes       iMemoryInstructionType,
     input  logic [31:0]              iAddress,        // Write Address
     input  logic [DATA_WIDTH-1:0]    iMemData,        // Write Data
-
     output logic [DATA_WIDTH-1:0]    oMemData         // output
 );
 
 
 
 //////////////////////////////////////////////
-////  Internal Memory, Data and Addresses  ///
+////  Internal Memory, Data and Addresses  ////
 //////////////////////////////////////////////
 
     //RAM Array : Accomodate for Address starting at : 0x10000 to 0x1FFFF
@@ -44,8 +43,8 @@ module DataMemoryM #(
 ////////////////////////////////////////
 
     //Write or Read data on rising edge of clk
-    always_ff @(negedge iClk) begin
-
+    //always_ff @(negedge iClk) begin
+    always_comb begin  
         if (iWriteEn) begin
             mem_array[word_aligned_address + 32'd3][7:0] <= byte4;
             mem_array[word_aligned_address + 32'd2][7:0] <= byte3;
@@ -71,14 +70,16 @@ module DataMemoryM #(
     always_comb begin        
         word_aligned_address = {{iAddress[31:2]}, {2'b00}};                 //Word aligned address -> multiple of 4
         byte_offset          = iAddress[1:0];                               //2 LSBs of iAddress define byte offset within the word
+        
         byte4 =   mem_array[word_aligned_address + 32'd3 ][7:0];
         byte3 =   mem_array[word_aligned_address + 32'd2][7:0];
         byte2 =   mem_array[word_aligned_address + 32'd1][7:0];
         byte1 =   mem_array[word_aligned_address][7:0];
         case (iInstructionType) 
+
             //Write Operation
             STORE : begin
-
+                
                 case (iMemoryInstructionType)
 
                     STORE_BYTE : begin

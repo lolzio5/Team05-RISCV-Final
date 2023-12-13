@@ -30,6 +30,7 @@ module RegisterFileD #(
         ram_array[0] = {32{1'b0}}; // Wire register 0 to constant 0 
 
         data_out1 = ram_array[iReadAddress1];
+        
         data_out2 = ram_array[iReadAddress2];
 
         if (iWriteAddress == iReadAddress1 & iWriteAddress != 5'b0 & iWriteEn) data_out1 = iDataIn;

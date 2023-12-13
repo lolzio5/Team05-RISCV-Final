@@ -7,6 +7,7 @@ module Cache #(
     input logic  iFlush,
     input logic  [31:0] iAddress,
     input logic iHit,
+    input logic [31:0] iWriteCacheData,
     input logic  [INDEX_WIDTH-1:0] iFlushAddress,
     output logic [25:0] oTag,
     output logic oV,
@@ -39,9 +40,16 @@ module Cache #(
 //////////////////////////////////////////////
 ////         hit/miss handling            ////
 //////////////////////////////////////////////
-    always_ff @(negedge iCLK) begin
+    //always_ff @(negedge iCLK) begin
+    always_comb begin
         if (iHit==1)begin 
             oData = data_cache_array[iIndex];   
+
+        end
+        else begin
+            tag_cache_array[iIndex] = iAddress[31:6];
+            valid_cache_array[iIndex] = 1;
+            data_cache_array[iIndex]= iWriteCacheData;
 
         end
     end
