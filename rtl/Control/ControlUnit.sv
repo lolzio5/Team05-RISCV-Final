@@ -1,7 +1,6 @@
 `include "include/ControlTypeDefs.svh"
 module ControlUnit(
   input  logic [31:0]        iPC,
-  input  logic               iZero,
 
   output InstructionTypes    oInstructionType,
   output InstructionSubTypes oInstructionSubType,
@@ -41,9 +40,8 @@ module ControlUnit(
 ////      Control Path      ////
 ////////////////////////////////
 
-  ControlPath ControlPath(
+  ControlPathD ControlPath(
     .iInstruction(current_instruction),
-    .iZero(iZero),
     .oAluControl(oAluControl),
     .oImmExt(oImmExt),
     .oAluSrc(oAluSrc),
