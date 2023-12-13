@@ -37,7 +37,6 @@ module DataMemoryM #(
 
     initial begin
         $readmemh("sine.hex", mem_array, 20'h10000);
-        
     end
 
 ////////////////////////////////////////

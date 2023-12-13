@@ -4,7 +4,7 @@ module ControlUnit(
   input  logic               iZero,
 
   output InstructionTypes    oInstructionType,
-  output InstructionSubTypes oInstructionSubType
+  output InstructionSubTypes oInstructionSubType,
 
   output logic [31:0]        oImmExt,
   output logic               oRegWrite,
@@ -17,7 +17,7 @@ module ControlUnit(
 
   output logic [ 4:0]        oRs1,
   output logic [ 4:0]        oRs2,
-  output logic [ 4:0]        oRd,
+  output logic [ 4:0]        oRd
 );
 
 ////////////////////////////////
@@ -31,7 +31,7 @@ module ControlUnit(
 //// Instruction Memory ROM ////
 ////////////////////////////////
 
-  InstructionMemoryF InstructionMem(
+  InstructionMemory InstructionMem(
     .iPC(iPC),
     .oInstruction(current_instruction)
   );
