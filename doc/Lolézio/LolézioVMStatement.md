@@ -188,14 +188,17 @@ A second modification was to test the functioning of the JAL and JALR instructio
 #### Random Time Part 1: random_time
 <br>
 When a random time must be wasted, the program jumps to random_time. Immediately, it jumps again to random_logic, which outputs a pseudorandom number (see below):
+
 ```
     jal     ra, random_logic
 ```
 This number is then decremented, as before in the C++ code:
+
 ```
     addi    s1, s1, -1
 ```
 If s1 is then equal to 0, a branch is taken, to a new section named End which contains the logic to end the program. Else, continue looping to decrement the pseudorandom number further:
+
 ```
     beq     s1, zero, end
     jalr    x0, ra, 0
@@ -222,9 +225,11 @@ To output a pseudorandom number, this subroutine is called. For easier bitwise o
 <br>
 
 Once a pseudorandom number has been generated, the JALR instruction is used to return to the random_time loop:
+
 ```
     jalr    x0, ra, 0
 ```
+
 Here, the return address is not needed, and so written to the unwritable register x0. No offset is needed, as JAL automatically stores the address of the next line (to prevent infinite loops).
 <br>
 
@@ -262,7 +267,6 @@ For an output counting up to 15, and for a counter of length 15
 <br>
 
 In this way, 15 fewer cycles are needed for an output counting to 15. Setting it to count to 255 would multiply this by 17, meaning 255 more cycles would be needed. This is the most efficient program, because all branches in the (loop, random_time, constant_time) are made to branch forward and not backwards. This means that they do not automatically occur, saving 1 cycle of stalling each time the loop is iterated.
-<br>
 
 ___
 
@@ -284,13 +288,11 @@ To simplify testing, as mentioned before, I automated the process of loading ins
 <br>
 
 Since the same testbench is used for any program, the header on the screen of Vbuddy must also change when the program is changed. The output will always be outputted on the screen and the LEDs. Therefore, I implemented in C++ that the name of the program is automatically displayed on the screen, without the file extension.
-<br>
 
 ___
 
 ## 7 - Pipelining
 ### fs
-<br>
 
 ___
 
@@ -314,7 +316,6 @@ The Shell script also checks for an input filename, to be passed on to the testb
         exit 1
     fi
 ```
-<br>
 
 ___
 
