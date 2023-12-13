@@ -344,11 +344,7 @@ My original implementation of the PC Logic and Data Memory proved to be insuffic
 <br>
 
 The Assembly Program itself could be improved. For example, the pseudorandom binary sequence is of the form:
-<br>
-
-                                                $1 + X^3 + X^4$
-<br>
-
+>$1 + X^3 + X^4$
 This means it repeats every $2^4 -1 = 15$ iterations, and so the sequence only possesses 15 values. For the sake of testing the CPU, this is sufficient, however, should this program be used in a real Formula 1 race, the time would be far too predictable, and a higher order PRBS would be more optimal (which would only cost more registers).
 <br>
 
