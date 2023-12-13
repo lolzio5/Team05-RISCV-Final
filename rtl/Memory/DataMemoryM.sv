@@ -19,10 +19,8 @@ module DataMemoryM #(
 //////////////////////////////////////////////
 
     //RAM Array : Accomodate for Address starting at : 0x10000 to 0x1FFFF
-    logic [31:0] mem_array [2**15 : 0]; 
+    logic [31:0] mem_array [2**17 - 1  : 0]; 
 
-    //Memory Cell - Data stored in memory location we want to access
-    logic [31:0] mem_cell; 
 
     //Holds the data out of memory cell 
     logic [31:0] mem_data;
@@ -31,8 +29,15 @@ module DataMemoryM #(
     logic [31:0] word_aligned_address;
     logic [1:0]  byte_offset;
 
+    //Memory Bytes - Data stored in memory location we want to access
+    logic [7:0] byte1;
+    logic [7:0] byte2;
+    logic [7:0] byte3;
+    logic [7:0] byte4;
+
     initial begin
-        $readmemh("sine.hex", mem_array);
+        $readmemh("sine.hex", mem_array, 20'h10000);
+        
     end
 
 ////////////////////////////////////////
@@ -43,13 +48,13 @@ module DataMemoryM #(
     always_ff @(negedge iClk) begin
 
         if (iWriteEn) begin
-            mem_array[word_aligned_address + 32'd3][7:0] <= mem_cell[31:24];
-            mem_array[word_aligned_address + 32'd2][7:0] <= mem_cell[23:16];
-            mem_array[word_aligned_address + 32'd1][7:0] <= mem_cell[15: 8];
-            mem_array[word_aligned_address][7:0]         <= mem_cell[ 7: 0];
+            mem_array[word_aligned_address + 32'd3][7:0] <= byte4;
+            mem_array[word_aligned_address + 32'd2][7:0] <= byte3;
+            mem_array[word_aligned_address + 32'd1][7:0] <= byte2;
+            mem_array[word_aligned_address][7:0]         <= byte1;
         end
 
-        else          oMemData                        <= mem_data;
+        else             oMemData                        <= mem_data;
     
     end
 
@@ -58,39 +63,73 @@ module DataMemoryM #(
 ////      Internal Signal Initialisation  ///
 /////////////////////////////////////////////
 
-    always_comb begin
-        word_aligned_address = {{iAddress[31:2]}, {2'b00}};                 //Word aligned address -> multiple of 4
-        byte_offset          = iAddress[1:0];                               //2 LSBs of iAddress define byte offset within the word
-        
-        mem_cell             = {    mem_array[word_aligned_address + 32'd3 ][7:0], 
-                                    mem_array[word_aligned_address + 32'd2][7:0], 
-                                    mem_array[word_aligned_address+ 32'd1][7:0], 
-                                    mem_array[word_aligned_address][7:0] 
-                                }; //Init accessed memory cell with data at the word aligned address
-    end
 
 
 /////////////////////////////////////////////////
 ////   Logic to compute what is written/read  ///
 /////////////////////////////////////////////////
 
-    always_comb begin
+    always_comb begin        
+        word_aligned_address = {{iAddress[31:2]}, {2'b00}};                 //Word aligned address -> multiple of 4
+        byte_offset          = iAddress[1:0];                               //2 LSBs of iAddress define byte offset within the word
+        
+        byte4 =   mem_array[word_aligned_address + 32'd3 ][7:0];
+        byte3 =   mem_array[word_aligned_address + 32'd2][7:0];
+        byte2 =   mem_array[word_aligned_address + 32'd1][7:0];
+        byte1 =   mem_array[word_aligned_address][7:0];
         case (iInstructionType) 
 
             //Write Operation
             STORE : begin
+
                 case (iMemoryInstructionType)
 
-                    STORE_BYTE : mem_cell[byte_offset*8 +: 8]  = iMemData[7:0];   // Byte
-                    
-                    STORE_HALF : begin
-                        if (byte_offset == 2'b11) mem_cell[31:16]               = iMemData[15:0];
-                        else                      mem_cell[byte_offset*8 +: 16] = iMemData[15:0];  // Half-word
+                    STORE_BYTE : begin
+                        case (byte_offset) 
+                            2'b00 : byte1 = iMemData[7:0];
+                            2'b01 : byte2 = iMemData[7:0];
+                            2'b10 : byte3 = iMemData[7:0];
+                            2'b11 : byte4 = iMemData[7:0];
+                        endcase
                     end
                     
-                    STORE_WORD : mem_cell                      = iMemData;        // Word
+                    
+                    STORE_HALF : begin
+                        case (byte_offset) 
+                            2'b00 : begin 
+                                byte1 = iMemData[7:0];
+                                byte2 = iMemData[15:8];
+                            end
 
-                    default    : mem_cell                      = iMemData;        // Word
+                            2'b01 : begin
+                                byte2 = iMemData[7:0];
+                                byte3 = iMemData[15:8];
+                            end
+                            2'b10 : begin
+                                byte3 = iMemData[7:0];
+                                byte4 = iMemData[15:8];
+                            end
+                            2'b11 : begin
+                                byte3 = iMemData[7:0];
+                                byte4 = iMemData[15:8];
+                            end
+                        endcase
+                    end
+                    
+                    STORE_WORD : begin
+                        byte4 = iMemData[31:24];
+                        byte3 = iMemData[23:16];
+                        byte2 = iMemData[15:8];
+                        byte1 = iMemData[7:0];
+                    end
+
+                    default    : begin
+                        byte4 = iMemData[31:24];
+                        byte3 = iMemData[23:16];
+                        byte2 = iMemData[15:8];
+                        byte1 = iMemData[7:0];
+                    end
+
                 endcase
             end
 
@@ -99,33 +138,62 @@ module DataMemoryM #(
                 case(iMemoryInstructionType)
 
                     LOAD_BYTE  : begin
-                        mem_data[7:0]  = mem_cell[byte_offset*8 +: 8]; 
+
+                        case (byte_offset) 
+                            2'b00 : mem_data[7:0] = byte1;
+                            2'b01 : mem_data[7:0] = byte2;
+                            2'b10 : mem_data[7:0] = byte3;
+                            2'b11 : mem_data[7:0] = byte4;
+                        endcase
+
                         mem_data[31:8] = {24{mem_data[7]}}; //sign extend
                     end
 
                     LOAD_HALF  : begin
-                        if (byte_offset == 2'b11) mem_data[15:0] = mem_cell[31:16];  
-                        else                      mem_data[15:0] = mem_cell[byte_offset*8 +: 16];
+
+                        case (byte_offset) 
+                            2'b00 : mem_data[15:0] = {byte2, byte1};
+                            2'b01 : mem_data[15:0] = {byte3, byte2};
+                            2'b10 : mem_data[15:0] = {byte4, byte3};
+                            2'b11 : mem_data[15:0] = {byte4, byte3};
+                        endcase
                         
                         mem_data[31:16] = {16{mem_data[15]}}; //sign extend
                     end
 
-                    ULOAD_BYTE : mem_data = {{24{1'b0}}, mem_cell[byte_offset*8 +: 8]}; //Zero extend
-                    
-                    ULOAD_HALF : begin
-                        if (byte_offset == 2'b11) mem_data[15:0] = mem_cell[31:16];  
-                        else                      mem_data[15:0] = mem_cell[byte_offset*8 +: 16];
+                    ULOAD_BYTE : begin            
 
-                        mem_data[31:16] = {16{1'b0}}; //Zero extend
+                        case (byte_offset) 
+                            2'b00 : mem_data[7:0] = byte1;
+                            2'b01 : mem_data[7:0] = byte2;
+                            2'b10 : mem_data[7:0] = byte3;
+                            2'b11 : mem_data[7:0] = byte4;
+                        endcase
+
+                        mem_data[31:8] = {24{1'b0}}; //zero extend
+
                     end
 
-                    LOAD_WORD  : mem_data = mem_cell;               
+                    ULOAD_HALF : begin
 
-                    default    : mem_data = mem_cell; 
+                        case (byte_offset) 
+                            2'b00 : mem_data[15:0] = {byte2, byte1};
+                            2'b01 : mem_data[15:0] = {byte3, byte2};
+                            2'b10 : mem_data[15:0] = {byte4, byte3};
+                            2'b11 : mem_data[15:0] = {byte4, byte3};
+                        endcase
+
+                        mem_data[31:16] = {16{1'b0}}; //Zero extend
+
+                    end
+
+                    LOAD_WORD  : mem_data = {byte4, byte3, byte2, byte1};               
+
+                    default    : mem_data = {byte4, byte3, byte2, byte1};
                 endcase
             end
 
-            default : mem_data = mem_cell;
+            default : mem_data = {byte4, byte3, byte2, byte1};
 
         endcase
     end
