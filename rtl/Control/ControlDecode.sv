@@ -2,7 +2,6 @@
 module ControlDecode(
   input  InstructionTypes    iInstructionType,
   input  InstructionSubTypes iInstructionSubType,
-  input  logic               iZero,
 
   output logic    [2:0]      oResultSrc,
   output logic               oAluSrc,
@@ -36,6 +35,7 @@ module ControlDecode(
       LOAD   : begin
         oRegWrite  = 1'b1;
         oResultSrc = 3'b001;
+        oAluSrc = 1'b1;
       end
 
 

@@ -107,8 +107,14 @@ module HazardUnit (
 
     if (iInstructionTypeE != BRANCH) begin
       //If destination register in memory stage is the same as source1 register in execution stage
-      if      (iSrcReg1E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg1E) oForwardAluOp1E = 2'b01;    //Forward data in memory stage to execution stage
-      else if (iSrcReg1E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg1E) oForwardAluOp1E = 2'b10;    //Forward writeback value to execution stage
+      if      (iSrcReg1E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg1E) begin
+        if (iInstructionTypeM != UPPER) oForwardAluOp1E = 2'b01;
+        else                            oForwardAluOp1E = 2'b11;    //Forward writeback value to execution stage
+      end
+      else if (iSrcReg1E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg1E) begin
+        if (iInstructionTypeM != UPPER) oForwardAluOp1E = 2'b10;
+        else                            oForwardAluOp1E = 2'b11; 
+      end
       else                                                                oForwardAluOp1E = 2'b00;    //If there is no data dependancy hazard for source register 1
 
       //If destination register in memory stage is the same as source2 register in execution stage
