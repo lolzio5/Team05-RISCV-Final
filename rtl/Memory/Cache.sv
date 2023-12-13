@@ -5,20 +5,21 @@ module Cache #(
     input logic iCLK,
     input logic [INDEX_WIDTH-1:0] iIndex,
     input logic  iFlush,
-    input logic  [31:0] iAddress,
+    input logic  [DATA_WIDTH-1:0] iAddress,
     input logic iHit,
-    input logic [31:0] iWriteCacheData,
+    input logic [DATA_WIDTH-1:0] iWriteCacheData,
     input logic  [INDEX_WIDTH-1:0] iFlushAddress,
     output logic [25:0] oTag,
     output logic oV,
-    output logic [DATA_WIDTH-1:0]    oData
+    output logic [DATA_WIDTH-1:0]    oData,
+    output logic [DATA_WIDTH-1:0]    oDatatest
 );
 //////////////////////////////////////////////
 ////           Cache memory               ////
 //////////////////////////////////////////////
 
     //Ram arrays
-    logic [31:0] data_cache_array [0:2**INDEX_WIDTH-1];
+    logic [DATA_WIDTH-1:0] data_cache_array [0:2**INDEX_WIDTH-1];
     logic valid_cache_array [0:2**INDEX_WIDTH-1];
     logic [25:0] tag_cache_array [0:2**INDEX_WIDTH-1];
 
@@ -33,6 +34,7 @@ module Cache #(
 ////         Logic to flush cache         ////
 //////////////////////////////////////////////
     always_comb begin
+    //always_ff @(negedge iCLK) begin
         if (iFlush==1) begin
             valid_cache_array[iFlushAddress] <= 0;
         end
@@ -50,7 +52,7 @@ module Cache #(
             tag_cache_array[iIndex] = iAddress[31:6];
             valid_cache_array[iIndex] = 1;
             data_cache_array[iIndex]= iWriteCacheData;
-
+            oDatatest=data_cache_array[iIndex];
         end
     end
 endmodule

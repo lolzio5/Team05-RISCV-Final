@@ -43,17 +43,19 @@ module DataMemoryM #(
 ////////////////////////////////////////
 
     //Write or Read data on rising edge of clk
-    //always_ff @(negedge iClk) begin
-    always_comb begin  
+    always_ff @(negedge iClk) begin
         if (iWriteEn) begin
             mem_array[word_aligned_address + 32'd3][7:0] <= byte4;
             mem_array[word_aligned_address + 32'd2][7:0] <= byte3;
             mem_array[word_aligned_address + 32'd1][7:0] <= byte2;
             mem_array[word_aligned_address][7:0]         <= byte1;
         end
+    end
 
-        else             oMemData                        <= mem_data;
-    
+    always_comb begin  
+        if (iWriteEn==0) begin
+            oMemData   <= mem_data;            
+        end
     end
 
 

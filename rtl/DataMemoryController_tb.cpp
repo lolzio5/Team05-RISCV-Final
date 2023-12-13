@@ -20,8 +20,9 @@ int main(int argc, char **argv, char **env) {
     top->iClk = 1;
     top->iWriteEn = 1;
     top->iAddress =0x00FF;
-    top->iMemData =0x0FFF;
+    top->iMemData =0x0222;
     top->iInstructionType=0x2;
+    top->iMemoryInstructionType=0x2;
     // run simulation for MAX_SIM_CYC clock cycles
     for (simcyc=0; simcyc<3000; simcyc++) 
     {
@@ -36,8 +37,12 @@ int main(int argc, char **argv, char **env) {
         {
             top->iWriteEn=0;
             top->iInstructionType=0x1;
+            //top->iMemoryInstructionType=0xB;
         }
-        
+        if (simcyc==6)
+        {
+            //top->iMemoryInstructionType=0xB;
+        }
         if (Verilated::gotFinish()) exit(0);
     }
 

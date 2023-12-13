@@ -7,9 +7,9 @@ module DataMemoryController #(
     input logic          iWriteEn,
     input InstructionTypes  iMemoryInstructionType, 
     input  InstructionTypes          iInstructionType,   
-    input logic [31:0]   iAddress,
+    input logic [DATA_WIDTH-1:0]   iAddress,
     input  logic [DATA_WIDTH-1:0]    iMemData,        // Write Data
-    output logic [31:0]  oMemData  
+    output logic [DATA_WIDTH-1:0]  oMemData  
     
 );
 
@@ -17,16 +17,17 @@ logic [25:0] ATag;
 logic [25:0] CTag;
 logic [3:0]  AIndex;
 logic [3:0]  FlushIndex;
-logic [31:0] CData;
+logic [DATA_WIDTH-1:0] CData;
 logic CValid;
 logic hit;
-logic [31:0] MainMemoryData;
-logic [31:0] MainMemoryAdress;
+logic dhit;
+logic [DATA_WIDTH-1:0] MainMemoryData;
+logic [DATA_WIDTH-1:0] MainMemoryAdress;
 logic ReadMainMemory;
-logic [31:0] iFlushAddress;
-logic [31:0] cData; 
-logic [31:0] mData;
-logic [31:0] word_aligned_address;
+logic [DATA_WIDTH-1:0] iFlushAddress;
+logic [DATA_WIDTH-1:0] cData; 
+logic [DATA_WIDTH-1:0] mData;
+logic [DATA_WIDTH-1:0] word_aligned_address;
 logic [1:0] byte_offset;
 logic [7:0] byte1;
 logic [7:0] byte2;
@@ -46,7 +47,7 @@ Cache Cache(
     .iIndex(AIndex),
     .iFlush(iWriteEn),
     .iAddress(iAddress),
-    .iHit(hit),
+    .iHit(dhit),
     .iFlushAddress(FlushIndex),
     .iWriteCacheData(mData),
     .oTag(CTag),
@@ -83,6 +84,7 @@ end
 
 //always_comb begin
 always_ff @(negedge iClk) begin
+    dhit=0;
     if (hit==1&&iWriteEn==0) begin
         word_aligned_address = {{iAddress[31:2]}, {2'b00}};                 //Word aligned address -> multiple of 4
         byte_offset          = iAddress[1:0];                               //2 LSBs of iAddress define byte offset within the word
@@ -153,10 +155,10 @@ always_ff @(negedge iClk) begin
 
             default : oMemData = {byte4, byte3, byte2, byte1};
         endcase
+        dhit=1;
     end
     else begin
-        #2ps
-        oMemData=mData;
+        oMemData = mData;
     end   
 end
 endmodule
