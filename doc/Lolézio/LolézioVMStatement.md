@@ -5,6 +5,7 @@ ___
 # Personal Statement of Contributions
 ### Lolézio Viora Marquet - _November-December 2023_
 <br>
+
 ___
 
 # Table of contents
@@ -18,9 +19,9 @@ ___
 8. [Makefile and Shell script](#8-makefile-and-shell-script)
 9. [Conclusion and Reflection](#9-conclusion-and-reflection)
 
-___
-
 <br>
+
+___
 
 ## 1 - PC Logic
 ### PC Register   [PCRegister.sv](PCRegister.sv)
@@ -56,6 +57,7 @@ This logic was implemented in partnership with Dima Askarov. I created the files
 I extensively tested this functionality by writing the testbench [pc_tb.cpp](pc_tb.cpp) with a shell script.
 
 <br>
+
 ___
 
 ## 2 - Data Memory 
@@ -81,14 +83,11 @@ Taking the output of the Data Memory, I designed and implemented the output mult
 
 <br>
 
-
 The result of an arithmetic operation, or data, could therefore be stored back into the register file, our outputted in a0.
 
-<br>
-
 However, this would not work for jumps, which need to store the location of the next word in memory, so that the JALR instruction can be used to return from a subroutine. As such, ResultSrc itself is extended to 3 bits (see the Control Unit), to implement the following logic:
-<br>
 
+<br>
 
 | ResultSrc |  Result  |
 |-----------|----------|
@@ -146,26 +145,26 @@ Initial Setup:
 1. Set up all values.
 <br>
 
-Main loop:
-2. Increment the output value by 1.
-3. Call Constant Time loop.
-4. If the output is 255, call Random Time loop.
-5. Else, return to Step 2.
-6. Set the output to 0.
+Main loop:<br>
+2. Increment the output value by 1.<br>
+3. Call Constant Time loop.<br>
+4. If the output is 255, call Random Time loop.<br>
+5. Else, return to Step 2.<br>
+6. Set the output to 0.<br>
 <br>
 
-Constant Time:
-7. Decrement a large value by 1.
-8. If the large value is 0, return to step 4. 
-9. Else, return to step 6.
+Constant Time:<br>
+7. Decrement a large value by 1.<br>
+8. If the large value is 0, return to step 4. <br>
+9. Else, return to step 6.<br>
 <br>
 
-Random Time:
-10. Generate a 4 bit number.
-11. XOR its 3rd and 4th bits, and store the result as the first bit.
-12. Decrement the number by 1.
-13. If the number is 0, return to Main, step 6.
-14. Else, return to step 10.
+Random Time:<br>
+10. Generate a 4 bit number.<br>
+11. XOR its 3rd and 4th bits, and store the result as the first bit.<br>
+12. Decrement the number by 1.<br>
+13. If the number is 0, return to Main, step 6.<br>
+14. Else, return to step 10.<br>
 <br>
 
 This code essentially calls for loops which waste cycle, introducing a constant timer. A pseudorandom sequence is generated, as in Lab 3, to introduce a random timer once all lights are on, before they turn off. This code was tested, to ensure the expected behavior was achieved.
