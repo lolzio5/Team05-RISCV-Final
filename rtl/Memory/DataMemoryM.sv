@@ -15,7 +15,7 @@ module DataMemoryM #(
 
 
 //////////////////////////////////////////////
-////  Internal Memory, Data and Addresses  ////
+////  Internal Memory, Data and Addresses  ///
 //////////////////////////////////////////////
 
     //RAM Array : Accomodate for Address starting at : 0x10000 to 0x1FFFF
@@ -37,7 +37,6 @@ module DataMemoryM #(
 
     initial begin
         $readmemh("sine.hex", mem_array, 20'h10000);
-        
     end
 
 ////////////////////////////////////////
@@ -72,13 +71,11 @@ module DataMemoryM #(
     always_comb begin        
         word_aligned_address = {{iAddress[31:2]}, {2'b00}};                 //Word aligned address -> multiple of 4
         byte_offset          = iAddress[1:0];                               //2 LSBs of iAddress define byte offset within the word
-        
         byte4 =   mem_array[word_aligned_address + 32'd3 ][7:0];
         byte3 =   mem_array[word_aligned_address + 32'd2][7:0];
         byte2 =   mem_array[word_aligned_address + 32'd1][7:0];
         byte1 =   mem_array[word_aligned_address][7:0];
         case (iInstructionType) 
-
             //Write Operation
             STORE : begin
 
