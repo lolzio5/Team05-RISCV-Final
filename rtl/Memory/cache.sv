@@ -21,7 +21,7 @@ module cache #(
 
     //Ram arrays
     logic [31:0] data_cache_array [0:2**INDEX_WIDTH-1];
-    logic [0:0] valid_cache_array [0:2**INDEX_WIDTH-1];
+    logic valid_cache_array [0:2**INDEX_WIDTH-1];
     logic [25:0] tag_cache_array [0:2**INDEX_WIDTH-1];
 
     always_comb begin

@@ -36,7 +36,8 @@ module DataMemory #(
 ////////////////////////////////////////
 
     //Write or Read data on falling edge of clk
-    always_ff @(negedge iClk) begin
+    //always_ff @(negedge iClk) begin
+    always_comb begin
         if (iWriteEn) mem_array[word_aligned_address] <= mem_cell;
         else          oMemData                        <= mem_data;
     

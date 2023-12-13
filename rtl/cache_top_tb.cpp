@@ -19,11 +19,11 @@ int main(int argc, char **argv, char **env) {
     // initialize simulation input 
     top->iClk = 1;
     top->iRst = 0;
-    top->iFlush = 0;
+    top->iWriteEn = 0;
     top->iFlushAddress =0;
     top->iAddress =0;
     // run simulation for MAX_SIM_CYC clock cycles
-    for (simcyc=0; simcyc<300; simcyc++) 
+    for (simcyc=0; simcyc<3000; simcyc++) 
     {
         // dump variables into VCD file and toggle clock
         for (tick=0; tick<2; tick++) 
