@@ -87,10 +87,9 @@ module HazardUnit (
           oStallD = 1'b1;
           oFlushE = 1'b1;
         end
-
       end
 
-      else                              oForwardCompOp2D = 1'b0;
+      else                             oForwardCompOp2D = 1'b0;
 
       if ((iDestRegE != 5'b0 & iRegWriteEnE) & (iDestRegE == iSrcReg1D | iDestRegE == iSrcReg2D)) begin
         oStallF          = 1'b1; 
@@ -111,11 +110,13 @@ module HazardUnit (
         if (iInstructionTypeM != UPPER) oForwardAluOp1E = 2'b01;
         else                            oForwardAluOp1E = 2'b11;    //Forward writeback value to execution stage
       end
+
       else if (iSrcReg1E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg1E) begin
         if (iInstructionTypeM != UPPER) oForwardAluOp1E = 2'b10;
         else                            oForwardAluOp1E = 2'b11; 
       end
-      else                                                                oForwardAluOp1E = 2'b00;    //If there is no data dependancy hazard for source register 1
+
+      else                              oForwardAluOp1E = 2'b00;    //If there is no data dependancy hazard for source register 1
 
       //If destination register in memory stage is the same as source2 register in execution stage
       if      (iSrcReg2E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg2E) oForwardAluOp2E = 2'b01;     //Forward data in memory stage to execution stage
