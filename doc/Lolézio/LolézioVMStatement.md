@@ -1,5 +1,7 @@
 # RISC-V RV32I Processor Coursework
+
 ___
+
 # Personal Statement of Contributions
 ### Lolézio Viora Marquet - _November-December 2023_
 <br>
@@ -17,6 +19,7 @@ ___
 9. [Conclusion and Reflection](#9-conclusion-and-reflection)
 
 ___
+
 <br>
 
 ## 1 - PC Logic
@@ -33,9 +36,7 @@ The next PC value, outputted in the next clock cycle, is determined as follows i
 | PCSrc | PCNext |
 |-------|--------|
 |   0   | PC + 4 |
-|-------|--------|
 |   1   |PCTarget|
-|-------|--------|
 
 PC Target is itself determined in another block part of the PC logic, the PC Adder as seen below.
 
@@ -46,6 +47,7 @@ PC Target is itself determined in another block part of the PC logic, the PC Add
 <br>
 
 As this processor required a little more logic, PC Adder was extended to accomodate the register offset that arises when Jump And Link Register (JALR) instructions are executed. PC Adder by default adds the immediate ImmExt to the current PC value to output PCTarget. However, when the instruction is JALR, it also adds the register offset value, and sets the last two bits of PCTarget to 0, to ensure the value is always a multiple of 4. 
+<br>
 
 This logic was implemented in partnership with Dima Askarov. I created the files and the initial logic, and once the Control Unit (which he designed and implemented) was fully functional, he was able to connect it to the PC Logic, modifying it with the new signals.
 
@@ -75,28 +77,26 @@ Taking the output of the Data Memory, I designed and implemented the output mult
 | ResultSrc |  Result  |
 |-----------|----------|
 |     0     |  ALUOut  |
-|-----------|----------|
 |     1     | DataRead |
-|-----------|----------|
+
+<br>
+
 
 The result of an arithmetic operation, or data, could therefore be stored back into the register file, our outputted in a0.
 
 <br>
 
 However, this would not work for jumps, which need to store the location of the next word in memory, so that the JALR instruction can be used to return from a subroutine. As such, ResultSrc itself is extended to 3 bits (see the Control Unit), to implement the following logic:
+<br>
+
 
 | ResultSrc |  Result  |
 |-----------|----------|
 |    000    |  ALUOut  | - Result of an arithmetic operation
-|-----------|----------|
 |    001    | DataRead | - Load data from memory
-|-----------|----------|
 |    010    |  PC + 4  | - Store the address of the next instruction word (when jumping)
-|-----------|----------|
 |    011    |  ImmExt  | - Load an Immediate
-|-----------|----------|
 |    100    | PC+ImmExt| - Store the address of an instruction word after a jump
-|-----------|----------|
 
 <br>
 
@@ -105,6 +105,7 @@ I extensively tested this functionality by writing the testbench [mem_tb.cpp](me
 <br>
 
 ___
+
 ## 3 - Instruction Memory 
 ###  Instruction Memory   [InstructionMemory.sv](InstructionMemory.sv)
 <br> 
@@ -122,6 +123,7 @@ The Instruction Memory block is then passed the file name as a signal, which is 
 <br>
 
 ___
+
 ## 4 - Top File
 ### Top File   [top.sv](top.sv)
 <br>
@@ -131,6 +133,7 @@ My first contribution to the Top file was writing a first draft, connecting all 
 <br>
 
 ___
+
 ## 5 - F1 Program
 ### C++ Program   [assembly.cpp](assembly.cpp)
 <br>
@@ -183,7 +186,8 @@ This has the effect of ensuring the output a0 fills up withs 1s, so that the lig
 A second modification was to test the functioning of the JAL and JALR instructions, a subroutine was introduced, by splitting the logic of Random Time into two parts:
 <br>
 
-Random Time Part 1: random_time
+#### Random Time Part 1: random_time
+<br>
 When a random time must be wasted, the program jumps to random_time. Immediately, it jumps again to random_logic, which outputs a pseudorandom number (see below):
 ```
     jal     ra, random_logic
@@ -199,7 +203,8 @@ If s1 is then equal to 0, a branch is taken, to a new section named End which co
 ```
 <br>
 
-Random Time Part 2: random_logic
+#### Random Time Part 2: random_logic
+<br>
 To output a pseudorandom number, this subroutine is called. For easier bitwise operations, I decided to store each bit of the 4 bit pseudorandom number in 4 separate registers, which are then recombined by adding them together, after shifting the result left once. This result is stored in a register which is accessed by random_time above. Finally, an XOR operation is performed on bits 3 and 4, the result of which is stored in place of the first, most significant bit. 
 <br>
 
@@ -238,17 +243,11 @@ For an output counting up to 15, and for a counter of length 15
 |     Order        |  Number of Cycles |
 |------------------|-------------------|
 |      1. Main     |         7         |
-|------------------|-------------------|
 |      2. loop     |        25         |
-|------------------|-------------------|
 | 3. constant_time |        40         |
-|------------------|-------------------|
 |  4. random_time  |   4*random value  |
-|------------------|-------------------|
 |  5. random_logic |        10         |
-|------------------|-------------------|
 |      6. end      |         2         |
-|------------------|-------------------|
 <br>
 
 #### Improving the order
@@ -256,23 +255,18 @@ For an output counting up to 15, and for a counter of length 15
 |     Order        |  Number of Cycles |
 |------------------|-------------------|
 |      1. Main     |         7         |
-|------------------|-------------------|
 | 2. constant_time |        25         |
-|------------------|-------------------|
 |     3. loop      |        25         |
-|------------------|-------------------|
 |  4. random_time  |   4*random value  |
-|------------------|-------------------|
 |      5. end      |         2         |
-|------------------|-------------------|
 | 6. random_logic  |        10         |
-|------------------|-------------------|
 <br>
 
 In this way, 15 fewer cycles are needed for an output counting to 15. Setting it to count to 255 would multiply this by 17, meaning 255 more cycles would be needed. This is the most efficient program, because all branches in the (loop, random_time, constant_time) are made to branch forward and not backwards. This means that they do not automatically occur, saving 1 cycle of stalling each time the loop is iterated.
 <br>
 
 ___
+
 ## 6 - Vbuddy functionality
 ### Top Testbench [top_tb.cpp](top_tb.cpp) 
 <br>
@@ -294,11 +288,13 @@ Since the same testbench is used for any program, the header on the screen of Vb
 <br>
 
 ___
+
 ## 7 - Pipelining
 ### fs
 <br>
 
 ___
+
 ## 8 - Makefile and Shell Script
 ### Makefile [Makefile](Makefile)
 <br>
@@ -322,6 +318,7 @@ The Shell script also checks for an input filename, to be passed on to the testb
 <br>
 
 ___
+
 ## 9 - Conclusion and Reflection
 ### Conclusion
 <br>
@@ -347,7 +344,11 @@ My original implementation of the PC Logic and Data Memory proved to be insuffic
 <br>
 
 The Assembly Program itself could be improved. For example, the pseudorandom binary sequence is of the form:
+<br>
+
                                                 $1 + X^3 + X^4$
+<br>
+
 This means it repeats every $2^4 -1 = 15$ iterations, and so the sequence only possesses 15 values. For the sake of testing the CPU, this is sufficient, however, should this program be used in a real Formula 1 race, the time would be far too predictable, and a higher order PRBS would be more optimal (which would only cost more registers).
 <br>
 
