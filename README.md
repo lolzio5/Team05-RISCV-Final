@@ -517,23 +517,86 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 |  010   | Store Word |
 
 ---
+
 <br>
-Once the Instruction Type and Sub Type have been determined, the immediate operand must also be decoded, so it can be used by the ALU, or as a PC offset for Jump and Branch instructions. It is also sign extended, by repeating setting [31:12] equal to the 12th bit ImmExt[11]. Once again, a case statement is used to determine this based on the Instruction Type determined previously, following this logic:
+Once the Instruction Type and Sub Type have been determined, the immediate operand must also be decoded, so it can be used by the ALU, or as a PC offset for Jump and Branch instructions. It is also sign extended, by setting all ImmExt[31:12] equal to the 12th bit ImmExt[11]. Once again, a case statement is used to determine this based on the Instruction Type determined previously, following this logic:
 
 **Table ()** : 
 ---
 
-| Instruction Type | Instruction Sub Type |
+| Instruction Type | ImmExt |
+|------------------|--------|
+| Immediate Computation | Load Instruction[31:20] in ImmExt[11:0]|
+|  Load   | Load Instruction[31:20] in ImmExt[11:0] |
+|  Upper   | Set ImmExt[11:0] to 0, and load Instruction[31:20] in ImmExt[31:12] |
+| Store    | Load Instruction[11:7] in ImmExt[4:0], Instruction[31:25] in ImmExt[11:5] |
+| Jump and Link | Load Instruction[31:20] in ImmExt[11:0] | - Here, the offset will be calculated separately
+| Jump | Set ImmExt[0] to 0, load Instruction[30:21] in Immext[10:1], load Instruction[20] in ImmExt[11], load Instruction[19:12] in ImmExt[19:12], and set ImmExt[31:20] to the value of Instruction[31] | - Setting ImmExt[0] ensures the address is a multiple of 2
+|Branch | Set ImmExt[0] to 0, load Instruction [11:8] in ImmExt[4:1], concatenate Instruction[31], Instruction[7] and Instruction[30:25] in ImmExt[12:5], and set all ImmExt[31:13] to Instruction[31] | - Instruction already contains the location of the jump
+
+---
+
+<br>
+
+Once the Immediate operand ImmExt has been determined, further control signals are determined in [ControlDecode.sv](ControlDecode.sv). This decoder once again comprises a case statement, looking at each Instruction type, and setting ResultSrc, AluSrc, RegWrite and MemWrite. They have the following purpose:
+
+**Table ():**
+
+---
+
+| Control Signal | Purpose |
 |--------|----------------------|
-|  000   | Store Byte |
-|  001   | Store Half Word |
-|  010   | Store Word |
+|  ResultSrc   | Determines which result is written back in the register file (see below) |
+|  AluSrc   | Determines the source of the ALU inputs (see below) |
+|  RegWrite   | Determines whether the register file must be written or not (see below) |
+| MemWrite | Determines whether the data must be written to memory or not (see below) |
+
+---
+
+The case statement implementing these results implements the following logic:
+
+**Table ():**
+
+---
+
+| Instruction Type | ResultSrc |  AluSrc  |  RegWrite  | MemWrite |
+|--------|----------------------|---------|------------|----------|
+|  Register Computation   | 000 | 0 |  1 | 0 |
+|  Immediate Computation   | 000 | 1 | 1 | 0 |
+|  Load   | 001 | 1  | 1 | 0|
+| Load Upper Immediate | 011 | 1 | 1 | 0 | 
+| Upper | 100 | 0 | 0 | 0 |
+| Store | 000 | 1 | 0 | 1 |
+| Jump  | 010 | 0 | 1 | 0 | 
+
+---
+
+<br>
+
+Finally, the Control Unit must determine what operations the ALU must conduct based on the Instruction type, but more importantly, the Sub Type, which is once again implemented using a case statement, with the following logic (in the implementation, the custom enum values corresponding to the operations were used, but for simplicity, here we have them in binary format):
+
+> Note that the Instruction Sub Types, while being part of different Instruction Types, require the same ALU operations, and so here only the Sub Types are shown.
+
+**Table ():**
+
+---
+
+| Instruction Sub Type | AluCtrl |
+|----------------------|---------|
+| Add  | 0000 |
+| Sub  | 0001 |
+| Shift Left Logical  | 0010 |
+| Set Less Than | 0011 |
+| Unsigned Set Less Than | 0100 |
+| XOR | 0101 |
+| Shift Right Logical | 0110 |
+| Shift Right Arithmetic | 0111 |
+| OR | 1000 |
+| AND | 1001 |
 
 ---
 
 #### (3.2.2.2) Register File
-
-#### (3.2.2.3) Sign Extender
 
 
 
