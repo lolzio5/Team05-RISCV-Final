@@ -136,8 +136,9 @@ module DataMemoryM #(
 
             //Read Operation
             LOAD : begin  
+                oWriteCache=mem_data;
                 case(iMemoryInstructionType)
-                    oWriteCache=mem_data;
+                    
                     LOAD_BYTE  : begin
 
                         case (byte_offset) 

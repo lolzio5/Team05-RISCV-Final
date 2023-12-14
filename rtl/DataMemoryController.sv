@@ -12,6 +12,7 @@ module DataMemoryController #(
     output logic [DATA_WIDTH-1:0]  oMemData, 
     output logic [DATA_WIDTH-1:0]  oMemDatat,  
     output logic memt
+
 );
 
 logic [25:0] ATag;
@@ -88,14 +89,13 @@ end
 
 always_ff @(negedge iClk) begin
     if (hit==1 && iWriteEn==0) begin
-        memt=1;
         word_aligned_address = {{iAddress[31:2]}, {2'b00}};                 //Word aligned address -> multiple of 4
         byte_offset          = iAddress[1:0];                               //2 LSBs of iAddress define byte offset within the word
-        
-        byte4 =   cData[24:31];
-        byte3 =   cData[16:23];
-        byte2 =   cData[8:15];
-        byte1 =   cData[0:7];
+        oMemDatat=cData;
+        byte4 =   cData[31:24];
+        byte3 =   cData[23:16];
+        byte2 =   cData[15:8];
+        byte1 =   cData[7:0];
         case(iMemoryInstructionType)
             LOAD_BYTE  : begin
 
@@ -147,15 +147,21 @@ always_ff @(negedge iClk) begin
 
             end
 
-            LOAD_WORD  : oMemData = {byte4, byte3, byte2, byte1};               
+            LOAD_WORD  : begin
+                oMemData = {byte4, byte3, byte2, byte1};     
+                memt=1;          
+            end
+            default    : begin 
+                oMemData = {byte4, byte3, byte2, byte1};
 
-            default    : oMemData = {byte4, byte3, byte2, byte1};
+                memt=1;
+            end
         endcase
     end
         //dhit=1;
     else begin
         oMemData = mData;
-        oMemDatat = mData;
+        //oMemDatat = mData;
         //memt=0;
     end   
 end
