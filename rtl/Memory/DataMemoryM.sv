@@ -21,9 +21,10 @@ module DataMemoryM #(
     //RAM Array : Accomodate for Address starting at : 0x10000 to 0x1FFFF
     logic [31:0] mem_array [2**17 - 1  : 0]; 
 
-
+    /* verilator lint_off UNOPTFLAT */
     //Holds the data out of memory cell 
     logic [31:0] mem_data;
+    /* verilator lint_on UNOPTFLAT */
 
     //Word address and byte offset within the address
     logic [31:0] word_aligned_address;
@@ -53,9 +54,9 @@ module DataMemoryM #(
         end
     end
 
-    always_comb begin  
+    always_latch begin  
         if (iWriteEn==0) begin
-            oMemData   <= mem_data;            
+            oMemData   = mem_data;            
         end
     end
 
@@ -69,7 +70,6 @@ module DataMemoryM #(
 /////////////////////////////////////////////////
 ////   Logic to compute what is written/read  ///
 /////////////////////////////////////////////////
-
     always_comb begin        
         word_aligned_address = {{iAddress[31:2]}, {2'b00}};                 //Word aligned address -> multiple of 4
         byte_offset          = iAddress[1:0];                               //2 LSBs of iAddress define byte offset within the word
@@ -135,6 +135,7 @@ module DataMemoryM #(
             end
 
             //Read Operation
+            /* verilator lint_off ALWCOMBORDER */
             LOAD : begin  
                 oWriteCache=mem_data;
                 case(iMemoryInstructionType)
@@ -198,6 +199,7 @@ module DataMemoryM #(
             default : mem_data = {byte4, byte3, byte2, byte1};
 
         endcase
+        /* verilator lint_on ALWCOMBORDER */
     end
 
 endmodule
