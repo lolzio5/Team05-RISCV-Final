@@ -8,7 +8,8 @@ module DataMemoryM #(
     input  InstructionSubTypes       iMemoryInstructionType,
     input  logic [31:0]              iAddress,        // Write Address
     input  logic [DATA_WIDTH-1:0]    iMemData,        // Write Data
-    output logic [DATA_WIDTH-1:0]    oMemData         // output
+    output logic [DATA_WIDTH-1:0]    oMemData,         // output
+    output logic [DATA_WIDTH-1:0]    oWriteCache
 );
 
 
@@ -136,7 +137,7 @@ module DataMemoryM #(
             //Read Operation
             LOAD : begin  
                 case(iMemoryInstructionType)
-
+                    oWriteCache=mem_data;
                     LOAD_BYTE  : begin
 
                         case (byte_offset) 

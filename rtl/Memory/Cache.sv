@@ -24,7 +24,7 @@ module Cache #(
     logic [25:0] tag_cache_array [0:2**INDEX_WIDTH-1];
 
     always_comb begin
-
+    //always_ff @(negedge iCLK) begin
         oTag = tag_cache_array[iIndex];
         oV = valid_cache_array[iIndex];
         oData = data_cache_array[iIndex];
@@ -44,9 +44,9 @@ module Cache #(
 //////////////////////////////////////////////
     //always_ff @(negedge iCLK) begin
     always_comb begin
+
         if (iHit==1)begin 
             oData = data_cache_array[iIndex];   
-
         end
         else begin
             tag_cache_array[iIndex] = iAddress[31:6];

@@ -9,8 +9,9 @@ module DataMemoryController #(
     input  InstructionTypes          iInstructionType,   
     input logic [DATA_WIDTH-1:0]   iAddress,
     input  logic [DATA_WIDTH-1:0]    iMemData,        // Write Data
-    output logic [DATA_WIDTH-1:0]  oMemData  
-    
+    output logic [DATA_WIDTH-1:0]  oMemData, 
+    output logic [DATA_WIDTH-1:0]  oMemDatat,  
+    output logic memt
 );
 
 logic [25:0] ATag;
@@ -33,6 +34,7 @@ logic [7:0] byte1;
 logic [7:0] byte2;
 logic [7:0] byte3;
 logic [7:0] byte4;
+logic [DATA_WIDTH-1:0] writeCache;
 
 CacheDecode CacheDecode(
     .iAddress(iAddress),
@@ -47,9 +49,9 @@ Cache Cache(
     .iIndex(AIndex),
     .iFlush(iWriteEn),
     .iAddress(iAddress),
-    .iHit(dhit),
+    .iHit(hit),
     .iFlushAddress(FlushIndex),
-    .iWriteCacheData(mData),
+    .iWriteCacheData(writeCache),
     .oTag(CTag),
     .oV(CValid),
     .oData(cData)
@@ -62,11 +64,13 @@ DataMemoryM DataMemoryM(
     .iMemoryInstructionType(iMemoryInstructionType), 
     .iAddress(iAddress),
     .iMemData(iMemData),
-    .oMemData(mData)
+    .oMemData(mData),
+    .oWriteCache(writeCache)
 );
 
 
 FindHit FindHit(
+    .iClk(iClk),
     .iV(CValid),
     .iTagCache(CTag),
     .iTagTarget(ATag),
@@ -82,10 +86,9 @@ always_comb begin
         
 end
 
-//always_comb begin
 always_ff @(negedge iClk) begin
-    dhit=0;
-    if (hit==1&&iWriteEn==0) begin
+    if (hit==1 && iWriteEn==0) begin
+        memt=1;
         word_aligned_address = {{iAddress[31:2]}, {2'b00}};                 //Word aligned address -> multiple of 4
         byte_offset          = iAddress[1:0];                               //2 LSBs of iAddress define byte offset within the word
         
@@ -93,72 +96,68 @@ always_ff @(negedge iClk) begin
         byte3 =   cData[16:23];
         byte2 =   cData[8:15];
         byte1 =   cData[0:7];
-        case (iInstructionType) 
-            LOAD : begin  
-                case(iMemoryInstructionType)
+        case(iMemoryInstructionType)
+            LOAD_BYTE  : begin
 
-                    LOAD_BYTE  : begin
-
-                        case (byte_offset) 
-                            2'b00 : oMemData[7:0] = byte1;
-                            2'b01 : oMemData[7:0] = byte2;
-                            2'b10 : oMemData[7:0] = byte3;
-                            2'b11 : oMemData[7:0] = byte4;
-                        endcase
-
-                        oMemData[31:8] = {24{oMemData[7]}}; //sign extend
-                    end
-
-                    LOAD_HALF  : begin
-
-                        case (byte_offset) 
-                            2'b00 : oMemData[15:0] = {byte2, byte1};
-                            2'b01 : oMemData[15:0] = {byte3, byte2};
-                            2'b10 : oMemData[15:0] = {byte4, byte3};
-                            2'b11 : oMemData[15:0] = {byte4, byte3};
-                        endcase
-                        
-                        oMemData[31:16] = {16{oMemData[15]}}; //sign extend
-                    end
-
-                    ULOAD_BYTE : begin            
-
-                        case (byte_offset) 
-                            2'b00 : oMemData[7:0] = byte1;
-                            2'b01 : oMemData[7:0] = byte2;
-                            2'b10 : oMemData[7:0] = byte3;
-                            2'b11 : oMemData[7:0] = byte4;
-                        endcase
-
-                        oMemData[31:8] = {24{1'b0}}; //zero extend
-
-                    end
-
-                    ULOAD_HALF : begin
-
-                        case (byte_offset) 
-                            2'b00 : oMemData[15:0] = {byte2, byte1};
-                            2'b01 : oMemData[15:0] = {byte3, byte2};
-                            2'b10 : oMemData[15:0] = {byte4, byte3};
-                            2'b11 : oMemData[15:0] = {byte4, byte3};
-                        endcase
-
-                        oMemData[31:16] = {16{1'b0}}; //Zero extend
-
-                    end
-
-                    LOAD_WORD  : oMemData = {byte4, byte3, byte2, byte1};               
-
-                    default    : oMemData = {byte4, byte3, byte2, byte1};
+                case (byte_offset) 
+                    2'b00 : oMemData[7:0] = byte1;
+                    2'b01 : oMemData[7:0] = byte2;
+                    2'b10 : oMemData[7:0] = byte3;
+                    2'b11 : oMemData[7:0] = byte4;
                 endcase
+
+                oMemData[31:8] = {24{oMemData[7]}}; //sign extend
             end
 
-            default : oMemData = {byte4, byte3, byte2, byte1};
+            LOAD_HALF  : begin
+
+                case (byte_offset) 
+                    2'b00 : oMemData[15:0] = {byte2, byte1};
+                    2'b01 : oMemData[15:0] = {byte3, byte2};
+                    2'b10 : oMemData[15:0] = {byte4, byte3};
+                    2'b11 : oMemData[15:0] = {byte4, byte3};
+                endcase
+                        
+                oMemData[31:16] = {16{oMemData[15]}}; //sign extend
+            end
+
+            ULOAD_BYTE : begin            
+
+                case (byte_offset) 
+                    2'b00 : oMemData[7:0] = byte1;
+                    2'b01 : oMemData[7:0] = byte2;
+                    2'b10 : oMemData[7:0] = byte3;
+                    2'b11 : oMemData[7:0] = byte4;
+                endcase
+
+                oMemData[31:8] = {24{1'b0}}; //zero extend
+
+            end
+
+            ULOAD_HALF : begin
+
+                case (byte_offset) 
+                    2'b00 : oMemData[15:0] = {byte2, byte1};
+                    2'b01 : oMemData[15:0] = {byte3, byte2};
+                    2'b10 : oMemData[15:0] = {byte4, byte3};
+                    2'b11 : oMemData[15:0] = {byte4, byte3};
+                endcase
+
+                oMemData[31:16] = {16{1'b0}}; //Zero extend
+
+            end
+
+            LOAD_WORD  : oMemData = {byte4, byte3, byte2, byte1};               
+
+            default    : oMemData = {byte4, byte3, byte2, byte1};
         endcase
-        dhit=1;
     end
+        //dhit=1;
     else begin
         oMemData = mData;
+        oMemDatat = mData;
+        //memt=0;
     end   
 end
 endmodule
+

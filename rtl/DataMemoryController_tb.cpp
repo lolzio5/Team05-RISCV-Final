@@ -20,7 +20,7 @@ int main(int argc, char **argv, char **env) {
     top->iClk = 1;
     top->iWriteEn = 1;
     top->iAddress =0x00FF;
-    top->iMemData =0x0222;
+    top->iMemData =0x0444;
     top->iInstructionType=0x2;
     top->iMemoryInstructionType=0x2;
     // run simulation for MAX_SIM_CYC clock cycles
