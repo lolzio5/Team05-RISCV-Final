@@ -6,13 +6,16 @@ Sam Barber - Team 5: Risk V 32i Processor Project
 1. [ALU](#alu)
 2. [Register](#register)
 3. [Processor Diagram](#diagram)
+     - [Single cycle](#hit)
+     - [Pipelined](#hit)
+     - [Cached and pipelined](#hit)
 4. [Top File](#top)
 5. [Assembly](#assembly)
 6. [Cache](#cache)
      - [Hit decetion](#hit)
      - [Miss handling](#miss)
-     - [Decode Module](#decode)
-     - [Flushing](#flushing)
+     - [Decode module](#decode)
+     - [Writing to memory and replacement policy](#writing)
 8. [Conclusion and Reflection](#conclusion)
 
 
@@ -61,20 +64,49 @@ oAluResult: Result of the operation.
 oZero: Indicates whether the result is zero.
 
 ## Register <a name="register"></a>
+The
 
 ## Processor Diagram <a name="diagram"></a>
-As the processor got more complicated and we deviated from the supplied diagram it became much more difficult to understand how each of our modules linked together. To help with this I created this diagram to show how the modules interfaced with each other on a high level. This diagram shows how individual modules of the single cycle processor before the addition of pipelining and cache should be connected.
+As the processor got more complicated and we deviated from the supplied diagram it became much more difficult to understand how each of our modules linked together. To help with this I created this diagram to show how the modules interfaced with each other on a high level. 
 
-
+### Single cycle <a name="single"></a>
+This diagram shows how individual modules of the single cycle processor interface with each other.
 ![](HLv0.6.png)
+### Pipelined <a name="pipelined"></a>
+This diagram shows how individual modules of the pipelined processor interface with each other.
+![](HLpipelinedv0.1.png)
 ## Top File <a name="top"></a>
 
-My contribution to the top file was to impliament all the modules I wrote into the top file. Along with altering the top file to resolve errors found after I created the high level diagram above.
+My contribution to the top file was to implement all the modules I wrote into the top file. Along with altering the top file to resolve errors found after I created the high level diagram above.
 
 ## Assembly <a name="assembly"></a>
-
+In order to test the functionality of the ALU I had written I wrote some assembly to test all the functions of the ALU in the CPU. The test was successful and verified that all the ALU operations where working as indented after it was implemented in CPU.
 ## Cache <a name="cache"></a>
+I chose to implement the cache using a direct mapping with a cache size of 64 bytes. To achieve this I chose a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache.
 
-## Conculsion and Reflection <a name="conclusion"></a>
+### Hit Detection and handling <a name="hit"></a>
+A hit is detected by the module FindHit.sv. If on the positive edge of a clock cycle iWriteEn in low, both iTagCache and iTagTarget match and the cache block is valid iV a hit will be detected. 
+
+Next the Hit signal is passed to the DataMemoryController.sv and the data is retrieved from the cache. This retrieved data is formatted based on the value of iMemoryInstructionType and the byte_offset. Utilising Dima's customed enum instuciton definitions. This determines whether how it should be formatted show in the table below. This mimics the functionality of the existing Data Memory. 
+| iMemoryInstructionType  | Description                                       |
+|------------------------------------|----------------------------------------------|
+| LOAD_BYTE                     | Based on the byte offset the selected byte will be written to oMemData. Then a sign extension is  performed to fill in the other 24 bits.        |
+| LOAD_HALF                    | Based on the byte offset the selected 2 bytes will be written to oMemData. Then a sign extension is  performed to fill in the other 16 bits.       |
+| ULOAD_BYTE                     | Based on the byte offset the selected byte will be set as the oMemData. Then sign extension is  performed to fill in the other 24 bits.        |
+| ULOAD_HALF                    | Based on the byte offset the selected 2 byte will be written to oMemData. Then zero extension is  performed to fill in the other 16 bits.       |
+| LOAD_WORD                    | All 4 bytes are written to oMemData.      |
+| default                   | For the default case a LOAD_WORD operation is performed.      |
 
 
+
+### Miss Handling <a name="miss"></a>
+If a miss is detected the data must be loaded from main memory. To achieve this DataMemoryController.sv passes the 
+### Decode Module <a name="decode"></a>
+The decode module is very simple it splits the incoming address into its Index and tag
+### Writing to memory and Replacement policy <a name="writing"></a>
+When an address stored  within the cache is written to the cache must be cleared to prevent the information in the cache from being out of date. This is achieved by setting the valid bit low on the cache block when iWriteEn is high for the corresponding block of cache.
+
+Every time a miss occurs 
+### Changes to Data Memory <a name="datamem"></a>
+To allow for the caching the Data memory  read was altered to be asynchronous so now done by the DataMemoryController.sv module. This allows
+## Conclusion and Reflection <a name="conclusion"></a>
