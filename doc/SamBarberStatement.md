@@ -6,8 +6,8 @@ Sam Barber - Team 5: Risk V 32i Processor Project
 1. [ALU](#alu)
 2. [Register](#register)
 3. [Processor Diagram](#diagram)
-     - [Single cycle](#hit)
-     - [Pipelined](#hit)
+     - [Single cycle diagram](#hit)
+     - [Pipelined single cycle diagram](#hit)
      - [Cached and pipelined](#hit)
 4. [Top File](#top)
 5. [Assembly](#assembly)
@@ -60,10 +60,10 @@ The register file has 1 write port and 3 read ports. Two of the read ports can r
 ## Processor Diagram <a name="diagram"></a>
 As the processor got more complicated and we deviated from the supplied diagram it became much more difficult to understand how each of our modules linked together. To help with this I created diagrams using sigasi to show how the modules interfaced with each other on a high level. 
 
-### Single cycle <a name="single"></a>
+### Single cycle diagram <a name="single"></a>
 This diagram shows how individual modules of the single cycle processor interface with each other.
 ![](HLv0.6.png)
-### Pipelined <a name="pipelined"></a>
+### Pipelined single cycle diagram <a name="pipelined"></a>
 This diagram shows how individual modules of the pipelined processor interface with each other.
 ![](HLpipelinedv0.1.png)
 ## Top File <a name="top"></a>
@@ -73,7 +73,7 @@ My contribution to the top file was to implement all the modules I wrote into th
 ## Assembly <a name="assembly"></a>
 In order to test the functionality of the ALU I had written I wrote some assembly to test all the functions of the ALU in the CPU. The test was successful and verified that all the ALU operations where working as indented after it was implemented in CPU.
 ## Cache <a name="cache"></a>
-I chose to implement the cache using a direct mapping with a cache size of 64 bytes. To achieve this I chose a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache. Below is a diagram showing how the data memory modules are connected and operate.
+I chose to implement the cache using a direct mapping with a cache size 16 blocks this meant the cache size was 64 bytes. To achieve this I chose a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache. Below is a diagram showing how the data memory modules are connected and operate.
 
 ![](DataMemoryDiagramV0.1.png)
 
@@ -104,4 +104,4 @@ Every time a miss occurs
 To allow for the caching the Data memory  read was altered to be asynchronous so now done by the DataMemoryController.sv module. This allows
 ## Conclusion and Reflection <a name="conclusion"></a>
 
-If I had additional time I would have liked to further develop the cache further by adding levels and adding more ways to reduce the number of misses and improve the efficiency of the processors data memory.
+If I had additional time I would have liked to further develop the cache from a direct mapped model to a set assiciative model to add more ways to reduce the number of misses and improve the efficiency of the processors data memory.
