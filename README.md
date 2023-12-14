@@ -328,9 +328,72 @@ end
 
 ## (3.2) Single Cycle Architecture
 
+Our implementation of the single cycle CPU is split in 5 main stages. 
+
+**Table ()** : 
+
+---
+
+|      Stage      |  Operation | Relevant files |
+|-----------------|----------------------------|-------------|
+|      $Fetch$    | The Program Counter is incremented by the right amount, so that the correct next instruction is fetched |[PCAdder.sv](PCAdder.sv)   [PCRegister.sv](PCRegister.sv) [InstructionMemory.sv](InstructionMemory.sv)|
+|      $Decode$   | The instruction is fully decoded to generate required control signals. During this stage the source registers are also read on the falling edge of the clock | [AluEncode.sv](AluEncode.sv) [ControlDecode.sv](ControlDecode.sv)  [ControlPath.sv](ControlPath.sv)  [ControlUnit.sv](ControlUnit.sv)  [ImmDecode.sv](ImmDecode.sv)  [InstructionDecode.sv](InstructionDecode.sv) [RegisterFile.sv](RegisterFile.sv) |
+|     $Execute$   | The Arithmetic Logic Unit executes the computation specified by the instruction (includes no computation at all) | [Alu.sv](Alu.sv) |
+|      $Memory$   | In the memory access stage the data memory is either read from or written to given the control signals in the memory stage| [DataMemory.sv](DataMemory.sv) |
+|      $Write$    | The final result chosen between; the Alu output, memory data, Upper immediate, PC+4 and PC + Upper Immediate, is written to the register file on the rising edge of the clock| [ResultMux.sv](ResultMux.sv) |
+
+---
+
+### (3.2.1) Fetch Stage
+#### (3.2.1.1) PC Register
+The Fetch stage begins with the output of the next PC value, so that the next instruction can be fetched. This is implemented in [PCRegister.sv](PCRegister.sv) with the line:
+```verilog
+   if (iPCSrc == 1'b0) PCNext = iPCSrc ? iBranchTarget : oPC + 32'd4;
+```
+Depending on the value of PCSrc, the next PC value is either PC + 4 or PC + ImmExt (calculated as BranchTarget. PC + 4 would simply indicate the next instruction, since each 32 bit instruction word is stored in 8 memory locations, as seen below:
+
+**Table ()** : 
+
+---
+| Cell 3 |  Cell  2 | Cell  1 | Cell  0 | Address |
+|--------|----------|---------|---------|---------|
+|8 bytes |8 bytes   |8 bytes  | 8 bytes | 0x004   |
+|8 bytes |8 bytes   |8 bytes  | 8 bytes | 0x003   |
+|8 bytes |8 bytes   |8 bytes  | 8 bytes | 0x002   |
+|8 bytes |8 bytes   |8 bytes  | 8 bytes | 0x001   |
+|8 bytes |8 bytes   |8 bytes  | 8 bytes | 0x000   |
+
+---
+
+The PC value maps to the address. When PC is 0, this will map to the first address, and the 4 bytes, forming one instruction word, will be outputted out of Instruction Memory. As such, PC + 4 corresponds to the next address.
+
+<br>
+
+#### (3.2.1.2) PC Adder
+When Jump or Branch instructions are carried out, the next instruction that must be carried out is not always the next one stored in memory. The next address must therefore be calculated, which is found using [PCAdder.sv](PCAdder.sv). 
+<br>
+
+The PC Adder receives the current instruction type from the Control Unit (see below), and executes the following logic:
+<br>
+
+**Table ()** : 
+
+---
+| Instruction Type |  Instruction SubType | Output PC Target |
+|------------------|----------------------|------------------|
+|  JUMP  |  JUMP AND LINK REGISTER      | ImmExt + RegOffset  | 
+|  JUMP  |  ANY OTHER  | PC + ImmExt |
+| BRANCH | ANY    | PC + ImmExt |
+
+---
+
+When the current instruction is a simple Branch or Jump, the next PC value is calculated by the value of ImmExt (see below), to give the correct next address. However, when the instruction is JALR, an offset can be specified. Since the value of this offset already contains the value of PC, ImmExt is once again added, so that the correct next address is found. 
+<br>
+#### (3.2.1.3) Instruction Memory
+
 ## (3.3) Pipelined Architecture
 
-The pipeline architecture broke down the instruction execution cycle into 5 stages. The stages were chosen as the following : 
+As with the Single Cycle Architecture, the pipeline architecture broke down the instruction execution cycle into 5 stages. The stages were chosen as the following : 
 
 **Table ()** : 
 
