@@ -45,29 +45,20 @@ Dima and I worked together to determind what instuctions where required and how 
 <br>
 The ALU also has a zero output which indicates if the result is zero. High when result is zero.
 
-### Parameters
-OP_WIDTH: The width of the control signal (iAluControl). Defaults to 4 bits.
-<br>
-DATA_WIDTH: The width of the input and output data (iAluOp1, iAluOp2, oAluResult).
-Defaults to 32 bits.
-
 ### Inputs
 iAluControl: Control signal specifying the operation to be performed.
-<br>
 iAluOp1: First input operand.
-<br>
 iAluOp2: Second input operand.
 <br>
 ### Outputs
 oAluResult: Result of the operation.
-<br>
 oZero: Indicates whether the result is zero.
 
 ## Register <a name="register"></a>
-The
+The register file has 1 write port and 3 read ports. Two of the read ports can read any address and the other always reads a0. The register is built on a ram array additionally there is logic implemented to prevent the zero register from being changed from zero. Data is written to the register on the positive edge and read on the negative edge.
 
 ## Processor Diagram <a name="diagram"></a>
-As the processor got more complicated and we deviated from the supplied diagram it became much more difficult to understand how each of our modules linked together. To help with this I created this diagram to show how the modules interfaced with each other on a high level. 
+As the processor got more complicated and we deviated from the supplied diagram it became much more difficult to understand how each of our modules linked together. To help with this I created diagrams using sigasi to show how the modules interfaced with each other on a high level. 
 
 ### Single cycle <a name="single"></a>
 This diagram shows how individual modules of the single cycle processor interface with each other.
@@ -82,7 +73,9 @@ My contribution to the top file was to implement all the modules I wrote into th
 ## Assembly <a name="assembly"></a>
 In order to test the functionality of the ALU I had written I wrote some assembly to test all the functions of the ALU in the CPU. The test was successful and verified that all the ALU operations where working as indented after it was implemented in CPU.
 ## Cache <a name="cache"></a>
-I chose to implement the cache using a direct mapping with a cache size of 64 bytes. To achieve this I chose a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache.
+I chose to implement the cache using a direct mapping with a cache size of 64 bytes. To achieve this I chose a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache. Below is a diagram showing how the data memory modules are connected and operate.
+
+![](DataMemoryDiagramV0.1.png)
 
 ### Hit Detection and handling <a name="hit"></a>
 A hit is detected by the module FindHit.sv. If on the positive edge of a clock cycle iWriteEn in low, both iTagCache and iTagTarget match and the cache block is valid iV a hit will be detected. 
@@ -110,3 +103,5 @@ Every time a miss occurs
 ### Changes to Data Memory <a name="datamem"></a>
 To allow for the caching the Data memory  read was altered to be asynchronous so now done by the DataMemoryController.sv module. This allows
 ## Conclusion and Reflection <a name="conclusion"></a>
+
+If I had additional time I would have liked to further develop the cache further by adding levels and adding more ways to reduce the number of misses and improve the efficiency of the processors data memory.
