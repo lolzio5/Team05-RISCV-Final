@@ -357,11 +357,11 @@ Depending on the value of PCSrc, the next PC value is either PC + 4 or PC + ImmE
 ---
 | Cell 3 |  Cell  2 | Cell  1 | Cell  0 | Address |
 |--------|----------|---------|---------|---------|
-|8 bytes |8 bytes   |8 bytes  | 8 bytes | 0x004   |
-|8 bytes |8 bytes   |8 bytes  | 8 bytes | 0x003   |
-|8 bytes |8 bytes   |8 bytes  | 8 bytes | 0x002   |
-|8 bytes |8 bytes   |8 bytes  | 8 bytes | 0x001   |
-|8 bytes |8 bytes   |8 bytes  | 8 bytes | 0x000   |
+|8 bytes |  8 bytes | 8 bytes | 8 bytes |  0x004  |
+|8 bytes |  8 bytes | 8 bytes | 8 bytes |  0x003  |
+|8 bytes |  8 bytes | 8 bytes | 8 bytes |  0x002  |
+|8 bytes |  8 bytes | 8 bytes | 8 bytes |  0x001  |
+|8 bytes |  8 bytes | 8 bytes | 8 bytes |  0x000  |
 
 ---
 
@@ -390,6 +390,152 @@ The PC Adder receives the current instruction type from the Control Unit (see be
 When the current instruction is a simple Branch or Jump, the next PC value is calculated by the value of ImmExt (see below), to give the correct next address. However, when the instruction is JALR, an offset can be specified. Since the value of this offset already contains the value of PC, ImmExt is once again added, so that the correct next address is found. 
 <br>
 #### (3.2.1.3) Instruction Memory
+Instruction Memory was built to take in a PC value, corresponding to the address of the Instruction, and output it immediately, implemented in [InstructionMemory.sv](InstructionMemory.sv). It is not clocked, since PC Register already ensures that the value is for the correct clock cycle. 
+<br>
+The Read Only Memory (ROM) is implemented using the line:
+```verilog
+   logic [DATA_WIDTH - 1 : 0] rom_array [0 : 2**12  - 1];
+```
+The address space corresponding to the corresponding to the memory map in the brief, meaning up to 1024 instruction words can be loaded. This can however easily be extended.
+<br>
+The ROM outputs an instruction word, by concatenating the 4 individual bytes of the instruction word into a single, 32 bit value:
+```verilog
+   oInstruction = {rom_array[iPC + 32'd3][7:0], rom_array[iPC + 32'd2][7:0], rom_array[iPC + 32'd1][7:0], rom_array[iPC][7:0] };
+```
+<br>
+This instruction is then decoded in the Control Unit.
+
+### (3.2.2) Decode Stage
+#### (3.2.2.1) Control Unit
+The Control Unit was split into many smaller modules, to help with debugging and understanding the processes.
+<br>
+The instruction word out of Instruction Memory is first split into the Op Code and 2 Funct values, so that the Instruction Type and Subtype can be decoded. This is first done in [ControlPath.sv](ControlPath.sv)
+<br>
+To extract the correct data, the instruction outputted from Instruction Memory is simply indexed:
+```verilog
+always_comb begin
+    op_code = iInstruction[6:0];
+    funct7  = iInstruction[31:25];
+    funct3  = iInstruction[14:12];
+end
+```
+Additional logic also outputs the constant values to be stored in the Register file in this block (see below)
+<br>
+Next, the Operation Code, and Function 3 and 7 are passed into [InstructionDecode.sv](InstructionDecode.sv) so they can be decoded into the custom types (see above) InstructionType and InstructionSubType.
+<br>
+The following logic is implemented using a case statement, to determine the Instruction Type, in the Instruction Decoder. Decimal numbers are used as they are more readable:
+
+**Table ()** : 
+
+---
+
+| OpCode |  Instruction Type     | Instruction Sub Type |
+|--------|-----------------------|----------------------|
+|  51    |  Register Computation | Depends on Funct3 and Funct7 |
+|  19    | Immediate Computation | Depends on Funct3 and Funct7 |
+| 3      | Load    | Depends on Funct3 |
+| 23     | Upper | Add Unsigned PC |
+| 55     | Upper | Load Unsigned Immediate |
+| 103    | Jump | Jump and Link Register | 
+| 111    | Jump | Jump and Link |
+| 99     | Branch | Depends on Funct3 |
+| 35     | Store  | Depends on Funct3 |
+
+---
+
+Once the Instruction Type is determined, for Register Computation, Immediate Computation, Load, Branch, and Store, the Instruction Sub Type is determined depending on Funct3 and Funct 7, with further case statements:
+
+**Table (): Register Computation** : 
+---
+
+| Funct3 |  Funct7    | Instruction Sub Type |
+|--------|------------|----------------------|
+|  000   |  0000000 | Add |
+|  000   |  0100000 | Subtract |
+|  001   |  Any     |Shift Left Logical|
+|  010   |  Any     | Less Than |
+|  011   |  Any     | Unsigned Less Than |
+|  100   | Any      | XOR | 
+|  101   | 0000000 | Shift Right Logical |
+|  101   | 0100000 | Shift Right Arithmetic |
+|  110     | Any  | OR |
+|  111     | Any  | AND |
+
+---
+
+**Table (): Immediate Computation** : 
+---
+
+| Funct3 |  Funct7    | Instruction Sub Type |
+|--------|------------|----------------------|
+|  000   |  Any | Add Immediate |
+|  001   |  Any     | Shift Left Logical Immediate |
+|  010   |  Any     | Less Than Immediate |
+|  011   |  Any     | Unsigned Less Than Immediate |
+|  100   | Any      | XOR Immediate | 
+|  101   | 0000000 | Shift Right Logical Immediate |
+|  101   | 0100000 | Shift Right Arithmetic Immediate|
+|  110     | Any  | OR Immediate|
+|  111     | Any  | AND Immediate |
+
+---
+
+**Table (): Load** : 
+---
+
+| Funct3 | Instruction Sub Type |
+|--------|----------------------|
+|  000   |  Load Byte |
+|  001   |  Load Half Word |
+|  010   |  Load Word |
+|  100   |  Load Upper Byte | 
+|  101   | Load Upper Half |
+
+---
+
+**Table (): Branch** : 
+---
+
+| Funct3 | Instruction Sub Type |
+|--------|----------------------|
+|  000   | Branch if Equal (BEQ) |
+|  001   | Branch if not Equal (BNE) |
+|  100   |  Branch if less than (BLT) |
+|  101   |  Branch if greater or equal (BGE) | 
+|  110   | Branch if less than unsigned (BLTU) |
+|  111   | Branch if greater or equal than unsigned (BGEU) |
+
+---
+
+**Table (): Store** : 
+---
+
+| Funct3 | Instruction Sub Type |
+|--------|----------------------|
+|  000   | Store Byte |
+|  001   | Store Half Word |
+|  010   | Store Word |
+
+---
+<br>
+Once the Instruction Type and Sub Type have been determined, the immediate operand must also be decoded, so it can be used by the ALU, or as a PC offset for Jump and Branch instructions. It is also sign extended, by repeating setting [31:12] equal to the 12th bit ImmExt[11]. Once again, a case statement is used to determine this based on the Instruction Type determined previously, following this logic:
+
+**Table ()** : 
+---
+
+| Instruction Type | Instruction Sub Type |
+|--------|----------------------|
+|  000   | Store Byte |
+|  001   | Store Half Word |
+|  010   | Store Word |
+
+---
+
+#### (3.2.2.2) Register File
+
+#### (3.2.2.3) Sign Extender
+
+
 
 ## (3.3) Pipelined Architecture
 
