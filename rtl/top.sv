@@ -361,7 +361,7 @@ module top(
 /////////////////////////////////
 
 
-    DataMemoryM DataMemory(
+    DataMemoryController DataMemoryController(
         .iClk(iClk),
         .iWriteEn(mem_write_en_m),
         .iInstructionType(instruction_type_m),

@@ -28,7 +28,7 @@ module RegisterFileD #(
 
     always_comb begin
         ram_array[0] = {32{1'b0}}; // Wire register 0 to constant 0 
-        oRega0       = ram_array[5'd10;]
+        oRega0       = ram_array[5'd10];
         data_out1    = ram_array[iReadAddress1];
         data_out2    = ram_array[iReadAddress2];
 
