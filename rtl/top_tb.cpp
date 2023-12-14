@@ -1,7 +1,7 @@
 #include "verilated.h"
 #include "verilated_vcd_c.h"
 #include "Vtop.h"
-#include "vbuddy.cpp"
+//#include "vbuddy.cpp"
 int main(int argc, char **argv, char **env) {
     int simcyc;     // simulation clock count
     int tick;       // each clk cycle has two ticks for two edges
@@ -10,8 +10,8 @@ int main(int argc, char **argv, char **env) {
     // init top verilog instance
     Vtop* top = new Vtop;
 
-    if (vbdOpen()!=1) return(-1);
-    vbdHeader("PDF");
+    //if (vbdOpen()!=1) return(-1);
+    //vbdHeader("PDF");
 
     // init trace dump
     Verilated::traceEverOn(true);
@@ -34,14 +34,14 @@ int main(int argc, char **argv, char **env) {
             top->eval ();
         }
         if(simcyc>100){
-            vbdPlot(int(top->oRega0), 0, 255);
+            //vbdPlot(int(top->oRega0), 0, 255);
         }
         
-        vbdCycle(simcyc);
+        //vbdCycle(simcyc);
 
-        if ((Verilated::gotFinish()) || (vbdGetkey()=='q')) exit(0);
-    }
-    vbdClose();
+    if (Verilated::gotFinish()) exit(0);
+    
+    //vbdClose();
     tfp->close(); 
     printf("Exiting\n");
     exit(0);
