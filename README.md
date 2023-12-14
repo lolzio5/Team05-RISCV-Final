@@ -458,6 +458,8 @@ As with the Single Cycle Architecture, the pipeline architecture broke down the 
 
 ---
 
+
+
 <br>
 
 ### Static Branch Prediction
@@ -518,10 +520,181 @@ In the case that the branch taken backwards resolves to be incorrect (ie. branch
         end
 ```
 
+## 
+
+
+## (3.4) Demonstration
+
+This section documents the results of reference programs and the F1 lighting sequence program on the different CPU architectures
+
+### (3.4.1) Hazard Handling and Forwarding 
+
+The images below document the following assembly code being run on the pipelined CPU :
+
+```assembly
+_loop2:                     # repeat
+    LI      a4, max_count   # PC = 48
+    ADD     a5, a1, a2      # PC = 52   a5 = data base address + offset
+    LBU     t0, 0(a5)       # PC = 56   t0 = data value
+    ADD     a6, t0, a3      # PC = 60   a6 = index into pdf array
+    LBU     t1, 0(a6)       # PC = 64   t1 = current bin count
+    ADDI    t1, t1, 1       # PC = 68   increment bin count
+    SB      t1, 0(a6)       # PC = 72   update bin count
+    ADDI    a2, a2, 1       # PC = 76   point to next data in array
+    BNE     t1, a4, _loop2  # PC = 80   until bin count reaches max
+    RET                     # PC = 84
+```
+
+In the code above, there are data dependancies between the following instructions : 
+- `ADD a5, a1, a2` and `LBU t0, 0(a5)`: 
+  -  The `LBU` instruction uses `a5` as an operand, which is set by the preceding `ADD` instruction. This is a Read After Write (RAW) hazard, as `LBU` reads the value of `a5` immediately after it's written.
+
+<br>
+
+- `LBU t0, 0(a5)` and `ADD a6, t0, a3`: 
+  - The `ADD` instruction uses `t0`, which is loaded by the preceding `LBU` instruction. This is another RAW hazard, as `ADD` requires the value in `t0` that `LBU` has just loaded.
+
+<br>
+
+- `ADD a6, t0, a3` and `LBU t1, 0(a6)`: 
+  - The `LBU` instruction uses `a6` as an operand, which is calculated by the preceding `ADD` instruction. This is again a RAW hazard.
+
+<br>
+
+- `LBU t1, 0(a6)` and `ADDI t1, t1, 1`: 
+  - The `ADDI` instruction modifies `t1`, which holds the value loaded by the preceding `LBU` instruction. This is a RAW hazard as `ADDI` needs the value from `LBU`.
+
+<br>
+
+- `ADDI t1, t1, 1` and `SB t1, 0(a6)`: 
+  - The `SB` (store byte) instruction uses the value in `t1` that was just modified by `ADDI`. This is another RAW hazard.
+
+<br>
+
+
+<br>
+
+**The simulation image below shows the following pipeline state :** 
+
+| Stage | Instruction | PC |
+|-------|-------------|----|
+| $Fetch/Decode$ | `LBU t1, 0(a6)`|  64  |
+| $Decode$ | `ADD a6, t0, a3`|  60  |
+| $Execute$ | `LBU t0, 0(a5)`|  56  |
+| $Memory-Access$ | `ADD a5, a1, a2`|  52  |
+| $Write-Back$ | `LI a4, max_count`|  48  |
+
+<br>
+
+**Figure(3.4.1(1)) :** Stall and Flush Demonstration
+
+![](doc/Dima/images/forwarding_t0_pdf_sim1.PNG)
 
 
 
-## (3.4) Limitations
+<br>
+
+As the instruction in the decode stage is being decoded (`ADD a6, t0, a3`), the hazard unit detects its' dependancy with the load instruction in the Execute stage - as a result it sets the stall and flush flags to allow some time for the load instruction to propagate to the write-back stage, where the result can be forwarded. The logic performing this is shown below : 
+
+<br>
+
+```verilog
+    if (iInstructionTypeE == LOAD) begin 
+      if (iDestRegE == iSrcReg1D | iDestRegE == iSrcReg2D) begin //Load Dependancy Detected
+        oStallF = 1'b1;
+        oStallD = 1'b1;
+        oFlushE = 1'b1; e
+      end  
+    end
+```
+
+This is seen happenening in **Figure(3.1.1(1))**, where the `oStallF`, `oStallD` and `oFlushE` are output as high from the hazard unit - with the the execution stage being flushed on the next clock cycle (PC and all other signals go to 0)
+
+In the same cycle, the hazard unit also detects the dependancy between the `ADD a5, a1, a2` in the Memory stage and `LBU t0, 0(a5)` in the Execute stage. **Figure(3.1.1(1))** shows the `iForwardAluOp1` being set to $01$ in binary - indicating that the destination registster in the memory stage is the same as the source 1 register in the execute stage. The logic that performs this in the `HazardUnit` is shown below :
+
+
+
+```verilog
+      //If destination register in memory stage is the same as source1 register in execution stage
+      if      (iSrcReg1E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg1E) begin
+        if (iInstructionTypeM != UPPER) oForwardAluOp1E = 2'b01;
+        else                            oForwardAluOp1E = 2'b11;    //Forward writeback value to execution stage
+      end
+
+      else if (iSrcReg1E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg1E) begin
+        if (iInstructionTypeM != UPPER) oForwardAluOp1E = 2'b10;
+        else                            oForwardAluOp1E = 2'b11; 
+      end
+
+      else                              oForwardAluOp1E = 2'b00;    //If there is no data dependancy hazard for source register 1
+
+      //If destination register in memory/writeback stage is the same as source register in execution stage
+      if      (iSrcReg2E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg2E) oForwardAluOp2E = 2'b01;     
+      else if (iSrcReg2E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg2E) oForwardAluOp2E = 2'b10;     
+      else 
+```
+
+As a result, the `alu_op1_e` (alu operand 1 in the execute stage) is equal to 65538 (decimal) which is the value that is about to be written to `ram_array[15]` (register 15 - a5) on the next clock cycle (its' current value is 0)
+
+---
+
+<br>
+
+**The simulation image below shows the following pipeline state :**
+
+| Stage | Instruction | PC |
+|-------|-------------|----|
+| $Fetch/Decode$|`LBU t1, 0(a6)`| 64 |
+| $Decode$ | `ADD a6, t0, a3`|  60  |
+| $Execute$ | `NULL`|  0  |
+| $Memory-Access$| `LBU t0, 0(a5)`|  56  |
+| $Write-Back$| `ADD a5, a1, a2`|  52  |
+
+<br>
+
+**Figure(3.1.1(2)) :** Forwarding and Flushing Demonstration 1
+
+![](doc/Dima/images/LBU%20in%20memory%20stage.PNG)
+
+**Figure(3.1.1(2))** shows the `LBU t0, 0(a5)` in the Memory stage. At this point the data memory is accessed with the correct address shown by `iAddress`. In the same cycle, `oMemData` holds the value of `byte1` that has been zero extended (unsigned load). Note how the execution stage is flushed in this cycle.
+
+<br>
+
+**The simulation image below shows the following pipeline state :**
+
+| Stage | Instruction | PC |
+|-------|-------------|----|
+| $Fetch/Decode$|`ADDI t1, t1, 1`| 68 |
+| $Decode$ | `LBU t1, 0(a6)`|  64  |
+| $Execute$ | `ADD a6, t0, a3`|  60  |
+| $Memory-Access$| `NULL` |  0  |
+| $Write-Back$| `LBU t0, 0(a5)`|  56  |
+
+<br>
+
+**Figure(3.1.1(3)) :** Forwarding and Flushing Demonstration 2
+
+![](doc/Dima/images/Forwardin_t0_lbu.PNG)
+
+<br>
+
+Now the `LBU t0, 0(a5)` instruction has reached the Write Back stage where the value of `t0` can be forwarded to the Execute stage so that the instruction `ADD a6, t0, a3` uses the correct value of `t0`.
+
+**Figure(3.1.1(3))** shows the `iForwardAluOp1` being set to 2 (decimal) indicating that the result in the Write Back stage should be forwarded.
+
+![](doc/Dima/images/dealing_with_load_dependancy_sim.PNG)
+
+![](doc/Dima/images/data_signals_when_dealing_with_ld_sim.PNG)
+
+### (3.4.2) Branch Prediction and Correction
+
+### (3.4.2) PDF Generation - Pipeline
+
+### (3.4.3) F1 Lighting Sequence - Pipeline
+
+### (3.4.2) PDF Generation - Single Cycle
+
+### (3.4.3) F1 Lighting Sequence - Single Cycle
 
 <br>
 
@@ -529,7 +702,7 @@ In the case that the branch taken backwards resolves to be incorrect (ie. branch
 
 <br>
 
-# (4) Contributing
+# (4) Limitations, Reflections and Improvements
 Content for the Contributing section...
 
 <br>
