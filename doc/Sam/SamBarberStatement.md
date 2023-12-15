@@ -72,7 +72,7 @@ My contribution to the top file was to implement all the modules I wrote into th
 
 ## Assembly <a name="assembly"></a>
 In order to test the functionality of the ALU I had written I wrote some assembly to test all the functions of the ALU in the CPU. The test was successful and verified that all the ALU operations where working as indented after it was implemented in CPU.
-## Cache <a name="cache"></a>
+## Direct mapped Cache <a name="cache"></a>
 I chose to implement the cache using a direct mapping with a cache size 16 blocks this meant the cache size was 64 bytes. To achieve this I chose a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache. Below is a diagram showing how the data memory modules are connected and operate.
 
 ![](DataMemoryDiagramV0.1.png)
@@ -100,8 +100,19 @@ The decode module is very simple it splits the incoming address into its Index a
 When an address stored  within the cache is written to the cache must be cleared to prevent the information in the cache from being out of date. This is achieved by setting the valid bit low on the cache block when iWriteEn is high for the corresponding block of cache.
 
 Every time a miss occurs 
-### Changes to Data Memory <a name="datamem"></a>
-To allow for the caching the Data memory  read was altered to be asynchronous so now done by the DataMemoryController.sv module. This allows
+### Testing the cache
+Testing with the PDF program on the pipelined single cycle processor with data memory cache.
+![](TestingCachePDF.jpeg)
+
+
+Testing with the Triangle PDF program on the pipelined single cycle processor with data memory cache.
+![](TestingCacheTrianglePDF.jpeg)
+
+## Two way cache <a name="twowaycache"></a>
+The two way cache is build 
+### Writing to memory and Replacement policy <a name="writingreplace"></a>
 ## Conclusion and Reflection <a name="conclusion"></a>
 
-If I had additional time I would have liked to further develop the cache from a direct mapped model to a set assiciative model to add more ways to reduce the number of misses and improve the efficiency of the processors data memory.
+Overall I was happy with how the project went 
+
+If I was doing the project again I would have intergrated the cache witht the main CPU much sooner rather than relying on my own testing of the module by itself. As this resulted in If I have additonal time I would have also like to persue adding levels of caching to the process to improve the Data Memory efficency. In addition I think it would have made the module intergation much simplier if we had agreed on a naming convention at the start of the project rather than altering all our code after the fact to fit a naming conventsion.
