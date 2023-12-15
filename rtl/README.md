@@ -10,10 +10,10 @@
 | `ControlUnit` | |
 |  `ImmDecode` | |
 | `InstructionDecode` | |
-| `AluOpForwarderE`| |
-| `ComparatorD` | |
+| `AluOpForwarderE`| Dima, Meric |
+| `ComparatorD` | Dima, Meric | 
 | `HazardUnit` | |
-| `OperandForwarderD` | |
+| `OperandForwarderD` | Dima, Meric |
 | `DataMemoryM` | |
 | `InstructionMemoryF` | |
 | `RegisterFileD` | |
@@ -33,7 +33,7 @@
 ---
 | File Name | Contributors |
 |-------------|---------------|
-| `top_tb.cpp` | |
+| `top_tb.cpp` | Meric | 
 |  `F1.s` | |
 | `HazardTest1.s`| |
 | `HazardTest2.s`| |
