@@ -28,8 +28,8 @@ ___
 <br>
 
 - Relevant Commits
-   - [Create PCRegister and PCMux (now PCAdder)](534842ffa40ed09614356d9a13d6a843e6ae56e4)
-   - [Test with pc_tb.cpp](abafc942c3d3eea7a863614ab9b56480703a538d)
+   - Create PCRegister and PCMux (now PCAdder) (534842ffa40ed09614356d9a13d6a843e6ae56e4)
+   - Test with pc_tb.cpp (abafc942c3d3eea7a863614ab9b56480703a538d)
 
 <br>
 
