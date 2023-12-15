@@ -9,7 +9,7 @@ module NewMem #(
     input InstructionTypes  iMemoryInstructionType, 
     input  InstructionTypes          iInstructionType,   
     input logic [DATA_WIDTH-1:0]   iAddress,
-    input  logic [DATA_WIDTH-1:0]    iMemData,        // Write Data
+    input  logic [DATA_WIDTH-1:0]    iMemData,        
     output logic [DATA_WIDTH-1:0]  ooMemData
 );
     logic [25:0] iTag;
@@ -17,11 +17,10 @@ module NewMem #(
     logic [25:0] cTag;
     logic [3:0] cIndex;
     logic [DATA_WIDTH-1:0] cData; 
-    /* verilator lint_off UNOPTFLAT */
+    logic [DATA_WIDTH-1:0] oMemData; 
     logic [DATA_WIDTH-1:0] data_cache_array [0:2**INDEX_WIDTH-1];
     logic valid_cache_array [0:2**INDEX_WIDTH-1];
     logic [25:0] tag_cache_array [0:2**INDEX_WIDTH-1];
-    /* verilator lint_on UNOPTFLAT */
     logic [7:0] byte1;
     logic [7:0] byte2;
     logic [7:0] byte3;
@@ -29,12 +28,11 @@ module NewMem #(
     logic [31:0] mem_array [2**17 - 1  : 0]; 
     logic cV;
     logic [31:0] word_aligned_address;
-    logic [31:0] oMemData;
     logic [1:0] byte_offset;
     /* verilator lint_on UNUSED */
     
     initial begin
-        $readmemh("pdf.hex", mem_array, 20'h10000);
+        $readmemh("sine.hex", mem_array, 20'h10000);
     end
 
     always_comb begin
@@ -45,7 +43,10 @@ module NewMem #(
         cData = data_cache_array[iIndex];
         word_aligned_address = {{iAddress[31:2]}, {2'b00}};
         byte_offset          = iAddress[1:0];     
-        if(iWriteEn==0&&(cTag==iTag))begin //Hit
+    end
+
+    always_comb begin
+        if(iWriteEn==0&&(cTag==iTag)&&cV==1)begin //Hit
             byte4 =   cData[31:24];
             byte3 =   cData[23:16];
             byte2 =   cData[15:8];
@@ -170,11 +171,9 @@ module NewMem #(
                     oMemData = {byte4, byte3, byte2, byte1};
                 end
             endcase
-            /* verilator lint_off ALWCOMBORDER */
             tag_cache_array[iIndex]=iTag;
             valid_cache_array[iIndex]=1;
-            data_cache_array[iIndex]=oMemData;
-            /* verilator lint_on ALWCOMBORDER */
+            data_cache_array[iIndex]={byte4, byte3, byte2, byte1};
         end
         else begin //Write
             case (iMemoryInstructionType)
@@ -227,7 +226,7 @@ module NewMem #(
         end
     end
 
-    always_ff @(negedge iClk) begin
+    always_ff @(posedge iClk) begin
         if (iWriteEn) begin
             mem_array[word_aligned_address + 32'd3][7:0] <= byte4;
             mem_array[word_aligned_address + 32'd2][7:0] <= byte3;
@@ -235,10 +234,8 @@ module NewMem #(
             mem_array[word_aligned_address][7:0]         <= byte1;
             valid_cache_array[iIndex]<=0;
         end
+        else             ooMemData                        <= oMemData;
     end
-    always_ff @(negedge iClk) begin
-        ooMemData<=oMemData;
-    end
-
 
 endmodule
+
