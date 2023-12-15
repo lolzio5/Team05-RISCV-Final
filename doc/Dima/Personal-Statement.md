@@ -15,15 +15,12 @@
    - [Hazard Control](#15-hazard-control)
       - [Hazard Unit](#151-hazard-unit)
       - [Jump Handling And Static Branch Prediction](#152-jump-handling-and-static-branch-prediction)
-   - [Limitations](#15-limitations)
 
 2. [Co-Created Modules](#2-co-created-modules)
    - [Data Memory](#21-data-memory)
-   - [Instruction Memory](#22-instruction-memory)
-   - [Result Mux](#23-result-mux)
-   - [PC Register](#24-pc-register)
-   - [Register File](#25-register-file)
-   - [Top Sheet](#26-top-sheet)
+   - [Result Mux](#22-result-mux)
+   - [PC Register](#23-pc-register)
+   - [Register File](#24-register-file)
 
 3. [Reflection and Improvements](#3-reflections-and-improvements)
 
@@ -703,6 +700,18 @@ If `iRecoverPCD` is set, it returns `iPCD + 4`, effectively recovering the origi
 
 ## (1.5) Hazard Control and Pipeline
 
+**Table (3.3.2)** : Relevant Modules
+
+---
+| Module |   Description       |
+|-----------------|----------------------------|
+| `HazardUnit`   | Used to detect data and control hazards and produce flush/stall and forward signals  | 
+| `OperandForwarderD`     | This module forwards registers that are to be compared in a branch instruction in the case of data hazard. | 
+| `ComparatorD`    | This module compares the values of the two registers used in a branch instruction. It also detects incorrect branch prediction and generates the required control signals|  | 
+| `AluOpForwarderE`    | This module forwards data from the memory/writeback stage to the execution stage in the case of data hazard. | 
+| `JumpBranchHandlerF` |This module makes the decision to branch given the type of branch executing, and generates the control signals for jump instructions in the fetch stage | 
+---
+
 ## (1.5.1) Hazard Unit
 
 >**Description :** The `HazardUnit` module detects and resolves various types of hazards, such as data hazards and control hazards, to ensure smooth and correct execution of instructions in a pipelined processor. The hazard unit generates control signals that dictate which Alu or Comparator signals (if any) are to be forwarded in between pipeline stages, or stall and flush signals if forwarding is not possible.
@@ -869,15 +878,10 @@ In the case that the branch taken backwards resolves to be incorrect (ie. branch
           
         end
 ```
+
+The actual PC recovery is performed by the `PCAdder` that will set the target PC to $PC_{Decode} + 4$ in the case of `RecoverPC` being high.
+
 ---
-
-<br>
-
-## (1.6) Limitations
-
-
-
-
 
 <br>
 
@@ -1051,11 +1055,239 @@ The module supports half duplex read/write operations (read/write occur one at a
 
 ## (2.3) Result Mux
 
+
+>**Description :** The `ResultMuxW` module is needed to select the value that is to be written to the respective register at the end of the instructions' computation. 
+
+<br>
+
+### I/O Ports
+
+---
+| Port Name     | Direction | Width | Description                                    |
+|---------------|-----------|-------|------------------------------------------------|
+| `iResultSrcW` | Input     | 3 bits | Source selector for write-back data            |
+| `iMemDataOutW`| Input     | 32 bits| Data read from memory                          |
+| `iAluResultW` | Input     | 32 bits| Result from ALU operation                      |
+| `iPCW`        | Input     | 32 bits| Program counter value                          |
+| `iUpperImmW`  | Input     | 32 bits| Upper immediate value                          |
+| `oRegDataInW` | Output    | 32 bits| Output data to be written to the register file |
+
+---
+
+<br>
+
+### Result Selection
+
+The module selects the final data to be written back to the register file based on `iResultSrcW`, which indicates the type of operation performed:
+
+1. **ALU Operation (`3'b000`)**: 
+   - The output is the result from the ALU.
+   - Used for arithmetic and logical instructions.
+
+2. **Memory Read Operation (`3'b001`)**:
+   - Outputs data read from memory.
+   - Used for load instructions.
+
+3. **Jumps (`3'b010`)**:
+   - Outputs the Program Counter value plus 4.
+   - Applies to jump instructions for storing the return address.
+
+4. **Load Upper Immediate (`3'b011`)**:
+   - Outputs the upper immediate value.
+   - Used for instructions like LUI.
+
+5. **Add Upper Immediate to PC (`3'b100`)**:
+   - Outputs the sum of the PC value and the upper immediate value.
+   - Used for instructions like AUIPC.
+
+6. **Default Case**:
+   - In any other scenario, defaults to the ALU result.
+
+---
+
+
 ## (2.4) PC Register
+
+### Single Cycle Version :
+
+>**Description :** The single cycle CPU PC register was used to hold the value of the current `PC` and select the next `PC` value by chosing between `PC + 4` and the target PC 
+
+<br>
+
+### I/O Ports
+
+<br>
+
+---
+| Port Name   | Direction | Width | Description                               |
+|-------------|-----------|-------|-------------------------------------------|
+| `iClk`      | Input     | 1 bit | Clock signal for synchronization          |
+| `iRst`      | Input     | 1 bit | Reset signal to initialize the PC         |
+| `iPCSrc`    | Input     | 1 bit | Source selector for the next PC value     |
+| `iTargetPC` | Input     | 32 bits | Target PC address for branch/jump instructions |
+| `oPC`       | Output    | 32 bits | Current Program Counter value             |
+
+---
+
+<br>
+
+### PC Initialization
+
+- On module initialization, the PC is set to zero (`0x00000000`), ready for the start of program execution.
+
+### PC Update Logic
+
+- The PC value is updated based on the current state and inputs:
+  - **Next PC Selection**: If `iPCSrc` is high, indicating a branch or jump instruction, `PCNext` is set to `iTargetPC`. Otherwise, `PCNext` is set to the current PC value plus 4 (`oPC + 32'd4`), moving to the next instruction in sequence.
+  - **PC Flip-Flop Register**: On the positive edge of the clock (`iClk`) or a reset signal (`iRst`), the PC register updates its value. If a reset occurs, the PC is set to zero; otherwise, it updates to `PCNext`.
+
+
+```verilog
+  always_comb begin
+    PCNext = iPCSrc ? iTargetPC : oPC + 32'd4;
+  end
+```
+
+---
+
+<br>
+
+### Pipelined Version : 
+
+>**Description :** In the pipelined version of the CPU, the PC register has additional responsibilty in recovering the PC value of the instruction that was to be executed in the case of an incorrect branch, as well as being able to stall. The PC register is included within the Fetch stage of the pipeline.
+
+<br>
+
+### I/O Ports
+
+| Port Name     | Direction | Width  | Description                                  |
+|---------------|-----------|--------|----------------------------------------------|
+| `iClk`        | Input     | 1 bit  | Clock signal                                 |
+| `iRst`        | Input     | 1 bit  | Reset signal                                 |
+| `iStallF`     | Input     | 1 bit  | Stall signal for the fetch stage             |
+| `iPCSrcF`     | Input     | 1 bit  | PC source selector from the fetch stage           |
+| `iPCSrcD`     | Input     | 1 bit  | PC source selector from the decode stage          |
+| `iRecoverPC`  | Input     | 1 bit  | Signal to recover PC                 |
+| `iTargetPC`   | Input     | 32 bits| Target PC for specific control flow changes  |
+| `iBranchTarget` | Input   | 32 bits| Branch target address                        |
+| `oPC`         | Output    | 32 bits| Current Program Counter value                |
+
+---
+
+
+### PC Update Logic
+
+- **Next PC Selection**:
+  - Determines the next PC value (`PCNext`) based on multiple control signals.
+  - If `iPCSrcD` is low, indicating no branch decision in the decode stage, the module chooses between the regular sequence (PC + 4) and the branch target from the fetch stage (`iBranchTarget`).
+  - If `iPCSrcD` is high, it selects `iTargetPC`, typically for control flow changes decided in the decode stage like taking a forward branch or executing JALR.
+
+```verilog
+
+  always_comb begin
+    //Must first check that the branch outcome in decode stage 
+    //If we didnt branch when we needed to and the instruction in fetch is a backward branch, we should not execute the backward branch
+    if (iPCSrcD == 1'b0) PCNext = iPCSrcF ? iBranchTarget : oPC + 32'd4;
+    else                 PCNext = iTargetPC;
+  end
+```
+
+<br>
+
+- **PC Flip-Flop Register**:
+  - Updates the PC on the positive edge of the clock (`iClk`) or a reset signal (`iRst`).
+  - If reset, the PC is set to zero; otherwise, it updates to `PCNext`, unless there's a stall (`iStallF`) in the fetch stage.
+
+
+```verilog
+  always_ff @ (posedge iClk or posedge iRst) begin 
+    if      (iRst)                     oPC <= {32{1'b0}};
+    else if (!iStallF )    oPC <= PCNext;
+  end
+```
+
+<br>
 
 ## (2.5) Register File
 
-## (2.6) Top Sheet
+> **Description :** `RegisterFileD` is used as the register file in the processor. The writing operation occurs on the rising edge of the clock whilst reading data occurs on the falling edge to allow time for the register to be written to - in certain situations however, this approach did not guarantee the correct value being read in the pipelined CPU and additional forwarding logic had to be added.
+
+<br>
+
+
+### Parameters
+
+- `ADDRESS_WIDTH`: Specifies the width of the register address bus. Default is 5 bits, allowing access to 32 registers.
+- `DATA_WIDTH`: Defines the width of the data bus. Set to 32 bits.
+
+<br>
+
+### I/O Ports
+
+---
+| Port Name        | Direction | Width            | Description |
+|------------------|-----------|------------------|-------------|
+| `iClk`           | Input     | 1 bit            | Clock signal |
+| `iWriteEn`       | Input     | 1 bit            | Write enable signal |
+| `iReadAddress1`  | Input     | `ADDRESS_WIDTH`  | Address for first read operation |
+| `iReadAddress2`  | Input     | `ADDRESS_WIDTH`  | Address for second read operation |
+| `iWriteAddress`  | Input     | `ADDRESS_WIDTH`  | Address for write operation |
+| `iDataIn`        | Input     | `DATA_WIDTH`     | Data to be written to a register |
+| `oRegData1`      | Output    | `DATA_WIDTH`     | Data output from first read operation |
+| `oRegData2`      | Output    | `DATA_WIDTH`     | Data output from second read operation |
+| `oRega0`         | Output    | `DATA_WIDTH`     | Data output for register a0 |
+
+---
+
+<br>
+
+### Register Array
+
+- The module consists of a 32x32 register array, allowing storage for 32 registers, each 32 bits wide.
+
+<br>
+
+### Read Operation
+
+- Read operations are synchronous and combinational : The output data is prepared and forwarded (if required) using a combinational logic block, then at the falling clock edge, the outputs `oRegData1` and `oRegData2` take on the value of the internal logic signals holding the register contents.
+
+- Register zero is hardwired to zero and does not store any value.
+
+
+```verilog
+    always_comb begin
+        ram_array[0] = {32{1'b0}}; // Wire register 0 to constant 0 
+        oRega0       = ram_array[5'd10;]
+        data_out1    = ram_array[iReadAddress1];
+        data_out2    = ram_array[iReadAddress2];
+    end
+    ...
+
+    always_ff @ (negedge iClk) begin 
+        oRegData1 <= data_out1;
+        oRegData2 <= data_out2;
+    end
+```
+
+<br>
+
+### Write Operation
+
+- Write operations occur on the rising edge of `iClk` and when `iWriteEn` is active.
+- Data specified by `iDataIn` is written to the register addressed by `iWriteAddress`.
+- Register zero is not writable and is ignored in write operations.
+
+<br>
+
+### Forwarding Logic
+
+- The module includes forwarding logic to handle write-read hazards within the same clock cycle.
+- If a write and read operation occur on the same register within the same cycle, the data being written is immediately forwarded to the read output.
+
+```verilog
+        if (iWriteAddress == iReadAddress1 & iWriteAddress != 5'b0 & iWriteEn) data_out1 = iDataIn;
+        else if (iWriteAddress == iReadAddress2 & iWriteAddress != 5'b0 & iWriteEn) data_out2 = iDataIn;
+```
 
 <br>
 
@@ -1065,13 +1297,24 @@ The module supports half duplex read/write operations (read/write occur one at a
 
 # (3) Reflections, Limitations and Improvements
 
+### Control Unit Design
+
+
 ### Pipeline Architecture Design
 
 The decision to create a 5 stage pipeline with a $F/D_{jb}$ stage, in theory, can bring certain advantages and disadvantages. Some notable advantages include the reduction in cycles wasted for flushing the incorrectly fetched instruction during a branch or jump, due to static branch prediction and taking jumps in the fetch stage. 
 
 With this pipeline architecture, the worst case stall can be only of two cycles, and would typically happen when a branch instruction follows a load instruction and there exists a data dependancy between the two instructions. 
 
-Improvements are seen in jump and branch instructions given there is no data dependancy - in contrast to a pipelined architecture where branches and jumps are fully decided in the decode stage, jump instructions in this architecture don't introduce any lost cycles as they are computed in the fetch stage, furthermore, in the case of an incorrect branch, only a single clock cycle is wasted in flushing and fetching the correct instruction.
+Improvements are seen in jump and branch instructions given there is no data dependancy - in contrast to a pipelined architecture where branches and jumps are fully decided in the decode stage, jump instructions in this architecture don't introduce any lost cycles as they are computed in the fetch stage, furthermore, in the case of an incorrect branch, only a single clock cycle is wasted in flushing and fetching the correct instruction. 
+
+Today there are assemblers and compilers that can re-structure the program such that data dependancies and hazards are avoided were possible, thus the additional clock cycle delay occuring due to hazards could be partially eliminated when optimization techniques are applied
+
+The full benefit of such pipeline would depend on how fast the decoding can be performed in the Fetch stage. Given that memory access is usually the slowest operation that can be done in the pipeline, the maximum clock frequency would usually be determined by the time required to Fetch instructions from ROM or access the data memory
+
+Thus the additional hardware requirements in the Fetch stage (that introduce greater delay/latency in the stage) could mean that the maximum clock frequency would need to fall in order to allow time for signals in the Fetch stage to propagate. 
+
+Although this pipeline can reduce the average CPI of the processor, if the clock frequency has to fall by a factor larger than the fall in CPI, the processor may actually perform worse than without the additional static branch prediction hardware. A detailed analysis on critical paths throughout the pipeline and understanding the practical implementation of the processor would be needed to discern the true impact of this design choice.
 
 ---
 

@@ -1663,7 +1663,7 @@ With the driving design and development principles outlined earlier focusing mor
 
 ### Redundency and Cost
 
-The ability to quickly develop modules that can be interpretted by team members who haven't worked on them meant that the implementation of certain operations/computations was naive and simple - leading to potential trade-offs with higher hardware cost in the design.
+The ability to quickly develop modules that can be interpretted by team members who haven't worked on them meant that the implementation of certain operations/computations was kept simple and clear - leading to potential trade-offs with higher hardware cost in the design.
 
 One particular example of this is the choice of using a seperate adder for branch instructions and ALU. Using the same adder for typical ALU operations, like addition, and for jalr and branch instructions would have reduced the hardware cost of another adder, yet could have made the design more convoluted. This is because, in the case of utilising a single adder, the value of the PC would need to propagate alongside the source register values through the CPU and additional control signals would be needed to distinguish between the writing of register computation and writing the next pc value/ret address.
 
@@ -1711,8 +1711,19 @@ Furthermore, it was assumed that arithmetic overflow can't occur and the result 
 
 ## (5.2) Pipeline Architecture Design
 
+The decision to create a 5 stage pipeline with a $F/D_{jb}$ stage, in theory, can bring certain advantages and disadvantages. Some notable advantages include the reduction in cycles wasted for flushing the incorrectly fetched instruction during a branch or jump, due to static branch prediction and taking jumps in the fetch stage. 
 
+With this pipeline architecture, the worst case stall can be only of two cycles, and would typically happen when a branch instruction follows a load instruction and there exists a data dependancy between the two instructions. 
 
+Improvements are seen in jump and branch instructions given there is no data dependancy - in contrast to a pipelined architecture where branches and jumps are fully decided in the decode stage, jump instructions in this architecture don't introduce any lost cycles as they are computed in the fetch stage, furthermore, in the case of an incorrect branch, only a single clock cycle is wasted in flushing and fetching the correct instruction. 
+
+Today there are assemblers and compilers that can re-structure the program such that data dependancies and hazards are avoided were possible, thus the additional clock cycle delay occuring due to hazards could be partially eliminated when optimization techniques are applied
+
+The full benefit of such pipeline would depend on how fast the decoding can be performed in the Fetch stage. Given that memory access is usually the slowest operation that can be done in the pipeline, the maximum clock frequency would usually be determined by the time required to Fetch instructions from ROM or access the data memory
+
+Thus the additional hardware requirements in the Fetch stage (that introduce greater delay/latency in the stage) could mean that the maximum clock frequency would need to fall in order to allow time for signals in the Fetch stage to propagate. 
+
+Although this pipeline can reduce the average CPI of the processor, if the clock frequency has to fall by a factor larger than the fall in CPI, the processor may actually perform worse than without the additional static branch prediction hardware. A detailed analysis on critical paths throughout the pipeline and understanding the practical implementation of the processor would be needed to discern the true impact of this design choice.
 
 <br>
 
