@@ -1659,9 +1659,13 @@ As seen above, the parser and test functions test the CPU line-by-line and see i
 
 With the driving design and development principles outlined earlier focusing more on the ease of development, and keeping module operation logical, transparent and specialised has lead to potential inneficiencies and redundencies in the processor design. 
 
-The ability to quickly develop modules that can be interpretted by team members who haven't worked on them meant that the implementation of certain operations/computations was naive and simple - leading to potential terade-offs to higher hardware cost in the design.
+## (5.1) General
 
-One particular example of this is the choice of using a seperate adder for branch instructions and Alu. Using the same adder for typical ALU operations, like addition, for jalr and branch instructions would have reduced the hardware cost of another adder, yet could have made the design more convoluted. This is because, in the case of utilising a single adder, the value of the PC would need to propagate alongside the source register values through the CPU and additional control signals would be needed to distinguish between the writing of register computation and writing the next pc value/ret address.
+### Redundency and Cost
+
+The ability to quickly develop modules that can be interpretted by team members who haven't worked on them meant that the implementation of certain operations/computations was naive and simple - leading to potential trade-offs with higher hardware cost in the design.
+
+One particular example of this is the choice of using a seperate adder for branch instructions and ALU. Using the same adder for typical ALU operations, like addition, and for jalr and branch instructions would have reduced the hardware cost of another adder, yet could have made the design more convoluted. This is because, in the case of utilising a single adder, the value of the PC would need to propagate alongside the source register values through the CPU and additional control signals would be needed to distinguish between the writing of register computation and writing the next pc value/ret address.
 
 Furthermore, several modules have implicitly defined adders. Below are a couple of exanples in the `PCRegisterF` and `ResultMuxW` :
 
@@ -1678,7 +1682,9 @@ Furthermore, several modules have implicitly defined adders. Below are a couple 
     endcase
 ```
 
-The listing above shows the write back result selection in the `ResultMuxW`. Note how the write back value is computed in the actual module for Upper instructions and jumps - implying the use of an adder in the module. Although this approach keeps the result selection process easy to understand within the module (compared to the alternate case where the signals are computed elsewhere in the CPU and passed into the MUX), it brings redundant/wasteful use of hardware. 
+The listing above shows the write back result selection in the `ResultMuxW`. Note how the write back value is computed in the actual module for Upper instructions and jumps - implying the use of an adder in the module. 
+
+Although this approach keeps the result selection process easy to understand within the module (compared to the alternate case where the signals are computed elsewhere in the CPU and passed into the MUX), it brings redundant/wasteful use of hardware. 
 
 <br>
 
@@ -1689,9 +1695,24 @@ The listing above shows the write back result selection in the `ResultMuxW`. Not
     else                 PCNext = iTargetPC;
 ```
 
-A similiar case is shown in the listing above, illustrating the need of an adder to compute the next PC value in the `PCRegisterF` module.
+<br>
+
+A similiar case is shown in the listing above, illustrating the need of an adder to compute the next PC value in the `PCRegisterF` module. These implicit hardware requirements make the processor less optimized but can make it less convoluted in system verilog.
+
+Additionally, the usage of certain SystemVerilog syntax and functionality could have lead to a less efficient processor. For example, many modules utilise nested case statements to perform their operation (like decoders). If 
+
+### Design Assumptions
+
+Certain assumptions have been made in the design of the processor. A major assumption was to neglect the finite propagation delay of signals through wires and modules. The current design of the processor would inevitably introduce static hazards and glitches in its' hardware, as it was not optimized to account for propagation delay. 
+
+Furthermore, it was assumed that arithmetic overflow can't occur and the result of the ALU computation would always be correct and untruncated. Obviously, such assumption would not hold in practice and additional hardware would be needed to resolve signed/unsigned overflow due to a computation.
+
+
+
 
 <br>
+
+
 
 ---
 
