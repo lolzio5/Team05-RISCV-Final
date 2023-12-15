@@ -1,4 +1,4 @@
-# Module List : Team-05 RISC-V CPU
+# Module List : Team-05 RISC-V Pipelined CPU
 
 | Name | Contributor Tag |
 |-------------|---------------|
