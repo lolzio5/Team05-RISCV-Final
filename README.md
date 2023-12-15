@@ -59,11 +59,51 @@ The tables below describes the usage of various branches for development and dep
 
 ## (1.1) Directory Organisation : 
 
+### (1.1.1) Single Cycle CPU
+
 ```
 -rtl
 --Control
+--ALU
+--Memory
+--PC
+--Mux
+--include
+--buildCPU.sh
+--top.sv
+--top_tb.cpp
+--vbuddy.cfg
+--vbuddy.cpp
+-Testing
+--Assembly
+--HexFiles
+--Makefile
+--format_hex.sh
 ```
 
+### (1.1.2) Pipelined CPU
+
+```
+-rtl
+--Control
+--ALU
+--Memory
+--PC
+--Mux
+--Pipelining
+--HazardControl
+--include
+--buildCPU.sh
+--top.sv
+--top_tb.cpp
+--vbuddy.cfg
+--vbuddy.cpp
+-Testing
+--Assembly
+--HexFiles
+--Makefile
+--format_hex.sh
+```
 
 # (2) Design Process
 
