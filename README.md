@@ -20,7 +20,7 @@ However, if you want to assemble your own program, it is possible to assemble th
 To run the program on Vbuddy, and have the output be displayed on the screen, exit Testing and simply run
 ```
 cd rtl
-source buildCPU.sh
+source ./buildCPU.sh
 ```
 
 > Note that if you wish to upload your own data to data memory, you will need to provide the path to your file in [DataMemoryM.sv](https://github.com/lolzio5/Team05-RISCV-Final/blob/b7c7e5eac61910712bd7877c136f52d1047438e9/rtl/Memory/DataMemoryM.sv) (see README.md on the Main Branch for more instructions).
