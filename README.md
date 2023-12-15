@@ -132,6 +132,37 @@ root
 |
 └── README.md
 ```
+**Branch : Pipelined CPU With Cache**
+
+
+
+```
+root
+
+├── rtl/
+| ├── Alu/
+| ├── Control/
+| ├── HazardControl/
+| ├── Memory/
+| ├── PC/
+| ├── Mux/
+| ├── Pipelining/
+| ├── include/
+| ├── buildCPU.sh
+| ├── top.sv
+| ├── top_tb.cpp
+| ├── vbuddy.cfg
+| └── buddy.cpp
+|
+├── Testing/
+| ├── Assembly/
+| ├── HexFiles/
+| ├── MemFiles/
+| ├── Makefile
+| └── format_hex.sh
+|
+└── README.md
+```
 
 ### (1.1.2) Pipelined CPU with data cache
 
