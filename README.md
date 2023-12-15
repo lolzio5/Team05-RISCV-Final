@@ -1699,13 +1699,17 @@ Although this approach keeps the result selection process easy to understand wit
 
 A similiar case is shown in the listing above, illustrating the need of an adder to compute the next PC value in the `PCRegisterF` module. These implicit hardware requirements make the processor less optimized but can make it less convoluted in system verilog.
 
-Additionally, the usage of certain SystemVerilog syntax and functionality could have lead to a less efficient processor. For example, many modules utilise nested case statements to perform their operation (like decoders). If 
+Additionally, the usage of certain SystemVerilog syntax and functionality could have lead to a less efficient processor. For example, many modules utilise nested case statements to perform their operation (like decoders). Given that in practice, these case statements usually would be  synthesized using multiplexers, overusing nested case statements could potentially result in greater signal delay than needed (assuming no optimization is applied during synthesis). 
+
+Also, the `inital` statement used in certain modules, like the instruction ROM and data memory RAM, may not translate directly into synthesiable hardware and is mainly applicable for simulations - a more practical implementations of an 'initial' state would need to be made for practical development.
 
 ### Design Assumptions
 
 Certain assumptions have been made in the design of the processor. A major assumption was to neglect the finite propagation delay of signals through wires and modules. The current design of the processor would inevitably introduce static hazards and glitches in its' hardware, as it was not optimized to account for propagation delay. 
 
 Furthermore, it was assumed that arithmetic overflow can't occur and the result of the ALU computation would always be correct and untruncated. Obviously, such assumption would not hold in practice and additional hardware would be needed to resolve signed/unsigned overflow due to a computation.
+
+## (5.2) Pipeline Architecture Design
 
 
 
