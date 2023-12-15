@@ -188,6 +188,9 @@ root
   - **Data Memory :**
   	- Dima Askarov
    	- Lolézio Viora Marquet
+  - **Register :**
+  	- Dima Askarov
+   	- Sam Barber
 
  #### **Multiplexers**
   - **PC Mux**
