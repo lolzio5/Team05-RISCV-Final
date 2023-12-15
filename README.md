@@ -41,25 +41,12 @@ The tables below describes the usage of various branches for development and dep
 |----------|-------------|----------|
 | Single-Cycle-CPU  | Holds the files corresponding to the Single Cycle implementation of the CPU  |  Fully Tested and Verified|
 | Pipelined-CPU    | Holds the files corresponding to the Pipelined version of the CPU that implements static branch prediction and hazard handling | Fully Tested and Verified|
-|  Pipelined-CPU-With-Cache   | Holds the files corresponding to the Pipelined CPU with an additional Data Cache Impelmentation | Majority Tested and Verified| 
+|  Pipelined-CPU-With-Cache   | Holds the files corresponding to the Pipelined CPU with an additional Data Cache Implementation | Fully Tested and Verified| 
 | main    | Holds repository information | |
 
 ---
 
 <br>
-
-**Table(1.0.2) :** Development Purpose Repository Branches
-
----
-| Branch |  Purpose | Verified Functionality |
-|----------|-------------|----------|
-| Control-Unit  | Holds the files corresponding to the Single Cycle implementation of the CPU  |  Fully Tested and Verified|
-| control-unit   | Holds the files corresponding to the Pipelined version of the CPU that implements static branch prediction and hazard handling | Majority Tested and Verified|
-|  compiling-solution   | Holds the files corresponding to the Pipelined CPU with an additional Data Cache Impelmentation | Partly Tested and Verified| 
-| Pipeline-Architecture-Dev    | Holds repository information | |
-
----
-
 
 ## (1.1) Directory Organisation : 
 
