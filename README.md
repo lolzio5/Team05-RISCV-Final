@@ -63,47 +63,52 @@ The tables below describes the usage of various branches for development and dep
 
 ```
 -rtl
---Control
---ALU
---Memory
---PC
---Mux
---include
---buildCPU.sh
---top.sv
---top_tb.cpp
---vbuddy.cfg
---vbuddy.cpp
+	--Control
+	--ALU
+	--Memory
+	--PC
+	--Mux
+	--include
+	--buildCPU.sh
+	--top.sv
+	--top_tb.cpp
+	--vbuddy.cfg
+	--vbuddy.cpp
 -Testing
---Assembly
---HexFiles
---Makefile
---format_hex.sh
+	--Assembly
+	--HexFiles
+	--Makefile
+	--format_hex.sh
+-README.md
 ```
 
 ### (1.1.2) Pipelined CPU
 
 ```
 -rtl
---Control
---ALU
---Memory
---PC
---Mux
---Pipelining
---HazardControl
---include
---buildCPU.sh
---top.sv
---top_tb.cpp
---vbuddy.cfg
---vbuddy.cpp
+	--Control
+	--ALU
+	--Memory
+	--PC
+	--Mux
+	--Pipelining
+	--HazardControl
+	--include
+	--buildCPU.sh
+	--top.sv
+	--top_tb.cpp
+	--vbuddy.cfg
+	--vbuddy.cpp
 -Testing
---Assembly
---HexFiles
---Makefile
---format_hex.sh
+	--Assembly
+	--HexFiles
+	--MemFiles
+	--Makefile
+	--format_hex.sh
+-README.md
 ```
+
+### (1.1.2) Pipelined CPU with data cache
 
 # (2) Design Process
 
@@ -111,25 +116,43 @@ The tables below describes the usage of various branches for development and dep
 
 ### (2.0.1) Single Cycle CPU
  #### **Arithmetic Logic Unit** 
- - Sam Barber 
+  - Sam Barber 
 
  #### **Control**
- - Dima Askarov
+  - Dima Askarov
 
  #### **Memory**
   - **Instruction Memory :**
-    - Dima Askarov
+   	 - Dima Askarov
   - **Data Memory :**
-    - Lolezio
-    - Dima Askarov 
+    	- Lolézio Viora Marquet
+    	- Dima Askarov 
 
  #### **Multiplexers**
+  - **PC Mux**
+  	- Lolézio Viora Marquet
+  - **Result Mux**
+	 - Lolézio Viora Marquet
+  - **ALU Mux**
+ 	- Sam Barber
 
  #### **Program Counter**
-
+  - Lolézio Viora Marquet
  #### **Testing**
-
+  - Meric Song
+  - Lolézio Viora Marquet
 <br>
+
+### (2.0.2) Pipelined CPU
+  - **Pipelining**
+	- Lolézio Viora Marquet
+  - **Hazard Control**
+  	- Dima Askarov
+  - **Testing**
+  	- Meric Song
+   	- Lolézio Viora Marquet
+### (2.0.3) CPU with data cache
+  - Sam Barber
 
 ## (2.1) Design Principles
 
