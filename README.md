@@ -1420,14 +1420,7 @@ The F1 lights were made to gradually turn on, with constant time interval in bet
 
 <br>
 
-### (3.4.2) PDF Generation - Single Cycle
-
-### (3.4.3) F1 Lighting Sequence - Single Cycle
-
-<br>
-
 ---
-
 
 
 ## (4) Testing Bench
@@ -1438,15 +1431,15 @@ To ensure that the CPU was fully correct, an intensive test was carried out on e
 
 By adding /*verilator public*/ metacomments into module systemVerilog files and adding —public flag to the compile command, Verilator will create extra header files for us to access internal signal values via testbench program, which get updated when the top module is evaluated each clock cycle. 
 
-![Example of the metacomment; you only need to include it once per module sv files.](Single%20Cycle%20RISC-V%20Documentation%201c001db33b5e439798edf4a78d03e0b3/Screen_Shot_2023-12-14_at_11.06.58_PM.png)
+![Example of the metacomment; you only need to include it once per module sv files.](doc/Meric/Images/Screen_Shot_2023-12-14_at_11.06.58_PM.png)
 
 Example of the metacomment; you only need to include it once per module sv files.
 
-![Accesing modules’ internal signal values in testbench.](Single%20Cycle%20RISC-V%20Documentation%201c001db33b5e439798edf4a78d03e0b3/Screen_Shot_2023-12-14_at_10.58.58_PM.png)
+![Accesing modules’ internal signal values in testbench.](doc/Meric/Images/Screen_Shot_2023-12-14_at_10.58.58_PM.png)
 
 Accesing modules’ internal signal values in testbench.
 
-![Example of instruction test functions by checking internal signal values, and making early ](Single%20Cycle%20RISC-V%20Documentation%201c001db33b5e439798edf4a78d03e0b3/Screen_Shot_2023-12-14_at_11.00.39_PM.png)
+![Example of instruction test functions by checking internal signal values, and making early ](doc/Meric/Images/Screen_Shot_2023-12-14_at_11.00.39_PM.png)
 
 Example of instruction test functions by checking internal signal values, and making early 
 
@@ -1639,7 +1632,7 @@ end:
     addi    t0, zero, 1000
 ```
 
-![Screen Shot 2023-12-14 at 11.54.50 PM.png](Single%20Cycle%20RISC-V%20Documentation%201c001db33b5e439798edf4a78d03e0b3/Screen_Shot_2023-12-14_at_11.54.50_PM.png)
+![Screen Shot 2023-12-14 at 11.54.50 PM.png](doc/Meric/Images/Screen_Shot_2023-12-14_at_11.54.50_PM.png)
 
 ### (4.4) F1 Assembly Code
 
@@ -1689,7 +1682,7 @@ end:
     addi    a0, zero, 0x0
 ```
 
-![Screen Shot 2023-12-15 at 12.37.49 AM.png](Single%20Cycle%20RISC-V%20Documentation%201c001db33b5e439798edf4a78d03e0b3/Screen_Shot_2023-12-15_at_12.37.49_AM.png)
+![Screen Shot 2023-12-15 at 12.37.49 AM.png](doc/Meric/Images/Screen_Shot_2023-12-15_at_12.37.49_AM.png)
 
 As seen above, the parser and test functions test the CPU line-by-line and see if it can run any assembly instructions thrown at it, and results in expected behaviour each CPU cycle. If all cycles run as expected, the CPU is “verified”.
 
