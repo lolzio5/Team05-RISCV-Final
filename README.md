@@ -447,6 +447,7 @@ The following logic is implemented using a case statement, to determine the Inst
 Once the Instruction Type is determined, for Register Computation, Immediate Computation, Load, Branch, and Store, the Instruction Sub Type is determined depending on Funct3 and Funct 7, with further case statements:
 
 **Table (): Register Computation** : 
+
 ---
 
 | Funct3 |  Funct7    | Instruction Sub Type |
@@ -465,6 +466,7 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 ---
 
 **Table (): Immediate Computation** : 
+
 ---
 
 | Funct3 |  Funct7    | Instruction Sub Type |
@@ -482,6 +484,7 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 ---
 
 **Table (): Load** : 
+
 ---
 
 | Funct3 | Instruction Sub Type |
@@ -495,6 +498,7 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 ---
 
 **Table (): Branch** : 
+
 ---
 
 | Funct3 | Instruction Sub Type |
@@ -509,6 +513,7 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 ---
 
 **Table (): Store** : 
+
 ---
 
 | Funct3 | Instruction Sub Type |
@@ -523,6 +528,7 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 Once the Instruction Type and Sub Type have been determined, the immediate operand must also be decoded, so it can be used by the ALU, or as a PC offset for Jump and Branch instructions. It is also sign extended, by setting all ImmExt[31:12] equal to the 12th bit ImmExt[11]. Once again, a case statement is used to determine this based on the Instruction Type determined previously, following this logic:
 
 **Table ()** : 
+
 ---
 
 | Instruction Type | ImmExt |
@@ -1184,56 +1190,46 @@ Note how the decode stage is also flushed to prevent the incorrectly fetched ins
 
 Furthermore, given the dependancy of the `a1` register on the `ADDI` instruction prior to the branch, the hazard unit also outputs control signals to forward the Alu output from the memory stage to the `CompratorD` module in the Decode stage.
 
+**Figure (3.4.2(3)) :** JALR Execution
+
 ![](doc/Dima/images/JALRinfetch.PNG)
+
+<br>
+
+**Figure (3.4.2(3))** shows the simulation in **Figure(3.4.2(2))** one clock cycle later. The PC value in the fetch stage is $32$ indicating a JALR (RET) instruction. Note how the `TakeJB` flags aren't set during this fetch stage. This is due to JALR being decoded fully in the decode stage as discussed earlier (in general, for JALR, the `TakeJB` flags aren't generated, instead the computed jump target is fed into `PCNext` using `PCSrcD` signals). 
+
+Also note how the Decode stage is flushed in this cycle to prevent the incorrectly fetched instruction with `PC` of $36$ from propagating through the pipieline
+
+<br>
+
+**Figure (3.4.2(4)) :** JALR Execution 2
 
 ![](doc/Dima/images/JALRindecode.PNG)
 
+<br>
+
+**Figure (3.4.2(4))** shows the pipeline 1 cycle later, the `PC` in the Fetch stage is 4, which the value stored in `ram_array[1] / reg x1` representing the RET address that was set at the start of the program execution (`JAL ra, init`) 
+
+Given that the RET address was to another `JAL` instruction, the `TakeJBF` flag is set high in this cycle indicating that a jump to `build / PC = 36` is being  made. 
+
+<br>
+
+**Figure (3.4.2(5)) :**
+
 ![](doc/Dima/images/JALRETADDRESS.PNG)
+
+<br>
+
+**Figure (3.4.2(5))** shows the `JAL` instruction with `PC = 4` in the write back stage. At this point, the return address must be stored in `ram_array[1]` which is shown to be storing the value 8 in decimal. This would be the `PC` of the instruction after the `JAL ra, build` (with PC = 4). 
+
+
 
 ### (3.4.2) PDF Generation - Pipeline
 
-### (3.4.3) F1 Lighting Sequence - Pipeline
-
-### (3.4.2) PDF Generation - Single Cycle
-
-### (3.4.3) F1 Lighting Sequence - Single Cycle
-
-<br>
-
----
-
-<br>
-
-# (4) Results
-
-## (4.1) Reference and F1 Programs
 The Processor was tested using the reference programs provided, to calculate the Probability Density Function (PDF) for 4 different datasets. The Formula 1 Lights Program was also tested. All tests were carried out on the Pipelined Processor, to decrease the number of cycles needed to run the programs.
 
-### (4.1.1) F1 Program
 
 
-https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/b585d13c-0146-4a05-a419-959e3aec0845
-
-
-The F1 lights were made to gradually turn on, with constant time interval in between, until all are on. Then, after a random amount of time, they turn off, and the process repeats itself. As can be seen on the video, they turn on gradually in the same manner each time, but they turn off after a different interval each time. This makes it difficult to predict when they will turn off, and showcases that both the F1 program was written correctly, and that the CPU is working correctly.
-
-> To run this test on the Single Cycle CPU, navigate to the Single Cycle Branch, open the ```rtl``` folder, and enter the command
-> ```
-> source ./buildCPU.sh F1.hex
-> ```
-
-<br>
-
-> To run this test on the Pipelined CPU, navigate to the Pipelined with Cache Branch, open the ```rtl``` folder, and enter the command
-> ```
-> source ./buildCPU.sh
-> ```
-> Make sure that in [InstructionMemory.sv](InstructionMemory.sv) line 24 is set to
-> ```verilog
-> $readmemh("F1.hex", rom_array);
-> ```
-
-<br>
 
 ### (4.1.2) Sine PDF
 
@@ -1330,12 +1326,46 @@ Reading the data from Data Memory in the Pipelined Processor, the PDF of the Tri
 
 ---
 
+### (3.4.3) F1 Lighting Sequence - Pipeline
+
+https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/b585d13c-0146-4a05-a419-959e3aec0845
+
+
+The F1 lights were made to gradually turn on, with constant time interval in between, until all are on. Then, after a random amount of time, they turn off, and the process repeats itself. As can be seen on the video, they turn on gradually in the same manner each time, but they turn off after a different interval each time. This makes it difficult to predict when they will turn off, and showcases that both the F1 program was written correctly, and that the CPU is working correctly.
+
+> To run this test on the Single Cycle CPU, navigate to the Single Cycle Branch, open the ```rtl``` folder, and enter the command
+> ```
+> source ./buildCPU.sh F1.hex
+> ```
+
 <br>
 
-## (4.2) Instruction Specific Testing
+> To run this test on the Pipelined CPU, navigate to the Pipelined with Cache Branch, open the ```rtl``` folder, and enter the command
+> ```
+> source ./buildCPU.sh
+> ```
+> Make sure that in [InstructionMemory.sv](InstructionMemory.sv) line 24 is set to
+> ```verilog
+> $readmemh("F1.hex", rom_array);
+> ```
+
+<br>
+
+### (3.4.2) PDF Generation - Single Cycle
+
+### (3.4.3) F1 Lighting Sequence - Single Cycle
+
+<br>
+
+---
+
+
+
+## (4) Testing Bench
+
 To ensure that the CPU was fully correct, an intensive test was carried out on each instruction, checking whether their behavior was what is expected, or not.
 
-### (4.2.1) Accessing internal signal values in Verilator.
+### (4.1) Accessing internal signal values in Verilator.
 
 By adding /*verilator public*/ metacomments into module systemVerilog files and adding —public flag to the compile command, Verilator will create extra header files for us to access internal signal values via testbench program, which get updated when the top module is evaluated each clock cycle. 
 
@@ -1353,7 +1383,7 @@ Example of instruction test functions by checking internal signal values, and ma
 
 This testbench simulates and verifies each clock cycle of the CPU by parsing the assembly file being fed into the CPU’s instruction memory and comparing its expected behaviour to the actual behaviour.
 
-### (4.2.2) The parser:
+### (4.2) The parser:
 
 The parser is mainly composed of the following functions: 
 
@@ -1365,7 +1395,7 @@ void handleInstruction(const std::string& line)
 
 Some smaller functions that take care of specific parsing operations that were written as a function for improvement in code readability and maintainability, will not be mentioned in this documentation.
 
-#### (4.2.2.1) readAssemblyFile:
+**Listing() :** readAssemblyFile:
 
 ```cpp
 void readAssemblyFile(const std::string& filename) {
@@ -1415,7 +1445,7 @@ The readAssemblyFile reads each line of the assembly file stream and appropriate
 6. The parser will then consider anything else as instruction and will push it back into a string vector named instructions.
 7. The index of each instruction inside the instructions vector will represent PC divided by 4 inside instruction memory, and labels will also have address associated with it.
 
-#### (4.2.2.2) parseAssembly:
+**Listing() :** Parse-Assembly
 
 ```cpp
 void parseAssembly() {
@@ -1434,7 +1464,7 @@ void parseAssembly() {
 
 This function will run through the instructions vector and feed each instructions into the **handleInstruction()** function. It is also responsible for simulating tick and reset in the cpu clock for each instructions being ran inside the CPU.
 
-#### (4.2.2.3) handleInstruction:
+**Listing() :** handleInstruction:
 
 ```cpp
 void handleInstruction(const std::string& line) {
@@ -1513,7 +1543,7 @@ Each arguments inside the instruction line is parsed into register values, or im
 
 In result, we get the verification of CPU by compiling and running the Verilator executable! 
 
-#### (4.2.2.4) Test Assembly Code
+### (4.3) Test Assembly Code
 
 Below is the test assembly code for our single cycle CPU, and its result:
 
@@ -1542,7 +1572,7 @@ end:
 
 ![Screen Shot 2023-12-14 at 11.54.50 PM.png](Single%20Cycle%20RISC-V%20Documentation%201c001db33b5e439798edf4a78d03e0b3/Screen_Shot_2023-12-14_at_11.54.50_PM.png)
 
-### F1 Assembly Code
+### (4.4) F1 Assembly Code
 
 F1Single.s below was run, and tested 
 
