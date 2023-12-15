@@ -28,8 +28,8 @@ ___
 <br>
 
 - Relevant Commits
-   - Create PCRegister and PCMux (now PCAdder) (534842ffa40ed09614356d9a13d6a843e6ae56e4)
-   - Test with pc_tb.cpp (abafc942c3d3eea7a863614ab9b56480703a538d)
+   - [Create PCRegister and PCMux (now PCAdder)](https://github.com/lolzio5/Team05-RISCV-Final/commit/534842ffa40ed09614356d9a13d6a843e6ae56e4)
+   - [Test with pc_tb.cpp](https://github.com/lolzio5/Team05-RISCV-Final/commit/abafc942c3d3eea7a863614ab9b56480703a538d)
 
 <br>
 
@@ -74,9 +74,9 @@ ___
 <br>
 
 - Relevant Commits
-   - [Create Data Memory and ResultMux](534842ffa40ed09614356d9a13d6a843e6ae56e4)
-   - [Test with mem_tb.cpp](b139c802ca1e83903bb756481c387fe4b1a2649c)
-   - [Connect ResultMux to pipeline](4e13c6db62e9c5a4f5f2a64d1eb3075bdb178f4e)
+   - [Create Data Memory and ResultMux](https://github.com/lolzio5/Team05-RISCV-Final/commit/534842ffa40ed09614356d9a13d6a843e6ae56e4)
+   - [Test with mem_tb.cpp](https://github.com/lolzio5/Team05-RISCV-Final/commit/b139c802ca1e83903bb756481c387fe4b1a2649c)
+   - [Connect ResultMux to pipeline](https://github.com/lolzio5/Team05-RISCV-Final/commit/4e13c6db62e9c5a4f5f2a64d1eb3075bdb178f4e)
  
 <br>
 
@@ -130,7 +130,7 @@ ___
 <br>
 
 - Relevant Commits
-   - [Implement File Loading Function](a193223365e734800c6e362816f23db945b1b752)
+   - [Implement File Loading Function](https://github.com/lolzio5/Team05-RISCV-Final/commit/a193223365e734800c6e362816f23db945b1b752)
  
 <br>
 
@@ -156,9 +156,9 @@ ___
 <br>
 
 - Relevant Commits
-   - [Create Top File](09e8229c2f756a60bf6fbd6ad5ecd1a0acea0e20)
-   - [Debug Top File](0f939ad5844366eeda5450729f97100b0441d81c)
-   - [Implement Pipelining](1b7484b29b6b38d53feaf61ad9c122febce7aebd)
+   - [Create Top File](https://github.com/lolzio5/Team05-RISCV-Final/commit/09e8229c2f756a60bf6fbd6ad5ecd1a0acea0e20)
+   - [Debug Top File](https://github.com/lolzio5/Team05-RISCV-Final/commit/0f939ad5844366eeda5450729f97100b0441d81c)
+   - [Implement Pipelining](https://github.com/lolzio5/Team05-RISCV-Final/commit/1b7484b29b6b38d53feaf61ad9c122febce7aebd)
  
 <br>
 
@@ -176,11 +176,11 @@ ___
 <br>
 
 - Relevant Commits
-   - [Create C++ F1 Program](d611ff345c8431d072ffb4f89cb3929108362a2a)
-   - [Create Assembly F1 Program](d611ff345c8431d072ffb4f89cb3929108362a2a)
+   - [Create C++ F1 Program](https://github.com/lolzio5/Team05-RISCV-Final/commit/d611ff345c8431d072ffb4f89cb3929108362a2a)
+   - [Create Assembly F1 Program](https://github.com/lolzio5/Team05-RISCV-Final/commit/d611ff345c8431d072ffb4f89cb3929108362a2a)
    - [Debug Assembly F1 Program]
-      - [First fixing](c1f326ad5ecab2343a5f9fe4a8350a462884a12a)
-      - [Naming conventions](4e821348e195c65d19c202aba21a8729126fa478)
+      - [First fixing](https://github.com/lolzio5/Team05-RISCV-Final/commit/c1f326ad5ecab2343a5f9fe4a8350a462884a12a)
+      - [Naming conventions](https://github.com/lolzio5/Team05-RISCV-Final/commit/4e821348e195c65d19c202aba21a8729126fa478)
  
 <br>
 
@@ -326,8 +326,8 @@ ___
 <br>
 
 - Relevant Commits
-   - [Created top_tb.cpp with Vbuddy functionality](fc9552f272afdf196d20c28b9c0d8894fa399163a)
-   - [Implemented file loading functionality](a193223365e734800c6e362816f23db945b1b752)
+   - [Created top_tb.cpp with Vbuddy functionality](https://github.com/lolzio5/Team05-RISCV-Final/commit/fc9552f272afdf196d20c28b9c0d8894fa399163a)
+   - [Implemented file loading functionality](https://github.com/lolzio5/Team05-RISCV-Final/commit/a193223365e734800c6e362816f23db945b1b752)
  
 <br>
 
@@ -358,10 +358,10 @@ ___
 <br>
 
 - Relevant Commits
-   - [Created Memory Pipeline Register](ee6ca47e6bffd83f5ea3c99cad0f22c3fafc947b)
-   - [Created Fetch Pipeline Register](6718ccd2be978d1635f713321e4feba6116b3f09)
-   - [Created Execute Pipeline Register](6cc722f38faf610dc813b2fccbf76254c878992d)
-   - [Created Decode Pipeline Register](a467bdb74c11859fda339d3607e0c5949cee0e5e)
+   - [Created Memory Pipeline Register](https://github.com/lolzio5/Team05-RISCV-Final/commit/ee6ca47e6bffd83f5ea3c99cad0f22c3fafc947b)
+   - [Created Fetch Pipeline Register](https://github.com/lolzio5/Team05-RISCV-Final/commit/6718ccd2be978d1635f713321e4feba6116b3f09)
+   - [Created Execute Pipeline Register](https://github.com/lolzio5/Team05-RISCV-Final/commit/6cc722f38faf610dc813b2fccbf76254c878992d)
+   - [Created Decode Pipeline Register](https://github.com/lolzio5/Team05-RISCV-Final/commit/a467bdb74c11859fda339d3607e0c5949cee0e5e)
  
 <br>
 
@@ -413,8 +413,8 @@ ___
 <br>
 
 - Relevant Commits
-   - [Edited Makefile](324dbb5cbe8a268df72046718fc36fd4120e29e8)
-   - [Implement File Loading Function](a193223365e734800c6e362816f23db945b1b752)
+   - [Edited Makefile](https://github.com/lolzio5/Team05-RISCV-Final/commit/324dbb5cbe8a268df72046718fc36fd4120e29e8)
+   - [Implement File Loading Function](https://github.com/lolzio5/Team05-RISCV-Final/commit/a193223365e734800c6e362816f23db945b1b752)
 
 <br>
 
@@ -442,6 +442,17 @@ The Shell script also checks for an input filename, to be passed on to the testb
 ___
 
 ## 9 - Conclusion and Reflection
+
+<br>
+
+- Relevant Commits
+   - [Fully documented the implementation of Single Cycle CPU](https://github.com/lolzio5/Team05-RISCV-Final/commit/a15db0a53a1b618daf8789f4b1b2c5bcf289a196)
+   - [Fully tested and documented results of Single Cycle and Pipelined CPU with Vbuddy](https://github.com/lolzio5/Team05-RISCV-Final/commit/b62cc72931f9e10c9218102d80acdb9f0d3475f3)
+   - [Create Single-Cycle-CPU Branch and organise it](https://github.com/lolzio5/Team05-RISCV-Final/commit/7f6a6bbb27c4ca132d6fc3deaa7b4e3518914a49)
+   - [Create Pipelined-CPU Branch and organise it](https://github.com/lolzio5/Team05-RISCV-Final/commit/924416cc66c9c02a79cee68810e698ff74266587)
+
+<br>
+
 ### Conclusion
 <br>
 
