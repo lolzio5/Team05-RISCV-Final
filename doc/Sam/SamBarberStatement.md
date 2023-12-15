@@ -16,6 +16,8 @@ Sam Barber - Team 5: Risk V 32i Processor Project
      - [Miss handling](#miss)
      - [Decode module](#decode)
      - [Writing to memory and replacement policy](#writing)
+     - [Two Way Cache](#writing)
+     - [Replacement policy](#writing)
 6. [Conclusion and Reflection](#conclusion)
 
 
