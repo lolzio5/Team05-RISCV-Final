@@ -1260,8 +1260,6 @@ Given that the RET address was to another `JAL` instruction, the `TakeJBF` flag 
 The Processor was tested using the reference programs provided, to calculate the Probability Density Function (PDF) for 4 different datasets. The Formula 1 Lights Program was also tested. All tests were carried out on the Pipelined Processor, to decrease the number of cycles needed to run the programs.
 
 
-
-
 ### (4.1.2) Sine PDF
 
 
@@ -1655,10 +1653,66 @@ end:
 
 As seen above, the parser and test functions test the CPU line-by-line and see if it can run any assembly instructions thrown at it, and results in expected behaviour each CPU cycle. If all cycles run as expected, the CPU is “verified”.
 
+<br>
+
 # (5) Limitations, Reflections and Improvements
-Content for the Contributing section...
+
+With the driving design and development principles outlined earlier focusing more on the ease of development, and keeping module operation logical, transparent and specialised has lead to potential inneficiencies and redundencies in the processor design. 
+
+## (5.1) General
+
+### Redundency and Cost
+
+The ability to quickly develop modules that can be interpretted by team members who haven't worked on them meant that the implementation of certain operations/computations was naive and simple - leading to potential trade-offs with higher hardware cost in the design.
+
+One particular example of this is the choice of using a seperate adder for branch instructions and ALU. Using the same adder for typical ALU operations, like addition, and for jalr and branch instructions would have reduced the hardware cost of another adder, yet could have made the design more convoluted. This is because, in the case of utilising a single adder, the value of the PC would need to propagate alongside the source register values through the CPU and additional control signals would be needed to distinguish between the writing of register computation and writing the next pc value/ret address.
+
+Furthermore, several modules have implicitly defined adders. Below are a couple of exanples in the `PCRegisterF` and `ResultMuxW` :
+
+**Listing (5.1.1) :** Write Back Result Selection
+
+```verilog
+    case(iResultSrcW)
+      3'b000   : oRegDataInW = iAluResultW;       // Alu Operation
+      3'b001   : oRegDataInW = iMemDataOutW;      // Memory Read Operation (Load)
+      3'b010   : oRegDataInW = iPCW + 32'd4;      // Jumps 
+      3'b011   : oRegDataInW = iUpperImmW;        // Load Upper Immediate
+      3'b100   : oRegDataInW = iPCW + iUpperImmW;  // Add Upper Immediate To PC
+      default  : oRegDataInW = iAluResultW;       // Default - Alu Operation
+    endcase
+```
+
+The listing above shows the write back result selection in the `ResultMuxW`. Note how the write back value is computed in the actual module for Upper instructions and jumps - implying the use of an adder in the module. 
+
+Although this approach keeps the result selection process easy to understand within the module (compared to the alternate case where the signals are computed elsewhere in the CPU and passed into the MUX), it brings redundant/wasteful use of hardware. 
 
 <br>
+
+**Listing (5.1.2) :** PC Source Selection
+
+```verilog
+    if (iPCSrcD == 1'b0) PCNext = iPCSrcF ? iBranchTarget : oPC + 32'd4;
+    else                 PCNext = iTargetPC;
+```
+
+<br>
+
+A similiar case is shown in the listing above, illustrating the need of an adder to compute the next PC value in the `PCRegisterF` module. These implicit hardware requirements make the processor less optimized but can make it less convoluted in system verilog.
+
+Additionally, the usage of certain SystemVerilog syntax and functionality could have lead to a less efficient processor. For example, many modules utilise nested case statements to perform their operation (like decoders). If 
+
+### Design Assumptions
+
+Certain assumptions have been made in the design of the processor. A major assumption was to neglect the finite propagation delay of signals through wires and modules. The current design of the processor would inevitably introduce static hazards and glitches in its' hardware, as it was not optimized to account for propagation delay. 
+
+Furthermore, it was assumed that arithmetic overflow can't occur and the result of the ALU computation would always be correct and untruncated. Obviously, such assumption would not hold in practice and additional hardware would be needed to resolve signed/unsigned overflow due to a computation.
+
+
+
+
+<br>
+
+
 
 ---
 
