@@ -33,11 +33,10 @@ int main(int argc, char **argv, char **env) {
             top->iClk = !top->iClk;
             top->eval ();
         }
-        if(simcyc>100){
+        if(simcyc>450000){    //Ensures result is only displayed once all calculations have been conducted
             vbdPlot(int(top->oRega0), 0, 255);
+            vbdCycle(simcyc);
         }
-        
-        vbdCycle(simcyc);
 
         if ((Verilated::gotFinish()) || (vbdGetkey()=='q')) exit(0);
     }
