@@ -125,8 +125,8 @@ The tables below describes the usage of various branches for development and dep
   - **Instruction Memory :**
    	- Dima Askarov
   - **Data Memory :**
-  	- Dima Askarov 
-    	- Lolézio Viora Marquet
+  	- Dima Askarov
+   	- Lolézio Viora Marquet
 
  #### **Multiplexers**
   - **PC Mux**
