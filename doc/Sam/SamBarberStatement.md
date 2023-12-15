@@ -111,7 +111,6 @@ The two way cache is built very similarly to the direct cache with the addition 
 In the two way cache when if a miss occurs and if the cache is full data needs to removed from the cache to allow for the new data. This is achieved by the U bit this indicates which which piece of data was last used. The data which is the oldest is replaced with the new data.
 
 
-Every time a miss occurs 
 ### Testing the cache
 Testing with the PDF program on the pipelined single cycle processor with data memory cache.
 ![](TestingCachePDF.jpeg)
