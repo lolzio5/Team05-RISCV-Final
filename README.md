@@ -980,6 +980,8 @@ With all the stages fully implemented, the Single Cycle Processor is fully funct
 
 <br>
 
+**Diagram (3.2.19): High Level Diagram of Single CPU **
+![](/doc/Diagrams/HLv0.6.png)
 ## (3.3) Pipelined Architecture
 
 As with the Single Cycle Architecture, the pipeline architecture broke down the instruction execution cycle into 5 stages. The stages were chosen as the following : 
