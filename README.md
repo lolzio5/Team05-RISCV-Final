@@ -1549,11 +1549,15 @@ The F1 lights were made to gradually turn on, with constant time interval in bet
 ## (3.5)  Pipelined Architecture with Data Cache
 ### Direct Mapped Cache 
 The cache is implemented using a direct mapped approach.  The cache memory is made up of 4 parts valid bit, tag, index and data. The cache size is 64 bytes with a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache. 
-### Hit
+
+### (3.5.1) Hit
 A hit is detected when the incoming read iAddress tag matches the tag of the cache and the valid bit is high. When a hit occurs data is read directly from cache.
 
-### Miss
+### (3.5.2) Miss
 If a miss is detected data must be read from main memory. It is then stored in the cache so allow at the corresponding index.
+
+### (3.5.3) Writing to memory
+When an address stored  within the cache is written to the cache must be cleared to prevent the information in the cache from being out of date. This is achieved by setting the valid bit low on the cache block when iWriteEn is high for the corresponding cache.
 
 
 
