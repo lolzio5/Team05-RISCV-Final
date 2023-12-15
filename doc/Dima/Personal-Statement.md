@@ -768,7 +768,7 @@ If `iRecoverPCD` is set, it returns `iPCD + 4`, effectively recovering the origi
 
 <br>
 
-**Listing () :** Load Dependancy Detection and Resolution
+**Listing (1.5.1(1)) :** Load Dependancy Detection and Resolution
 
 ```verilog
     if (iInstructionTypeE == LOAD) begin 
@@ -794,6 +794,10 @@ If `iRecoverPCD` is set, it returns `iPCD + 4`, effectively recovering the origi
    - In the case of a load data dependancy being detected, with a branch/jump instruction in the decode stage, the pipeline is stalled and flushed. This action is also taken if there is a data dependancy with the instruction in the execution stage. This provides enough time for the instruction in the execute/memory stage to reach the memory/writeback stage and the result of the computation to be forwarded
 
    - In the case of no load data dependancy, the appropriate forwarding control signals are set and output
+
+<br>
+
+**Listing (1.5.1(2)) :** Handling Jump and Branch Data Hazards
 
 ```verilog
     if (iInstructionTypeD == BRANCH | (iInstructionTypeD == JUMP & iInstructionSubTypeD ==JUMP_LINK_REG)) begin
@@ -831,6 +835,8 @@ If `iRecoverPCD` is set, it returns `iPCD + 4`, effectively recovering the origi
     end
 ```
 
+<br>
+
 ### Raw Hazards In Other Instruction Types
 
 1. **Detection**:
@@ -841,7 +847,40 @@ If `iRecoverPCD` is set, it returns `iPCD + 4`, effectively recovering the origi
 
    - If a RAW hazard is detected, the module forwards the needed data from the Memory or Write Back stage to the Execute stage, using `oForwardAluOp1E` and `oForwardAluOp2E`.
 
+<br>
+
+**Listing (1.5.1(3)) :** Data Hazard Detection and Resolution
+
+```verilog
+      if (iSrcReg1E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg1E) begin
+        if (iInstructionTypeM != UPPER) oForwardAluOp1E = 2'b01; //Forward Alu Result
+        else                            oForwardAluOp1E = 2'b11; //Forward Upper Immediate
+      end
+
+      ... //Do the same for Write Back Stage
+
+     //If there is no data dependancy hazard for source register 1
+      else                              oForwardAluOp1E = 2'b00;    
+
+      
+      //Forward data in memory stage to execution stage
+      if      (iSrcReg2E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg2E) oForwardAluOp2E = 2'b01;     
+      
+      //Forward writeback value to execution stage
+      else if (iSrcReg2E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg2E) oForwardAluOp2E = 2'b10;     
+      
+      //If there is no data dependancy hazard for source register 2
+      else                                                                oForwardAluOp2E = 2'b00;     
+```
+
+<br>
+
+As shown in the listing above, the control signal `oForwardAluOp1E` takes on the value of $11$ in binary (3 in decimal) in the case that there is an Upper instruction executing in the memory stage. If this is the case, the value of the upper immediate is forwarded from the memory stage rather than the ALU output. This had to be done due to upper instructions being computed outside of the ALU.
+
+
 ---
+
+### Operation Summary
 
 #### Forwarding Logic
 
@@ -890,9 +929,9 @@ In the case of a branch that is to be taken backwards, the module `JumpBranchHan
 
 #### Edge Cases and Stalls
 
-In the case that the branch taken backwards resolves to be incorrect (ie. branch was taken backward when it should not have been), the `ComparatorD` module will detect the incorrect prediction by comparing the two source registers of the branch instruction within the main $DECODE$ stage - alongside additional information on the branch prediction made in the fetch stage.
+In the case that the branch taken backwards resolves to be incorrect (ie. branch was taken backward when it should not have been), the `ComparatorD` module will detect the incorrect prediction by comparing the two source registers of the branch instruction within the main $DECODE$ stage - alongside using additional information on the branch prediction made in the fetch stage.
 
-**Listing() :** Example in `ComparatorD` of incorrect branch prediction detection based on the value of source registers and branch decision in the previous stage
+**Listing (1.5.2(1)) :** Example in `ComparatorD` of incorrect branch prediction detection based on the value of source registers and branch decision in the previous stage
 
 ```verilog
   case(iInstructionTypeD)
@@ -1101,7 +1140,7 @@ The module supports half duplex read/write operations (read/write occur one at a
 <br>
 
 
-## (2.3) Result Mux
+## (2.2) Result Mux
 
 
 >**Description :** The `ResultMuxW` module is needed to select the value that is to be written to the respective register at the end of the instructions' computation. 
@@ -1189,6 +1228,7 @@ The module selects the final data to be written back to the register file based 
   - **Next PC Selection**: If `iPCSrc` is high, indicating a branch or jump instruction, `PCNext` is set to `iTargetPC`. Otherwise, `PCNext` is set to the current PC value plus 4 (`oPC + 32'd4`), moving to the next instruction in sequence.
   - **PC Flip-Flop Register**: On the positive edge of the clock (`iClk`) or a reset signal (`iRst`), the PC register updates its value. If a reset occurs, the PC is set to zero; otherwise, it updates to `PCNext`.
 
+**Listing (2.4.1) :** Next PC Selection
 
 ```verilog
   always_comb begin
@@ -1232,6 +1272,8 @@ The module selects the final data to be written back to the register file based 
 
 <br>
 
+**Listing (2.4.2) :** Next PC Selection - Pipelined CPU
+
 ```verilog
 
   always_comb begin
@@ -1249,6 +1291,8 @@ The module selects the final data to be written back to the register file based 
   - If reset, the PC is set to zero; otherwise, it updates to `PCNext`, unless there's a stall (`iStallF`) in the fetch stage.
 
 <br>
+
+**Listing (2.4.3) :** Stall Logic in PC Register
 
 ```verilog
   always_ff @ (posedge iClk or posedge iRst) begin 
@@ -1304,6 +1348,7 @@ The module selects the final data to be written back to the register file based 
 
 - Register zero is hardwired to zero and does not store any value.
 
+**Listing (2.5.1)**
 
 ```verilog
     always_comb begin
@@ -1335,6 +1380,8 @@ The module selects the final data to be written back to the register file based 
 - The module includes forwarding logic to handle write-read hazards within the same clock cycle.
 - If a write and read operation occur on the same register within the same cycle, the data being written is immediately forwarded to the read output.
 
+**Listing (2.5.2) :** Register Data Forwarding
+
 ```verilog
         if (iWriteAddress == iReadAddress1 & iWriteAddress != 5'b0 & iWriteEn) data_out1 = iDataIn;
         else if (iWriteAddress == iReadAddress2 & iWriteAddress != 5'b0 & iWriteEn) data_out2 = iDataIn;
@@ -1360,7 +1407,7 @@ One particular example of this is the choice of using a seperate adder, implemen
 
 Furthermore, several modules have implicitly defined adders. Below are a couple of exanples in the `PCRegisterF` and `ResultMuxW` :
 
-**Listing (5.1.1) :** Write Back Result Selection
+**Listing (3.1.1) :** Write Back Result Selection
 
 ```verilog
     case(iResultSrcW)
@@ -1379,7 +1426,7 @@ Although this approach keeps the result selection process easy to understand wit
 
 <br>
 
-**Listing (5.1.2) :** PC Source Selection
+**Listing (3.1.2) :** PC Source Selection
 
 ```verilog
     if (iPCSrcD == 1'b0) PCNext = iPCSrcF ? iBranchTarget : oPC + 32'd4;
