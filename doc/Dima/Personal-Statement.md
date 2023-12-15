@@ -22,7 +22,7 @@
    - [PC Register](#23-pc-register)
    - [Register File](#24-register-file)
 
-3. [Reflection and Improvements](#3-reflections-and-improvements)
+3. [Reflections, Limitations and Improvements](#3-reflections-limitations-and-improvements)
 
 
 4. [Acknowledgements](#6-acknowledgements)
@@ -38,16 +38,15 @@
 
 ## (1.0) Design Principles
 
-The driving design principles throughout the development of components for the Single Cycle CPU and the Pipelined CPU were the following :
+The design principles driving the development of components for the Single Cycle CPU and the Pipelined CPU were the following :
 
->- **Modularity** : Components were broken down into specialised units that performed a singluar or a limited set of tasks
+>- **Modularity** : Components were subdivided in a logical manner to perform their own set of tasks, which when combined, gave the full functionality of the CPU.
 
->- **Ease of intergration and development** : The ability to easily integrate sub modules together was always a key consideration during design and development
+>- **Ease of intergration and development** : The ability to easily integrate sub modules together was always a key consideration during design and development.
 
->- **Transparency of operation** : The ability to easily interpret and understand the operation of modules and sub-modules was the main consideration when implementing them. The implications of this approach on the efficiency and cost of the design is explored in *Limitations*
+>- **Transparency of operation** : The ability to easily interpret and understand the operation of modules and sub-modules was the main consideration when implementing them. The implications of this approach on the efficiency and cost of the design is explored in [Reflections, Limitations and Improvements](#3-reflections-limitations-and-improvements).
 
-<br>
-Implementations of modules driven by the design principles above led to certain advantages and potential disadvantages explored in *limitations*.
+
 
 <br>
 
@@ -73,7 +72,7 @@ Below is a table summarising the contributions made to the design and implementa
 | Immediate Decode             |Module that extracts the 32-bit immediate from the instruction - Full design and implementation | | Sign Extension Logic : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/fd4b38a312291cc50405a4ee0f0fcdfd58e699ec), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/73234d4c2963db9a97efebf7f824d09ecfeb41e0), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/cdd3fa6e475c8d8bcc18cd954e76f98e129d2014)  <br> Immediate Decoding Logic : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/70e985f78c55c8befaaf6244dc386da382c2cd48), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/818da68a376826f001fc998e7c430dbc3132275c), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/6f20562ea5342c9904f4dbeb2388cd724bd00d8d), [4](https://github.com/lolzio5/Team05-RISCV-Final/commit/b66ee54f43a56cf334b0c354569c130ca21743f8) <br> Style and Naming: [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/35c11704569b52352ee60277fe308ecf7f75ea82)  | 
 | Alu Encode                   | Module that generates alu control signals - Full design and implementation| | Alu Control Signal Generation : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/32fbf56d37cd0e637fb236376f8080dc4a1edc83), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/7c853dbfdcd0ee822bfdb8dfcfb3d567f976fdac), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/7ec42b56da41faebfb6ba8dadb7e18a9a041e253), [4](https://github.com/lolzio5/Team05-RISCV-Final/commit/2d24dcea2e6acf75303f548e9133d0cecb6715f8) |
 | Instruction Decode           | Module that decodes the type and sub-type of an instruction - Full design and implementation| | Implementing Logic To Decode Instructions : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/00c7d29e8214b549c5f0ab3b781c6774a29a316b), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/f487bb46401c15c78bc584880d6ca50f509ca64f), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/20c22cb740c5a9551c674cc328e92fb2e45b091b), [4](https://github.com/lolzio5/Team05-RISCV-Final/commit/c2e8d077898b842a19981c2dfb057dca4ed12618), [5](https://github.com/lolzio5/Team05-RISCV-Final/commit/daf545f3c24ecf7a67d7086e3ef80c0a4c8c0a85), [6](https://github.com/lolzio5/Team05-RISCV-Final/commit/daf545f3c24ecf7a67d7086e3ef80c0a4c8c0a85) <br> |
-| Instruction ROM              | Added byte addressibility and initial state| [@lolzio5](https://github.com/lolzio5) | Implementing Byte Addressable ROM Array : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/56f249e777e2d1a153c8432daadc0e88bfb8248f), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/2af18d9200f9f483e556aa815168b1048f24ec05) <br> Style and Naming: [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/11a5e6fe025a320a7f1bd9d5ed5cdd24c5e11379), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/d84d39ba50e9568d39da1c02df9c22a53aea4fbd), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/27cc9c11ca341c02deba15bb0234e289f3d60d63) | 
+| Instruction ROM              | Added byte addressibility and initial state| | Implementing Byte Addressable ROM Array : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/56f249e777e2d1a153c8432daadc0e88bfb8248f), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/2af18d9200f9f483e556aa815168b1048f24ec05) <br> Style and Naming: [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/11a5e6fe025a320a7f1bd9d5ed5cdd24c5e11379), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/d84d39ba50e9568d39da1c02df9c22a53aea4fbd), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/27cc9c11ca341c02deba15bb0234e289f3d60d63) | 
 | PC Register                  | Added pipelining features, Adjusted initial design to make the register self contained, Added stall logic | [@lolzio5](https://github.com/lolzio5)| PC Selection and Propagation : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/597d6ddf8c3f5eb81c21822ef1b9b8adaa3ae817), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/9a778b31e51770afe913ab06382be427f74723b6) <br> Style and Naming : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/e44e57b548192d00c79772b9a46caa98e664335d) |
 | Hazard Unit                  | Module generates control signals for data forwarding in the case of hazard detection - Full design and implementation| | Implementing Hazard Detection and Data Forwarding Logic : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/8f46596fc395622a66ab65c7789dfbd81ec4c672), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/941eca310a097943bf3d80b4802751060fe20137), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/5be2e9d48dd8d1671ab58f3b553c935598aade27) <br> Handling Hazards Due to Branching : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/c4770d25012f80ee241bc086ce574ae5848bc013), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/cce3140f6d694ce3c0940b9ea8eb17ce0e34fb63), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/703cab9a5b5eb40ea50122d9526ef96056274d9e)  <br> Style and Naming : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/1c0839cd6f8100e680f8f0f21a46a2204839657b)|
 | Jump Branch Handler          | Handles jump and branch control hazards - Full design and implementation| | Branch Prediction : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/5bcb12965f5b56d23c8e2b8745dfb464b11259c3), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/6f2991cfe6194896cda8bed65d5f6b97482eb7d3) <br> Handling Jumps : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/7e71b202f67246ea8749874378cd35f9f33aa28c), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/703cab9a5b5eb40ea50122d9526ef96056274d9e)|
@@ -81,10 +80,10 @@ Below is a table summarising the contributions made to the design and implementa
 | Alu Operand Forwarder        | Updated forwarding logic | [@songmeric](https://github.com/songmeric)| Alu Operand Forwarding Logic : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/b303699532cb783e7f5b43ba7804b51896f551a0) |
 | Data Memory                  | Implemented read/write logic, address alignment | [@samuelwbarber](https://github.com/samuelwbarber)|  Memory Addressing : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/63b00e5298106c934d3255a43f0d6fe5b1a44f81), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/5407d19a752a2882fea82ed8e712bb0fa6996ec8), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/8abc3403a5c936c607210757cfa707c28e392db0), [4](https://github.com/lolzio5/Team05-RISCV-Final/commit/5407d19a752a2882fea82ed8e712bb0fa6996ec8)   <br> Handling Load/Store Operations : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/0b1b4fb525a6814ecf499f13c665fb7bf6b3b727) , [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/64aab77ed20bac600cbc883d797656d2e4eda271), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/64aab77ed20bac600cbc883d797656d2e4eda271)  <br> | 
 | Pipe Line Registers          | Adjusted the I/O signals to accomodate for all signals that need to propagate through the pipeline, Added flush and stall logic| [@lolzio5](https://github.com/lolzio5)| Fixed I/O Of Pipeline Registers : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/6bd200c87ad1e9276a7d572e7feffa26ac0b742e), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/2e07d851db20071b549c464e8036bf5e2186cd7f) <br> Stall and Flush Logic : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/703cab9a5b5eb40ea50122d9526ef96056274d9e), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/cce3140f6d694ce3c0940b9ea8eb17ce0e34fb63) | 
-| Result Selector              | Module that decides the source for the data that is to be written back to the register - Full design and implementation| | Selecting Write-Back Source : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/df3ef43ce49c8a111c2270d639e4e437669ee722), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/b042dedb97b661e493a0190d9e9b20237d4a4c30), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/ab415e2c6e570f4bceb2aedc4314b7714ecccfdd)| 
+| Result Selector              | Module that decides the source for the data that is to be written back to the register | [@lolzio5](https://github.com/lolzio5) | Selecting Write-Back Source : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/df3ef43ce49c8a111c2270d639e4e437669ee722), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/b042dedb97b661e493a0190d9e9b20237d4a4c30), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/ab415e2c6e570f4bceb2aedc4314b7714ecccfdd)| 
 | Register File                | Implemented read/write logic, Added forwarding logic to prevent hazards in a pipeline| [@lolzio5](https://github.com/lolzio5)| Read/Write Operation : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/cba743c702f9b53f03254a8f31e102f4cbb3d6b6), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/ab7904760b6af35010f5bf07d4a45f23c941603d) <br> Style and Naming : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/c08823386b247acc3c3c066eea5941746de008f2) | 
-| PC Adder                     | Module to generate jump and branch target addresses - Full design and implementation| | Computing the Branch Target Address : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/57809310c043b34817b8b806eae4e080a821ec1e), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/812f7407e99339c940b445bbba6c83c8de23d39a) <br> Accomodating for Upper and Jump Instructions : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/821bae97d6b3668b563989e5dfed589851f2867c) |
-| Top Sheet                    | Continious contribution of keeping module layout, structure, interconnectedness and signal naming up to date and up to standard| [@samuelwbarber](https://github.com/samuelwbarber), [@lolzio5](https://github.com/lolzio5)| Integrating Sub Modules in Top Sheet : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/abf80377f4a6ef5c19ba4246f3f6479a6e422598) <br> Pipelining : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/bdb7391bbe1011e7923fd53b07362ef7bace0dd6), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/fa865bf1c5a6acc4fb9c1b7fa4e53cba2aca5758) | 
+| PC Adder                     | Module to generate jump and branch target addresses |[@lolzio5](https://github.com/lolzio5) | Computing the Branch Target Address : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/57809310c043b34817b8b806eae4e080a821ec1e), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/812f7407e99339c940b445bbba6c83c8de23d39a) <br> Accomodating for Upper and Jump Instructions : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/821bae97d6b3668b563989e5dfed589851f2867c) |
+| Top Sheet                    | Continious contribution of keeping module layout, structure, interconnectedness and signal naming up to date and up to standard| [@samuelwbarber](https://github.com/samuelwbarber), [@lolzio5](https://github.com/lolzio5), [@songmeric](https://github.com/songmeric)| Integrating Sub Modules in Top Sheet : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/abf80377f4a6ef5c19ba4246f3f6479a6e422598) <br> Pipelining : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/bdb7391bbe1011e7923fd53b07362ef7bace0dd6), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/fa865bf1c5a6acc4fb9c1b7fa4e53cba2aca5758) | 
 | General                      | General contributions to organisation and structure| | Style and Naming : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/24f0529a495f932ae6075249d07100786213447c), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/4427d1ebec40a8a1fe2c6e32d4ccac5da61c6b15), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/4c4948f805aed9283e108f889a568508c703b0e6), [4](https://github.com/lolzio5/Team05-RISCV-Final/commit/91078cc78c7c750efed9da886ffe86735eeeebbd), [5](https://github.com/lolzio5/Team05-RISCV-Final/commit/2e060a20fcf873926fbfb8056926f94ddcd7de9a) <br> File and Directory Organisation : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/f81c3f8554bb1c05ba200cdd2eee3ad07df29eba), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/5778d1f6dbf0762aab008298e3462fb7d90259f4), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/98442cad7d019289d9d35447c01442b96f05acbe), [4](https://github.com/lolzio5/Team05-RISCV-Final/commit/c152c5247b978bff421716dacc870332b4f9bee1), [5](https://github.com/lolzio5/Team05-RISCV-Final/commit/78e296416095302a34ea9e9048a1c7d1531baa69) <br> Documentation : [1](https://github.com/lolzio5/Team05-RISCV-Final/commit/d42f55184708a4b43cba8dd081561e87b090772c), [2](https://github.com/lolzio5/Team05-RISCV-Final/commit/1b722ae181a4bf2d8628d6e8d9b04b38d25897e4), [3](https://github.com/lolzio5/Team05-RISCV-Final/commit/65f83eef05c02ac2dd9e0373088c1e689a75e6e6), [4](https://github.com/lolzio5/Team05-RISCV-Final/commit/99de0382af7eeeb031e0bd82233b19541a5cd37e)|
 
 ---
@@ -283,7 +282,7 @@ end
 
 ## (1.3.1) Instruction Memory
 
->**Description** : The `InstructionMemoryF` module is designed as an instruction memory component. It is parameterized to accommodate varying data widths and is responsible for storing and providing instruction data based on the provided Program Counter (PC) value. The memory address space has a size of 4096 (12-bit address) addresses to accomodadate the memory block depicted in the reference memory map - shown in **Figure (1.3.1(1))**. This was done as having an address space of $2^{32}$ addresses caused an out of bounds error when trying to load instructions (probably due to the enormous memory requirements)
+>**Description** : The `InstructionMemoryF` module is designed as an instruction memory component. It is parameterized to accommodate varying data widths and is responsible for storing and providing instruction data based on the provided Program Counter (PC) value. The memory address space has a size of 4096 (12-bit address) addresses to accomodadate the memory block depicted in the reference memory map - shown in **Figure (1.3.1(1))**.
 
 
 ### Module Interface
@@ -294,17 +293,13 @@ end
 
 
 
-- `DATA_WIDTH`: Specifies the width of the data (and thus the instruction width). It is set to 32 by default, aligning with the typical instruction size in RV32I architecture, yet only the bottom 12-bits are used as the address. 
+- `DATA_WIDTH`: Specifies the width of the data (and thus the instruction width). It is set to 32 by default, yet only the bottom 12-bits are used as the address. 
 
 <br>
 
 **Listing (1.3.1(1)) :** ROM Array Initialization
 
 ```verilog
-//////////////////////////////////////////////
-////     Instruction ROM Array 32 x 4096  ////
-//////////////////////////////////////////////
-
   //ROM Array - Address space is large enough to cover the memory space shown in memory map
   logic [DATA_WIDTH - 1 : 0] rom_array [0 : 2**12  - 1];
 ```
@@ -332,7 +327,7 @@ end
 
 
 ### Instruction ROM Array :
-- The module contains a ROM (Read-Only Memory) array named `rom_array` with a size of 32 x 4096, providing a substantial memory space for storing instructions.
+- The module contains a ROM  array named `rom_array` with a size of 32 x 4096, providing a memory space for storing instructions.
 - The ROM array assumes a little endian byte addressable memory architecture
 
 ### Loading Instructions into ROM :
@@ -1167,23 +1162,23 @@ The module supports half duplex read/write operations (read/write occur one at a
 
 The module selects the final data to be written back to the register file based on `iResultSrcW`, which indicates the type of operation performed:
 
-1. **ALU Operation (`3'b000`)**: 
+1. **ALU Operation (`000`)**: 
    - The output is the result from the ALU.
    - Used for arithmetic and logical instructions.
 
-2. **Memory Read Operation (`3'b001`)**:
+2. **Memory Read Operation (`001`)**:
    - Outputs data read from memory.
    - Used for load instructions.
 
-3. **Jumps (`3'b010`)**:
+3. **Jumps (`010`)**:
    - Outputs the Program Counter value plus 4.
    - Applies to jump instructions for storing the return address.
 
-4. **Load Upper Immediate (`3'b011`)**:
+4. **Load Upper Immediate (`011`)**:
    - Outputs the upper immediate value.
    - Used for instructions like LUI.
 
-5. **Add Upper Immediate to PC (`3'b100`)**:
+5. **Add Upper Immediate to PC (`100`)**:
    - Outputs the sum of the PC value and the upper immediate value.
    - Used for instructions like AUIPC.
 
@@ -1389,11 +1384,15 @@ The module selects the final data to be written back to the register file based 
 
 
 ---
+<br>
+
+<br>
 
 <br>
 
 
 # (3) Reflections, Limitations and Improvements
+---
 
 With the driving design and development principles focusing more on the ease of development, as well as keeping module operation logical, transparent and specialised, has lead to potential inneficiencies and redundencies in the processor design. 
 
@@ -1456,26 +1455,29 @@ Certain assumptions have been made in the design of the processor. A major assum
 
 Furthermore, it was assumed that arithmetic overflow can't occur and the result of the ALU computation would always be correct and untruncated. Obviously, such assumption would not hold in practice and additional hardware would be needed to resolve signed/unsigned overflow due to a computation.
 
-## (3.2) Control Unit Design
+<br>
 
 ## (3.3) Pipeline Architecture Design
 
-The decision to create a 5 stage pipeline with a $F/D_{jb}$ stage, in theory, can bring certain advantages and disadvantages. Some notable advantages include the reduction in cycles wasted for flushing the incorrectly fetched instruction during a branch or jump - due to static branch prediction and taking jumps in the fetch stage. 
+Implementing a five-stage pipeline with a fetch/decode for jump-branch $F/D_{jb}$ stage in a CPU can yield a mix of benefits and drawbacks. A key advantage is the reduction in wasted cycles from flushing incorrectly fetched instructions during branches or jumps. This efficiency is achieved through static branch prediction and resolving jumps in the fetch stage itself.
 
-With this pipeline architecture, the worst case stall was found to be only two clock cycles. This would typically happen when a branch instruction follows a load instruction, where there exists a data dependancy between the two instructions. 
+In this pipeline design, the most significant delay occurs in a scenario where a branch instruction follows a load instruction, creating a data dependency. This situation typically results in a stall of only two clock cycles. 
 
-Improvements are seen in jump and branch instructions given there is no data dependancy - in contrast to a pipelined architecture where branches and jumps are fully decided in the decode stage, jump instructions in this architecture don't introduce any lost cycles as they are computed in the fetch stage, furthermore, in the case of an incorrect branch, only a single clock cycle is wasted in flushing and fetching the correct instruction. 
+The architecture particularly enhances the performance of jump and branch instructions when no data dependencies are present. Unlike traditional pipelined architectures where branches and jumps are resolved in the decode stage, this approach processes jump instructions in the fetch stage, avoiding lost cycles. Additionally, in cases of incorrect branching, only a single clock cycle is lost for flushing and fetching the correct instruction.
 
-Today there are assemblers and compilers that can re-structure the program such that data dependancies and hazards are avoided were possible, thus the additional clock cycle delay occuring due to hazards could be partially eliminated when optimization techniques are applied
+Modern assemblers and compilers can often restructure programs to minimize data dependencies and hazards. This capability means that the additional cycle delay caused by hazards might be mitigated through optimization techniques.
 
-The full benefit of such pipeline would depend on how fast the decoding can be performed in the Fetch stage. Given that memory access is usually the slowest operation that can be done in the pipeline, the maximum clock frequency would usually be determined by the time required to Fetch instructions from ROM or access the data memory
+The effectiveness of this pipeline design heavily relies on the speed of decoding in the Fetch stage. Since memory access is typically the slowest operation in a pipeline, the maximum clock frequency of the CPU is often dictated by the time it takes to fetch instructions from ROM or access data memory.
 
-Thus the additional hardware requirements in the Fetch stage (that introduce greater delay/latency in the stage) could mean that the maximum clock frequency would need to fall in order to allow time for signals in the Fetch stage to propagate. 
+However, additional hardware in the Fetch stage, which introduces greater delay or latency, could necessitate a reduction in the maximum clock frequency to allow enough time for signal propagation. 
 
-Although this pipeline can reduce the average CPI of the processor, if the clock frequency has to fall by a factor larger than the fall in CPI, the processor may actually perform worse than without the additional static branch prediction hardware. A detailed analysis on critical paths throughout the pipeline and understanding the practical implementation of the processor would be needed to discern the true impact of this design choice.
+While this pipeline architecture has the potential to reduce the average cycles per instruction (CPI) of the processor, a significant decrease in clock frequency could negate these gains. If the reduction in clock frequency exceeds the improvement in CPI, the processor's overall performance might be worse compared to a design without the added static branch prediction hardware. A thorough analysis of the critical paths in the pipeline and a practical understanding of the processor's implementation are essential to accurately assess the impact of this design choice.
 
-## ()
 
 <br>
 
-# (4) Acknowledgements
+
+## (3.4) Maybe Next Time
+
+
+To build upon the pipelined CPU, it could be extended to include dynamic branch prediction, where previous branch descisions are recorded in order to decide wether the next branch is to be taken or not. To further improve the CPI performance of the CPU, multi-threading techniques can be implemented to eliminate the need for stalling. 
