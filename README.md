@@ -115,6 +115,7 @@ root
 | ├── Memory/
 | ├── PC/
 | ├── Mux/
+| ├── Old/
 | ├── Pipelining/
 | ├── include/
 | ├── buildCPU.sh
