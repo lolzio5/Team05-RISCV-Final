@@ -115,7 +115,7 @@ If a miss is detected the data must be loaded from main memory. To achieve this 
 ### Decode Module <a name="decode"></a>
 The decode module is very simple it splits the incoming address into its Index and tag.
 ### Writing to memory<a name="writing"></a>
-When an address stored  within the cache is written to the cache must be cleared to prevent the information in the cache from being out of date. This is achieved by setting the valid bit low on the cache block when iWriteEn is high for the corresponding block of cache.
+When an address stored  within the cache is written to the cache must be cleared to prevent the information in the cache from being out of date. This is achieved by setting the valid bit low on the cache block when iWriteEn is high for the corresponding cache.
 
 ## Two way cache <a name="twowaycache"></a>
 The two way cache is built very similarly to the direct cache with the addition of the U ram array and two copies of the cache arrays. This U bit indicates which cache was most recently accessed. Unfortunately I did not have time to finish and fully verify the two way cache it is located in the new_cache_pipline branch under newmemtwoway.sv file.
