@@ -14,18 +14,18 @@
 | `ComparatorD` | Dima, Meric | 
 | `HazardUnit` | |
 | `OperandForwarderD` | Dima, Meric |
-| `DataMemoryM` | |
+| `DataMemoryM` | Lolézio, |
 | `InstructionMemoryF` | |
 | `RegisterFileD` | |
-| `ResultMuxW` | |
-| `PCRegisterF` | |
-| `PCAdderD` | |
+| `ResultMuxW` | Lolézio, |
+| `PCRegisterF` | Lolézio, |
+| `PCAdderD` | Lolézio, |
 | `JumpBranchHandlerF` | |
-| `FPipelineRegisterD` | |
-| `DPipelineRegisterE` | |
-| `EPipelineRegisterM` | |
-| `MPipelineRegisterW` | |
-| `top` | |
+| `FPipelineRegisterD` | Lolézio, |
+| `DPipelineRegisterE` | Lolézio, |
+| `EPipelineRegisterM` | Lolézio, |
+| `MPipelineRegisterW` | Lolézio, |
+| `top` | Lolézio, Meric, Dima, Sam|
 ---
 
 <br>
@@ -33,8 +33,8 @@
 ---
 | File Name | Contributors |
 |-------------|---------------|
-| `top_tb.cpp` | Meric | 
-|  `F1.s` | |
+| `top_tb.cpp` | Lolézio, Meric | 
+|  `F1.s` | Lolézio |
 | `HazardTest1.s`| |
 | `HazardTest2.s`| |
 |  `ControlTypeDefs.svh` | |
