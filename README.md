@@ -14,6 +14,7 @@
    - [Single Cycle Architecture](#32-single-cycle-architecture)
    - [Pipelined Architecture](#33-pipelined-architecture)
    - [Demonstration](#34-demonstration)
+   - [Pipelined Architecture with Data Cache](#35-pipelined-architecture-cache)
 4. [Testing Bench](#4-testing-bench)
    - [Interfacing With The CPU](#41-interfacing-with-the-cpu)
    - [The Parser](#42-the-parser)
@@ -1544,6 +1545,16 @@ The F1 lights were made to gradually turn on, with constant time interval in bet
 <br>
 
 ---
+
+## (3.5)  Pipelined Architecture with Data Cache
+### Direct Mapped Cache 
+The cache is implemented using a direct mapped approach.  The cache memory is made up of 4 parts valid bit, tag, index and data. The cache size is 64 bytes with a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache. 
+### Hit
+A hit is detected when the incoming read iAddress tag matches the tag of the cache and the valid bit is high. When a hit occurs data is read directly from cache.
+
+### Miss
+If a miss is detected data must be read from main memory. It is then stored in the cache so allow at the corresponding index.
+
 
 
 ## (4) Testing Bench
