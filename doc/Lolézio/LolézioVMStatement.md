@@ -2,8 +2,8 @@
 
 ___
 
-# Personal Statement of Contributions
-### Lolézio Viora Marquet - _November-December 2023_
+# Lolézio Viora Marquet Personal Statement of Contributions
+### _November-December 2023_
 <br>
 
 ___
@@ -24,7 +24,7 @@ ___
 ___
 
 ## 1 - PC Logic
-### PC Register   [PCRegister.sv](PCRegister.sv)
+### PC Register &emsp; [PCRegister.sv](https://github.com/lolzio5/Team05-RISCV-Final/blob/79f9cf8786671e993fadfd2d1794389880eab59f/rtl/PC/PCRegister.sv))
 
 <br>
 
@@ -43,7 +43,7 @@ PC Target is itself determined in another block part of the PC logic, the PC Add
 
 <br>
 
-### PC Adder   [PCAdder.sv](PCAdder.sv)
+### PC Adder &emsp; [PCAdder.sv](https://github.com/lolzio5/Team05-RISCV-Final/blob/79f9cf8786671e993fadfd2d1794389880eab59f/rtl/PC/PCAdder.sv)
 
 <br>
 
@@ -61,7 +61,7 @@ I extensively tested this functionality by writing the testbench [pc_tb.cpp](pc_
 ___
 
 ## 2 - Data Memory 
-### Data Memory   [DataMemory.sv](DataMemory.sv)
+### Data Memory &emsp; [DataMemory.sv](https://github.com/lolzio5/Team05-RISCV-Final/blob/79f9cf8786671e993fadfd2d1794389880eab59f/rtl/Memory/DataMemory.sv)
 
 <br>
 
@@ -69,7 +69,8 @@ I initially designed and implemented the Data Memory to modify a simple ROM into
 
 <br>
 
-### Result Multiplexer [ResultMux.sv](ResultMux.sv)
+### Result Multiplexer &emsp; [ResultMux.sv](https://github.com/lolzio5/Team05-RISCV-Final/blob/79f9cf8786671e993fadfd2d1794389880eab59f/rtl/Mux/ResultMux.sv)
+
 <br>
 
 Taking the output of the Data Memory, I designed and implemented the output multiplexer, depending on ResultSrc. The original version, similar to that of Lab 4, followed the following logic:
@@ -106,7 +107,7 @@ I extensively tested this functionality by writing the testbench [mem_tb.cpp](me
 ___
 
 ## 3 - Instruction Memory 
-###  Instruction Memory   [InstructionMemory.sv](InstructionMemory.sv)
+###  Instruction Memory  &emsp; [InstructionMemory.sv](https://github.com/lolzio5/Team05-RISCV-Final/blob/79f9cf8786671e993fadfd2d1794389880eab59f/rtl/Memory/InstructionMemory.sv)
 <br> 
 
 My contribution to the Instruction Memory was to automate the process of loading instructions, so that the file could be passed as an argument, and loaded. While this has no direct impact on the function of the processor, it saved large amounts of time with testing and debugging. 
@@ -124,7 +125,7 @@ The Instruction Memory block is then passed the file name as a signal, which is 
 ___
 
 ## 4 - Top File
-### Top File   [top.sv](top.sv)
+### Top File &emsp; [top.sv](https://github.com/lolzio5/Team05-RISCV-Final/blob/79f9cf8786671e993fadfd2d1794389880eab59f/rtl/top.sv)
 <br>
 
 My first contribution to the Top file was writing a first draft, connecting all modules together for initial testing and debugging, and ensuring all inputs and outputs were consistent throughout, as well as signal widths. As the project progressed, I regularly updated the Top file, for example by adding functionality to automatically load the correct file into memory (see above). The Top file for this project was regularly updated by all members.
@@ -134,7 +135,7 @@ My first contribution to the Top file was writing a first draft, connecting all 
 ___
 
 ## 5 - F1 Program
-### C++ Program   [assembly.cpp](assembly.cpp)
+### C++ Program &emsp; [assembly.cpp](assembly.cpp)
 <br>
 
 To get started on designing and implementing the F1 Program in Assembly, I wrote an implementation in C++.
@@ -271,7 +272,7 @@ In this way, 15 fewer cycles are needed for an output counting to 15. Setting it
 ___
 
 ## 6 - Vbuddy functionality
-### Top Testbench [top_tb.cpp](top_tb.cpp) 
+### Top Testbench &emsp; [top_tb.cpp](https://github.com/lolzio5/Team05-RISCV-Final/blob/79f9cf8786671e993fadfd2d1794389880eab59f/rtl/top_tb.cpp) 
 <br>
 
 To test the F1 program, I wrote a testbench that is able to output the result on Vbuddy. To ensure a fair test, the testbench has as little logic as possible, directly passing the output of the processor in a0 in the vbdBar() function, to be displayed on the LED bar:
@@ -296,7 +297,7 @@ ___
 Pipelining requires the implementation of 4 different registers, in between the Fetch, Decode, Execute, Memory and Write stages of the processor. Since they all have different outputs and inputs, I created 4 different files, and connected them all in the Top file in between the modules they are connected to. 
 <br>
 
-### Fetch Pipeline Register [FPipelineRegisterD.sv](FPipelineRegisterD.sv)
+### Fetch Pipeline Register  &emsp;  [FPipelineRegisterD.sv](https://github.com/lolzio5/Team05-RISCV-Final/blob/5e4701e0ff6439646a8050a14f6a5d8001e6edb7/rtl/Pipelining/FPipelineRegisterD.sv)
 This file was designed to take in the values from the fetch stage, such as the current PC value, and output them in the next cycle. Due to how Dima Askarov designed the Hazard Handling unit, there must be a possibility to flush, or stall this register, which means the following logic was implemented:
 
 | FlushD | StallD | Outputs to the Decode stage |
@@ -310,7 +311,7 @@ The stall is important as the pipeline was designed to automatically take Jumps 
 
 <br>
 
-### Decode Pipeline Register [DPipelineRegisterE.sv](DPipelineRegisterE.sv)
+### Decode Pipeline Register   &emsp;  [DPipelineRegisterE.sv](https://github.com/lolzio5/Team05-RISCV-Final/blob/5e4701e0ff6439646a8050a14f6a5d8001e6edb7/rtl/Pipelining/DPipelineRegisterE.sv)
 This file takes in the values from the Decode stage, and outputs them to the Execute stage a clock cycle later. While it has significantly more inputs than in the previous stage, as it includes all the signals from the Control Unit, the logic is simpler, as no stall was necessary to implement here (since at this stage, jumping logic would have been rectified). The logic is as follows:
 
 <br>
@@ -322,13 +323,13 @@ This file takes in the values from the Decode stage, and outputs them to the Exe
 
 <br>
 
-### Execute Pipeline Register [EPipelineRegisterM.sv](EPipelineRegisterM.sv)
+### Execute Pipeline Register   &emsp;  [EPipelineRegisterM.sv](https://github.com/lolzio5/Team05-RISCV-Final/blob/5e4701e0ff6439646a8050a14f6a5d8001e6edb7/rtl/Pipelining/EPipelineRegisterM.sv)
 This file takes in the values from the Decode stage, and outputs them to the Execute stage a clock cycle later. Here, no flushing or stalling is required, significantly simplifying the logic, as the module simply set the outputs to the same value as the inputs on the rising edge of the clock.
 
 <br>
 This is because, at this stage, all hazards have been handled, and so the values being passed through can always be handled.
 
-### Memory Pipeline Register [MPipelineRegisterW.sv](MPipelineRegisterW.sv)
+### Memory Pipeline Register   &emsp;   [MPipelineRegisterW.sv](https://github.com/lolzio5/Team05-RISCV-Final/blob/5e4701e0ff6439646a8050a14f6a5d8001e6edb7/rtl/Pipelining/MPipelineRegisterW.sv)
 Very similarly to the Execute Pipeline Register above, this file takes in the values from the Memory stage, and outputs them to the Write stage a clock cycle later. Here, no flushing or stalling is required, significantly simplifying the logic, as the module simply set the outputs to the same value as the inputs on the rising edge of the clock.
 
 <br>
@@ -337,7 +338,7 @@ This is because, at this stage, all hazards have been handled, and so the values
 ___
 
 ## 8 - Makefile and Shell Script
-### Makefile [Makefile](Makefile)
+### Makefile [Makefile]()
 <br>
 
 I debugged the provided Makefile so it would be able to build our Assembly files in .s format into the required, .hex format, ensuring it would find the right files. The Makefile itself uses the GNU Toolchain Assembler to output a .hex file, calling the format_hex.sh script.
