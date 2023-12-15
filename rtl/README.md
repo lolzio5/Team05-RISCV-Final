@@ -10,10 +10,10 @@
 | `ControlUnit` | |
 |  `ImmDecode` | |
 | `InstructionDecode` | |
-| `AluOpForwarderE`| |  Dima, Meric
-| `ComparatorD` | |  Dima, Meric
+| `AluOpForwarderE`| |  Dima, Meric |
+| `ComparatorD` | |  Dima, Meric | 
 | `HazardUnit` | |
-| `OperandForwarderD` | | Dima, Meric
+| `OperandForwarderD` | | Dima, Meric |
 | `DataMemoryM` | |
 | `InstructionMemoryF` | |
 | `RegisterFileD` | |
