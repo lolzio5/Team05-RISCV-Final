@@ -2,6 +2,8 @@
 
 ## Table of Contents
 1. [Directory Information](#1-directory-information)
+   - [Repository Branch Descriptions](#10-repository-branch-descriptions) 
+   - [Directory Organisation](#11-directory-organisation)
 2. [Design Process](#2-design-process)
    - [Task Allocation](#21-task-allocation)
    - [Style and Naming](#22-style-and-naming)
@@ -11,11 +13,11 @@
    - [Overview](#31-overview)
    - [Single Cycle Architecture](#32-single-cycle-architecture)
    - [Pipelined Architecture](#33-pipelined-architecture)
-   - [Limitations](#34-limitations)
-4. [Results](#4-results)
-5. [Contributing](#5-contributing)
-6. [Contact](#6-contact)
-7. [Acknowledgements](#7-acknowledgements)
+   - [Demonstration](#34-demonstration)
+4. [Testing Bench](#4-testing-bench)
+   - []
+5. [Reflections, Limitations and Improvements](#5-contributing)
+6. [Acknowledgements](#6-acknowledgements)
 
 ---
 
@@ -137,7 +139,7 @@ root
 
 ## (2.0) Task Allocation
 
-### (2.0.1) Single Cycle CPU
+### Single Cycle CPU
  #### **Arithmetic Logic Unit** 
   - Sam Barber 
 
@@ -166,7 +168,7 @@ root
   - Lolézio Viora Marquet
 <br>
 
-### (2.0.2) Pipelined CPU
+### Pipelined CPU
   - **Pipelining**
 	- Lolézio Viora Marquet
   - **Hazard Control**
@@ -174,7 +176,8 @@ root
   - **Testing**
   	- Meric Song
    	- Lolézio Viora Marquet
-### (2.0.3) CPU with data cache
+
+### CPU with data cache
   - Sam Barber
 
 ## (2.1) Design Principles
@@ -185,7 +188,7 @@ The driving design principles throughout the development of components for the S
 
 >- **Ease of intergration and development** : The ability to easily integrate sub modules together was always a key consideration during design and development
 
->- **Transparency of operation** : The ability to easily interpret and understand the operation of modules and sub-modules was the main consideration when implementing them. The implications of this approach on the efficiency and cost of the design is explored in *Limitations*
+>- **Transparency of operation** : The ability to easily interpret and understand the operation of modules and sub-modules was the main consideration when implementing them. The implications of this approach on the efficiency and cost of the design is explored in [Reflections, Limitations and Improvements]()
 
 <br>
 
@@ -431,8 +434,12 @@ Our implementation of the single cycle CPU is split in 5 main stages.
 
 ---
 
+<br>
+
 ### (3.2.1) Fetch Stage
-#### (3.2.1.1) PC Register
+
+### PC Register
+
 The Fetch stage begins with the output of the next PC value, so that the next instruction can be fetched. This is implemented in [PCRegister.sv](PCRegister.sv) with the line:
 ```verilog
    if (iPCSrc == 1'b0) PCNext = iPCSrc ? iBranchTarget : oPC + 32'd4;
@@ -457,7 +464,7 @@ The PC value maps to the address. When PC is 0, this will map to the first addre
 
 <br>
 
-#### (3.2.1.2) PC Adder
+###  PC Adder
 When Jump or Branch instructions are carried out, the next instruction that must be carried out is not always the next one stored in memory. The next address must therefore be calculated, which is found using [PCAdder.sv](PCAdder.sv). 
 <br>
 
@@ -476,8 +483,11 @@ The PC Adder receives the current instruction type from the Control Unit (see be
 ---
 
 When the current instruction is a simple Branch or Jump, the next PC value is calculated by the value of ImmExt (see below), to give the correct next address. However, when the instruction is JALR, an offset can be specified. Since the value of this offset already contains the value of PC, ImmExt is once again added, so that the correct next address is found. 
+
 <br>
-#### (3.2.1.3) Instruction Memory
+
+### Instruction Memory
+
 Instruction Memory was built to take in a PC value, corresponding to the address of the Instruction, and output it immediately, implemented in [InstructionMemory.sv](InstructionMemory.sv). It is not clocked, since PC Register already ensures that the value is for the correct clock cycle. 
 <br>
 The Read Only Memory (ROM) is implemented using the line:
@@ -494,11 +504,17 @@ The ROM outputs an instruction word, by concatenating the 4 individual bytes of 
 This instruction is then decoded in the Control Unit.
 
 ### (3.2.2) Decode Stage
-#### (3.2.2.1) Control Unit
+
+### Control Unit
+
 The Control Unit was split into many smaller modules, to help with debugging and understanding the processes.
+
 <br>
+
 The instruction word out of Instruction Memory is first split into the Op Code and 2 Funct values, so that the Instruction Type and Subtype can be decoded. This is first done in [ControlPath.sv](ControlPath.sv)
+
 <br>
+
 To extract the correct data, the instruction outputted from Instruction Memory is simply indexed:
 ```verilog
 always_comb begin
@@ -507,11 +523,18 @@ always_comb begin
     funct3  = iInstruction[14:12];
 end
 ```
+
 Additional logic also outputs the constant values to be stored in the Register file in this block (see below)
+
 <br>
+
 Next, the Operation Code, and Function 3 and 7 are passed into [InstructionDecode.sv](InstructionDecode.sv) so they can be decoded into the custom types (see above) InstructionType and InstructionSubType.
+
 <br>
+
 The following logic is implemented using a case statement, to determine the Instruction Type, in the Instruction Decoder. Decimal numbers are used as they are more readable:
+
+<br>
 
 **Table (3.2.4): Instruction Decode Logic** 
 
@@ -531,8 +554,11 @@ The following logic is implemented using a case statement, to determine the Inst
 
 ---
 
+<br>
+
 Once the Instruction Type is determined, for Register Computation, Immediate Computation, Load, Branch, and Store, the Instruction Sub Type is determined depending on Funct3 and Funct 7, with further case statements:
 
+<br>
 
 **Table (3.2.5): Register Computation** : 
 
@@ -554,6 +580,8 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 
 ---
 
+<br>
+
 **Table (3.2.6): Immediate Computation**
 
 
@@ -573,6 +601,8 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 
 ---
 
+<br>
+
 **Table (3.2.7): Load**  
 
 
@@ -587,6 +617,8 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 |  101   | Load Upper Half |
 
 ---
+
+<br>
 
 **Table (3.2.8): Branch** 
 
@@ -604,6 +636,8 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 
 ---
 
+<br>
+
 **Table (3.2.9): Store** 
 
 
@@ -618,8 +652,10 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 ---
 
 <br>
+
 Once the Instruction Type and Sub Type have been determined, the immediate operand must also be decoded, so it can be used by the ALU, or as a PC offset for Jump and Branch instructions. It is also sign extended, by setting all ImmExt[31:12] equal to the 12th bit ImmExt[11]. Once again, a case statement is used to determine this based on the Instruction Type determined previously, following this logic:
 
+<br>
 
 **Table (3.2.10): Immediate Decoder Logic** 
 
@@ -642,6 +678,8 @@ Once the Instruction Type and Sub Type have been determined, the immediate opera
 
 Once the Immediate operand ImmExt has been determined, further control signals are determined in [ControlDecode.sv](ControlDecode.sv). This decoder once again comprises a case statement, looking at each Instruction type, and setting ResultSrc, AluSrc, RegWrite and MemWrite. They have the following purpose:
 
+<br>
+
 **Table (3.2.11): Control Signal Definitions**
 
 ---
@@ -655,7 +693,11 @@ Once the Immediate operand ImmExt has been determined, further control signals a
 
 ---
 
+<br>
+
 The case statement implementing these results implements the following logic:
+
+<br>
 
 **Table (3.2.12): Control Signal Encoder Logic**
 
@@ -677,7 +719,11 @@ The case statement implementing these results implements the following logic:
 
 Finally, the Control Unit must determine what operations the ALU must conduct based on the Instruction type, but more importantly, the Sub Type, which is once again implemented using a case statement, with the following logic (in the implementation, the custom enum values corresponding to the operations were used, but for simplicity, here we have them in binary format):
 
+<br>
+
 > Note that the Instruction Sub Types, while being part of different Instruction Types, require the same ALU operations, and so here only the Sub Types are shown.
+
+<br>
 
 **Table (3.2.13): ALU Control Encoder Logic**
 
@@ -698,7 +744,10 @@ Finally, the Control Unit must determine what operations the ALU must conduct ba
 
 ---
 
-#### (3.2.2.2) Register File
+<br>
+
+### Register File
+
 In parallel to the signals being encoded and decoded, the Register file must be accessed, so that the data stored in it can be used by the ALU. A register is used here as the data is fast to access, making it convenient for a few variables, which is much better than accessing memory. In RISCV32I, the Register file contains 32 registers.
 
 <br>
@@ -707,19 +756,25 @@ While in hardware, a register file is very different than a ROM or RAM, in Syste
 
 ```verilog
 	logic [DATA_WIDTH-1:0] ram_array [0:2**ADDRESS_WIDTH-1];
+
 ```
 <br>
 
 The Read operation is made to be asynchronous, so data can immediately be accessed and passed to the ALU. The register file simply outputs the data stored at the given input address. An important note, however, is that in RISCV32I architecture, Register 0 is always set to 0, and cannot be written. This behavior is ensured by the line:
+
+<br>
+
 ```verilog
 	ram_array[0] = {DATA_WIDTH{1'b0}};
 ```
 <br>
+
 Register A0 is set to be the output register, which is implemented with the line:
 
 ```verilog
 	oRega0    = ram_array[5'd10];
 ```
+<br>
 
 > Note that A0 is register x10 in the Register File, as consistent with RISC-V Register Naming conventions
 
@@ -739,7 +794,9 @@ It is written on the falling edge so that data can be written and read very soon
 ---
 
 ### (3.2.3) Execute Stage
-#### (3.2.3.1) Arithmetic Logic Unit (ALU)
+
+### Arithmetic Logic Unit (ALU)
+
 Since the ALU controls AluCtrl was already encoded in the Decode stage, the implementation of the ALU is quite simple, following the same logic as in the ALUEncode section of the Control Unit above, but in reverse. The ALU takes in 2 operands, AluOp1 and AluOp2, and performs the arithmetic operation encoded by ALuCtrl.
 
 <br>
@@ -806,7 +863,9 @@ Additional logic is also implemented in the ALU, namely to set the Zero flag:
 ---
 
 ### (3.2.4) Memory Stage
-#### (3.2.4.1) Data Memory
+
+### Data Memory
+
 The Data Memory is instantiated to be Random Access Memory (RAM) with the line:
 ```verilog
 logic [31:0] mem_array [2**ADDRESS_WIDTH - 1 : 0];
@@ -851,7 +910,8 @@ A case statement then determines what must be read or written, depending on the 
 <br>
 
 ### (3.2.5) Write Stage
-#### (3.2.5.1) Result Multiplexer
+
+### Result Multiplexer
 The final stage of the CPU simply determines what must be written back to the register file, following the control signal ResultSrc determined in the Control Unit. 
 <br>
 
@@ -875,9 +935,11 @@ The following logic is implemented by a final case statement in [ResultMux.sv](R
 
 With all the stages fully implemented, the Single Cycle Processor is fully functional. However, it remains inefficient, and to calculate the Probability Distribution Functions with large amounts of data, a more efficient processor was developed, by implementing first pipelining, and then data cache.
 
-<br>
+
 
 ---
+
+<br>
 
 ## (3.3) Pipelined Architecture
 
@@ -1341,12 +1403,12 @@ Given that the RET address was to another `JAL` instruction, the `TakeJBF` flag 
 
 
 
-### (3.4.2) PDF Generation - Pipeline
+### (3.4.3) PDF Generation - Pipeline
 
 The Processor was tested using the reference programs provided, to calculate the Probability Density Function (PDF) for 4 different datasets. The Formula 1 Lights Program was also tested. All tests were carried out on the Pipelined Processor, to decrease the number of cycles needed to run the programs.
 
 
-### (4.1.2) Sine PDF
+### (3.4.4) Sine PDF
 
 
 https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/2c81f9f9-d959-4b91-a68d-f022c468aa8f
@@ -1369,7 +1431,7 @@ Reading the data from Data Memory in the Pipelined Processor, the PDF of the Sin
 
 <br>
 
-### (4.1.3) Gaussian PDF
+### (3.4.5) Gaussian PDF
 
 https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/42672676-5b34-4a91-95da-944a255f6978
 
@@ -1390,7 +1452,7 @@ Reading the data from Data Memory in the Pipelined Processor, the PDF of the Gau
 
 <br>
 
-### (4.1.4) Noisy PDF
+### (3.4.6) Noisy PDF
 
 
 
@@ -1415,7 +1477,7 @@ Reading the data from Data Memory in the Pipelined Processor, the PDF of the Noi
 
 <br>
 
-### (4.1.4) Triangle PDF
+### (3.4.7) Triangle PDF
 
 
 
@@ -1441,7 +1503,7 @@ Reading the data from Data Memory in the Pipelined Processor, the PDF of the Tri
 
 ---
 
-### (3.4.3) F1 Lighting Sequence - Pipeline
+### (3.4.8) F1 Lighting Sequence - Pipeline
 
 https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/b585d13c-0146-4a05-a419-959e3aec0845
 
@@ -1473,7 +1535,7 @@ The F1 lights were made to gradually turn on, with constant time interval in bet
 
 To ensure that the CPU was fully correct, an intensive test was carried out on each instruction, checking whether their behavior was what is expected, or not.
 
-### (4.1) Accessing internal signal values in Verilator.
+### (4.1) Interfacing With The CPU.
 
 By adding /*verilator public*/ metacomments into module systemVerilog files and adding —public flag to the compile command, Verilator will create extra header files for us to access internal signal values via testbench program, which get updated when the top module is evaluated each clock cycle. 
 
