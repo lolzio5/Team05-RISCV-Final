@@ -36,8 +36,8 @@ The tables below describes the usage of various branches for development and dep
 | Branch |  Purpose | Verified Functionality |
 |----------|-------------|----------|
 | Single-Cycle-CPU  | Holds the files corresponding to the Single Cycle implementation of the CPU  |  Fully Tested and Verified|
-| Pipelined-CPU    | Holds the files corresponding to the Pipelined version of the CPU that implements static branch prediction and hazard handling | Majority Tested and Verified|
-|  Cache_And_Pipeline   | Holds the files corresponding to the Pipelined CPU with an additional Data Cache Impelmentation | Partly Tested and Verified| 
+| Pipelined-CPU    | Holds the files corresponding to the Pipelined version of the CPU that implements static branch prediction and hazard handling | Fully Tested and Verified|
+|  Cache_And_Pipeline   | Holds the files corresponding to the Pipelined CPU with an additional Data Cache Impelmentation | Majority Tested and Verified| 
 | main    | Holds repository information | |
 
 ---
@@ -59,53 +59,76 @@ The tables below describes the usage of various branches for development and dep
 
 ## (1.1) Directory Organisation : 
 
-### (1.1.1) Single Cycle CPU
-
+**Branch : main**
 ```
--rtl
-	--Control
-	--ALU
-	--Memory
-	--PC
-	--Mux
-	--include
-	--buildCPU.sh
-	--top.sv
-	--top_tb.cpp
-	--vbuddy.cfg
-	--vbuddy.cpp
--Testing
-	--Assembly
-	--HexFiles
-	--Makefile
-	--format_hex.sh
--README.md
+root
+├── doc/
+│ ├── Diagrams/
+│ ├── Dima/
+| ├── Lolezio/
+| ├── Meric/
+| └── Sam/
+├── README.md
 ```
 
-### (1.1.2) Pipelined CPU
+**Branch : Single Cycle CPU**
 
 ```
--rtl
-	--Control
-	--ALU
-	--Memory
-	--PC
-	--Mux
-	--Pipelining
-	--HazardControl
-	--include
-	--buildCPU.sh
-	--top.sv
-	--top_tb.cpp
-	--vbuddy.cfg
-	--vbuddy.cpp
--Testing
-	--Assembly
-	--HexFiles
-	--MemFiles
-	--Makefile
-	--format_hex.sh
--README.md
+root
+
+├── rtl/
+| ├── Control/
+| ├── Alu/
+| ├── Memory
+| ├── PC/
+| ├── Mux/
+| ├── include/
+| |
+| ├── buildCPU.sh
+| ├── top.sv
+| ├── top_tb.cpp
+| ├── vbuddy.cfg
+| └── buddy.cpp
+|
+├── Testing/
+| ├── Assembly/
+| ├── HexFiles/
+| ├── Makefile
+| └── format_hex.sh
+|
+└── README.md
+```
+
+**Branch : Pipelined CPU**
+
+
+
+```
+root
+
+├── rtl/
+| ├── Alu/
+| ├── Control/
+| ├── HazardControl/
+| ├── Memory/
+| ├── PC/
+| ├── Mux/
+| ├── Pipelining/
+| ├── include/
+| ├── buildCPU.sh
+| ├── top.sv
+| ├── top_tb.cpp
+| ├── vbuddy.cfg
+| └── buddy.cpp
+|
+├── Testing/
+| ├── Assembly/
+| ├── HexFiles/
+| ├── MemFiles/
+| ├── Makefile
+| └── format_hex.sh
+|
+└── README.md
 ```
 
 ### (1.1.2) Pipelined CPU with data cache
