@@ -15,8 +15,13 @@
    - [Pipelined Architecture](#33-pipelined-architecture)
    - [Demonstration](#34-demonstration)
 4. [Testing Bench](#4-testing-bench)
-   - []
-5. [Reflections, Limitations and Improvements](#5-contributing)
+   - [Interfacing With The CPU](#41-interfacing-with-the-cpu)
+   - [The Parser](#42-the-parser)
+   - [Test Assembly Code](#43-test-assembly-code)
+   - [F1 Assembly Code](#44-f1-assembly-code)
+5. [Limitations, Reflections and Improvements](#5-limitations-reflections-and-improvements)
+   - [General](#51-general)
+   - [Pipeline Architecture Design](#52-pipeline-architecture-design)
 6. [Acknowledgements](#6-acknowledgements)
 
 ---
@@ -1836,9 +1841,9 @@ With the driving design and development principles outlined earlier focusing mor
 
 ### Redundency and Cost
 
-The ability to quickly develop modules that can be interpretted by team members who haven't worked on them meant that the implementation of certain operations/computations was kept simple and clear - leading to potential trade-offs with higher hardware cost in the design.
+Given the time frame of the project, modules had to be developed quickly and in a way that team members can understand them even if they haven't contributed to their development. This meant that modules/operations had to be kept simple and logical, leading to an overall design that could potentially be considered naive and only suitable for simulated environments. Furthermore, simplicity and logical subdivision of modules could have potential trade-offs with higher hardware costs and redundency.
 
-One particular example of this is the choice of using a seperate adder for branch instructions and ALU. Using the same adder for typical ALU operations, like addition, and for jalr and branch instructions would have reduced the hardware cost of another adder, yet could have made the design more convoluted. This is because, in the case of utilising a single adder, the value of the PC would need to propagate alongside the source register values through the CPU and additional control signals would be needed to distinguish between the writing of register computation and writing the next pc value/ret address.
+One particular example of this is the choice of using a seperate adder, implemented in the `ResultMuxW` module, to compute `AUIPC` and the `RET` address. Using the ALU would have reduced the hardware cost of another adder, yet it could have made the design more convoluted. This is because the value of the PC would need to propagate through the CPU, and additional control signals would be needed to dictate the selection of PC, upper immediate value, and so on, as the ALU operand.
 
 Furthermore, several modules have implicitly defined adders. Below are a couple of exanples in the `PCRegisterF` and `ResultMuxW` :
 
@@ -1872,6 +1877,10 @@ Although this approach keeps the result selection process easy to understand wit
 
 A similiar case is shown in the listing above, illustrating the need of an adder to compute the next PC value in the `PCRegisterF` module. These implicit hardware requirements make the processor less optimized but can make it less convoluted in system verilog.
 
+Although hardware costs are usually relatively insignificant in monetary terms (with typical 4-bit full adders costing less than 1 pound), greater hardware requirements could possibly lead to greater hardware delays, that result in slower performance, and would require more space on a silicon chip.
+
+A more hardware efficient approach would probably implement a single adder in the ALU for arithmetic computation, RET address calculation and upper instruction computation, with additional multiplexers controlled via control unit signals to select the correct ALU operands.
+
 Additionally, the usage of certain SystemVerilog syntax and functionality could have lead to a less efficient processor. For example, many modules utilise nested case statements to perform their operation (like decoders). Given that in practice, these case statements usually would be  synthesized using multiplexers, overusing nested case statements could potentially result in greater signal delay than needed (assuming no optimization is applied during synthesis). 
 
 Also, the `inital` statement used in certain modules, like the instruction ROM and data memory RAM, may not translate directly into synthesiable hardware and is mainly applicable for simulations - a more practical implementations of an 'initial' state would need to be made for practical development.
@@ -1884,9 +1893,9 @@ Furthermore, it was assumed that arithmetic overflow can't occur and the result 
 
 ## (5.2) Pipeline Architecture Design
 
-The decision to create a 5 stage pipeline with a $F/D_{jb}$ stage, in theory, can bring certain advantages and disadvantages. Some notable advantages include the reduction in cycles wasted for flushing the incorrectly fetched instruction during a branch or jump, due to static branch prediction and taking jumps in the fetch stage. 
+The decision to create a 5 stage pipeline with a $F/D_{jb}$ stage, in theory, can bring certain advantages and disadvantages. Some notable advantages include the reduction in cycles wasted for flushing the incorrectly fetched instruction during a branch or jump - due to static branch prediction and taking jumps in the fetch stage. 
 
-With this pipeline architecture, the worst case stall can be only of two cycles, and would typically happen when a branch instruction follows a load instruction and there exists a data dependancy between the two instructions. 
+With this pipeline architecture, the worst case stall was found to be only two clock cycles. This would typically happen when a branch instruction follows a load instruction, where there exists a data dependancy between the two instructions. 
 
 Improvements are seen in jump and branch instructions given there is no data dependancy - in contrast to a pipelined architecture where branches and jumps are fully decided in the decode stage, jump instructions in this architecture don't introduce any lost cycles as they are computed in the fetch stage, furthermore, in the case of an incorrect branch, only a single clock cycle is wasted in flushing and fetching the correct instruction. 
 
@@ -1901,20 +1910,7 @@ Although this pipeline can reduce the average CPI of the processor, if the clock
 <br>
 
 
+# (6) Acknowledgements
 
----
+*The successful design and development of the various CPU architectures documented here would not have been possible without the generous help and advice of the Undergraduate Teaching Assistants for the 2023-24 Instruction Architectures And Compilers course and notably, Professor Peter Y.K Cheung. A great amount of design choices were influenced by Professor [Peter Y.K Cheungs' lectures](http://www.ee.ic.ac.uk/pcheung/teaching/EIE2-IAC/) and the book 'Digital Design And Computer Architecture` - by David Money Harris & Sarah L. Harris*
 
-<br>
-
-# (6) Contact
-Content for the Contact section...
-
-<br>
-
----
-
-<br>
-
-# (7) Acknowledgements
-
-*Acknowledge/credit Peter Cheung and the computer architecture book*
