@@ -178,8 +178,8 @@ ___
 - Relevant Commits
    - [Create C++ F1 Program](https://github.com/lolzio5/Team05-RISCV-Final/commit/d611ff345c8431d072ffb4f89cb3929108362a2a)
    - [Create Assembly F1 Program](https://github.com/lolzio5/Team05-RISCV-Final/commit/d611ff345c8431d072ffb4f89cb3929108362a2a)
-   - [Debug Assembly F1 Program]
-      - [First fixing](https://github.com/lolzio5/Team05-RISCV-Final/commit/c1f326ad5ecab2343a5f9fe4a8350a462884a12a)
+   - Debug Assembly F1 Program
+      - [Remove infinite loops](https://github.com/lolzio5/Team05-RISCV-Final/commit/c1f326ad5ecab2343a5f9fe4a8350a462884a12a)
       - [Naming conventions](https://github.com/lolzio5/Team05-RISCV-Final/commit/4e821348e195c65d19c202aba21a8729126fa478)
  
 <br>
