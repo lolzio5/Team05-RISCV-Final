@@ -23,7 +23,7 @@ ___
 
 ___
 
-## 1 - PC Logic
+## (1) PC Logic
 
 <br>
 
@@ -69,7 +69,7 @@ I extensively tested this functionality by writing the testbench [PCTestBench.cp
 
 ___
 
-## 2 - Data Memory 
+## (2) Data Memory 
 
 <br>
 
@@ -125,7 +125,7 @@ I extensively tested this functionality by writing the testbench [MemoryTestBenc
 
 ___
 
-## 3 - Instruction Memory 
+## (3) Instruction Memory 
 
 <br>
 
@@ -151,7 +151,7 @@ The Instruction Memory block is then passed the file name as a signal, which is 
 
 ___
 
-## 4 - Top File
+## (4) Top File
 
 <br>
 
@@ -171,7 +171,7 @@ My first contribution to the Top file was writing a first draft, connecting all 
 
 ___
 
-## 5 - F1 Program
+## (5) F1 Program
 
 <br>
 
@@ -321,7 +321,7 @@ In this way, 15 fewer cycles are needed for an output counting to 15. Setting it
 
 ___
 
-## 6 - Vbuddy functionality
+## (6) Vbuddy functionality
 
 <br>
 
@@ -352,7 +352,7 @@ Since the same testbench is used for any program, the header on the screen of Vb
 
 ___
 
-## 7 - Pipelining
+## (7) Pipelining
 
 
 <br>
@@ -408,7 +408,7 @@ This is because, at this stage, all hazards have been handled, and so the values
 
 ___
 
-## 8 - Makefile and Shell Script
+## (8) Makefile and Shell Script
 
 <br>
 
@@ -441,7 +441,7 @@ The Shell script also checks for an input filename, to be passed on to the testb
 
 ___
 
-## 9 - Conclusion and Reflection
+## (9) Conclusion and Reflection
 
 <br>
 
@@ -480,8 +480,13 @@ My original implementation of the PC Logic and Data Memory proved to be insuffic
 
 The Assembly Program itself could be improved. For example, the pseudorandom binary sequence is of the form:
 >$1 + X^3 + X^4$
+
 <br>
-This means it repeats every $2^4 -1 = 15$ iterations, and so the sequence only possesses 15 values. For the sake of testing the CPU, this is sufficient, however, should this program be used in a real Formula 1 race, the time would be far too predictable, and a higher order PRBS would be more optimal (which would only cost more registers).
+
+This means it repeats every
+$2^4 -1 = 15$
+iterations, and so the sequence only possesses 15 values. For the sake of testing the CPU, this is sufficient, however, should this program be used in a real Formula 1 race, the time would be far too predictable, and a higher order PRBS would be more optimal (which would only cost more registers).
+
 <br>
 
 ### Final Remarks
