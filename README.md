@@ -331,7 +331,7 @@ end
 
 Our implementation of the single cycle CPU is split in 5 main stages. 
 
-**Table ()** : 
+**Table (3.2.1)** : 
 
 ---
 
@@ -754,11 +754,13 @@ A case statement then determines what must be read or written, depending on the 
 The final stage of the CPU simply determines what must be written back to the register file, following the control signal ResultSrc determined in the Control Unit. 
 
 
+<br>
+
 ## (3.3) Pipelined Architecture
 
 As with the Single Cycle Architecture, the pipeline architecture broke down the instruction execution cycle into 5 stages. The stages were chosen as the following : 
 
-**Table ()** : 
+**Table (3.3.1)** : Pipeline Stages
 
 ---
 | Pipe Line Stage |   Name       | Operation |
@@ -770,6 +772,20 @@ As with the Single Cycle Architecture, the pipeline architecture broke down the 
 | $W$ | $Write \ Back$ | The final result chosen between; the Alu output, memory data, Upper immediate, PC+4 and PC + Upper Immediate, is written to the register file on the rising edge of the clock| 
 
 ---
+
+
+**Table (3.3.2)** : Relevant Modules
+
+---
+| Module |   Description       |
+|-----------------|----------------------------|
+| `HazardUnit`   | Used to detect data and control hazards and produce flush/stall and forward signals  | 
+| `OperandForwarderD`     | This module forwards registers that are to be compared in a branch instruction in the case of data hazard. | 
+| `ComparatorD`    | This module compares the values of the two registers used in a branch instruction. It also detects incorrect branch prediction and generates the required control signals|  | 
+| `AluOpForwarderE`    | This module forwards data from the memory/writeback stage to the execution stage in the case of data hazard. | 
+| `JumpBranchHandlerF` |This module makes the decision to branch given the type of branch executing, and generates the control signals for jump instructions in the fetch stage | 
+---
+
 
 <br>
 
@@ -893,7 +909,7 @@ This section documents the results of reference programs and the F1 lighting seq
 ### (3.4.1) Hazard Handling and Forwarding 
 
 The images below document the following assembly code being run on the pipelined CPU :
-
+**Listing ()**
 ```assembly
 _loop2:                     # repeat
     LI      a4, max_count   # PC = 48
@@ -976,7 +992,7 @@ This is seen happenening in **Figure(3.1.1(1))**, where the `oStallF`, `oStallD`
 In the same cycle, the hazard unit also detects the dependancy between the `ADD a5, a1, a2` in the Memory stage and `LBU t0, 0(a5)` in the Execute stage. **Figure(3.1.1(1))** shows the `iForwardAluOp1` being set to $01$ in binary - indicating that the destination registster in the memory stage is the same as the source 1 register in the execute stage. The logic that performs this in the `HazardUnit` is shown below :
 
 
-
+**Listing ()**
 ```verilog
       //If destination register in memory stage is the same as source1 register in execution stage
       if      (iSrcReg1E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg1E) begin
@@ -1015,11 +1031,11 @@ As a result, the `alu_op1_e` (alu operand 1 in the execute stage) is equal to 65
 
 <br>
 
-**Figure(3.1.1(2)) :** Forwarding and Flushing Demonstration 1
+**Figure(3.4.1(2)) :** Forwarding and Flushing Demonstration 1
 
 ![](doc/Dima/images/LBU%20in%20memory%20stage.PNG)
 
-**Figure(3.1.1(2))** shows the `LBU t0, 0(a5)` in the Memory stage. At this point the data memory is accessed with the correct address shown by `iAddress`. In the same cycle, `oMemData` holds the value of `byte1` that has been zero extended (unsigned load). Note how the execution stage is flushed in this cycle.
+**Figure(3.4.1(2))** shows the `LBU t0, 0(a5)` in the Memory stage. At this point the data memory is accessed with the correct address shown by `iAddress`. In the same cycle, `oMemData` holds the value of `byte1` that has been zero extended (unsigned load). Note how the execution stage is flushed in this cycle.
 
 <br>
 
@@ -1035,7 +1051,7 @@ As a result, the `alu_op1_e` (alu operand 1 in the execute stage) is equal to 65
 
 <br>
 
-**Figure(3.1.1(3)) :** Forwarding and Flushing Demonstration 2
+**Figure(3.4.1(3)) :** Forwarding and Flushing Demonstration 2
 
 ![](doc/Dima/images/Forwardin_t0_lbu.PNG)
 
@@ -1043,13 +1059,136 @@ As a result, the `alu_op1_e` (alu operand 1 in the execute stage) is equal to 65
 
 Now the `LBU t0, 0(a5)` instruction has reached the Write Back stage where the value of `t0` can be forwarded to the Execute stage so that the instruction `ADD a6, t0, a3` uses the correct value of `t0`.
 
-**Figure(3.1.1(3))** shows the `iForwardAluOp1` being set to 2 (decimal) indicating that the result in the Write Back stage should be forwarded.
+**Figure(3.4.1(3))** shows the `iForwardAluOp1` being set to 2 (decimal) indicating that the result in the Write Back stage should be forwarded.
 
-![](doc/Dima/images/dealing_with_load_dependancy_sim.PNG)
+---
 
-![](doc/Dima/images/data_signals_when_dealing_with_ld_sim.PNG)
+<br>
 
 ### (3.4.2) Branch Prediction and Correction
+
+Below are simulation results demonstrating branch prediction and incorrect branch correction.
+
+Below is the assembly code that was loaded into ROM and simulated
+
+**Listing ()**
+
+```verilog
+main:
+    JAL     ra, init            # PC = 0    jump to init, save return address in ra
+    JAL     ra, build           # PC = 4
+forever:
+    JAL     ra, display         # PC = 8
+    J       forever             # PC = 12
+
+init:                           # function to initialise PDF buffer memory 
+    LI      a1, 0x100           # PC = 16   loop_count a1 = 256
+_loop1:                         # repeat
+    ADDI    a1, a1, -1          # PC = 20   decrement a1
+    SB      zero, base_pdf(a1)  # PC = 24 mem[base_pdf+a1] = 0
+    BNE     a1, zero, _loop1    # PC = 28   until a1 = 0
+    RET                         # PC = 32
+```
+<br>
+
+**The simulation image below shows the following pipeline state :**
+
+| Stage | Instruction | PC |
+|-------|-------------|----|
+| $Fetch/Decode$|`BNE a1, zero, _loop1`| 28 |
+| $Decode$ | `SB zero, base_pdf(a1)`|  24  |
+| $Execute$ | `ADDI a1, a1, -1`|  20  |
+| $Memory-Access$| `BNE a1, zero, _loop1` |  28  |
+| $Write-Back$| `SB zero, base_pdf(a1)`|  24  |
+
+<br>
+
+**Figure (3.4.2(1)) :** Incorrect Branch Decision
+
+![](doc/Dima/images/incorrect_branch_sim1.PNG)
+
+
+**Figure (3.4.2(1))** shows a branch instruction in the Fetch stage of the pipeline (`BNE a1, zero, _loop1`). Given that this branch is backwards to `_loop1`, it is automatically taken in the Fetch stage, as shown by the `oTakeJBF` flag.
+
+However, the branch condition of `a1` and `zero` being not equal to would no longer be met in the next clock cycle. This is because the value of `a1/ram_array[11]` is $1$ in this clock cycle, and the instruction `ADDI a1, a1, -1` is currently being computed in the Execute stage.
+
+This data dependancy and incorrect branch decision are resolved once the branch instruction reaches the Decode stage.
+
+<br>
+
+Once the branch instruction reaches the Decode stage, the instructions' source registers are compared by the `ComparatorD` module and the branch outcome is resolved.
+
+In the case of a data dependancy with the previous instruction, the hazard unit detects this and outputs the forwarding logic signal. The dependant register value is forwarded via the `OperandForwarderD` module to the `ComparatorD` for comparison. 
+
+Using the flag values `iTakeJBF` and `iTakeJBD` the comparator decides if the branch taken in the fetch stage was correct or not. The PC recovery logic is shown below:
+
+**Listing ()** : PC Recovery Logic for BEQ instruction
+
+```verilog
+  case(iInstructionTypeD)
+
+    BRANCH : begin
+
+      case(iJBTypeD)
+
+        BEQ : begin
+        // If registers are equal and we didnt take the branch
+          if      (iRegData1D == iRegData2D & iTakeJBD == 1'b0) begin 
+            oPCSrcD    = 1'b1;
+            oFlushD    = 1'b1; 
+            oRecoverPC = 1'b0; 
+          end 
+
+  // If registers aren't equal and we did take the branch
+  //If we have branched when we were not supposed to -> must recover PC of instruction after BEQ
+
+          else if (iRegData1D != iRegData2D & iTakeJBD == 1'b1) begin 
+            oPCSrcD    = 1'b1;
+            oFlushD    = 1'b1;
+            oRecoverPC = 1'b1; 
+          end
+```
+
+**The simulation image below shows the following pipeline state :**
+
+
+| Stage | Instruction | PC |
+|-------|-------------|----|
+| $Fetch/Decode$| `ADDI a1, a1, -1`|  20  |
+| $Decode$|`BNE a1, zero, _loop1`| 28 |
+| $Execute$ | `SB zero, base_pdf(a1)`|  24  |
+| $Memory-Access$ | `ADDI a1, a1, -1`|  20  |
+| $Write-Back$| `BNE a1, zero, _loop1` |  28  |
+
+
+<br>
+
+**Figure (3.4.2(2)) :** PC Recovery and Branch Correction
+
+![](doc/Dima/images/incorrect_branch_sim2.PNG)
+
+**Figure (3.4.2(2))** shows the PC value in the Fetch stage going from $20$ *(incorrectly fetched branch target)* to $32$ *(instruction after the branch)*. In this clock cycle, the comparator sets the `oRecoverPC` flag high, the PC register uses this information to output the value of the PC in the Decode stage plus four as shown in **Listing()**. 
+
+Note how the decode stage is also flushed to prevent the incorrectly fetched instruction to propagate through the pipeline
+
+**Listing () :** PC Recovery in `PCRegisterF`
+
+```verilog
+  always_comb begin
+    //Must first check that the branch outcome in decode stage 
+    //If we didnt branch when we needed to and the instruction in fetch is a backward branch, we should not execute the backward branch
+    if (iPCSrcD == 1'b0) PCNext = iPCSrcF ? iBranchTarget : oPC + 32'd4;
+    else                 PCNext = iTargetPC;
+  end
+```
+
+Furthermore, given the dependancy of the `a1` register on the `ADDI` instruction prior to the branch, the hazard unit also outputs control signals to forward the Alu output from the memory stage to the `CompratorD` module in the Decode stage.
+
+![](doc/Dima/images/JALRinfetch.PNG)
+
+![](doc/Dima/images/JALRindecode.PNG)
+
+![](doc/Dima/images/JALRETADDRESS.PNG)
 
 ### (3.4.2) PDF Generation - Pipeline
 

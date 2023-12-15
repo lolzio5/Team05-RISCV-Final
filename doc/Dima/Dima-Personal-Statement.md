@@ -701,7 +701,7 @@ If `iRecoverPCD` is set, it returns `iPCD + 4`, effectively recovering the origi
 
 <br>
 
-## (1.5) Hazard Control
+## (1.5) Hazard Control and Pipeline
 
 ## (1.5.1) Hazard Unit
 
@@ -889,7 +889,7 @@ In the case that the branch taken backwards resolves to be incorrect (ie. branch
 
 ## (2.1) Data Memory
 
->**Description :** The Data Memory module consists of a memory array `mem_array` with a size of $32 \text{ x }(2^{x} - 1)$, accommodating addresses from `0x10000` to `0x1FFFF` as specified by the reference program. In the case of loading data into memory from a file, the data memory assumes a little endian byte addressable memory architecture.
+>**Description :** The Data Memory module consists of a memory array `mem_array` with a size of $32 \text{ x }(2^{17} - 1)$, accommodating addresses from `0x10000` to `0x1FFFF` as specified by the reference program. In the case of loading data into memory from a file, the data memory assumes a little endian byte addressable memory architecture.
 
 ### Module Specification
 
@@ -912,51 +912,142 @@ In the case that the branch taken backwards resolves to be incorrect (ie. branch
 
 ### Internal Memory Configuration
 
-Additional internal signals are used to temporarily carry memory signals to ease process of determining what data has to be loaded/stored.
 
-**Table 2: Internal Memory Configuration**
+**Table (2.1.2): Internal Memory Configuration**
 
 | Element                | Description                                                  |
 |------------------------|--------------------------------------------------------------|
-| `mem_array`            | An array representing RAM, where each element is 32 bits.    |
-| `mem_cell`             | Data stored at the currently accessed memory location.       |
+| `mem_array`            | An array representing RAM with an address space ranging from `0x10000` to `0x1FFFF`, and that can be loaded with data from a given hex file.    |
+| `byte1, byte2, byte3, byte4`             | Four bytes of data stored at the currently accessed memory location.       |
 | `mem_data`             | Data to be outputted based on the read operation.            |
 | `word_aligned_address` | Adjusted memory address, aligned to word boundaries.         |
-| `byte_offset`          | Byte offset within the word-aligned address.                 |
+| `byte_offset`          | Byte offset within the word-aligned address - bottom two bits of `iAddress`.                 |
 
 ---
 
 <br>
 
-### Operational Logic
 
-#### Read/Write Operations
+### Address Handling
 
-The module performs read or write operations on the rising edge of `iClk`. 
-
-1. **Write Operation**: 
-   - If `iWriteEn` is high, the data (`mem_cell`) is written to `mem_array` at the address specified by `word_aligned_address`.
-
-2. **Read Operation**: 
-   - If `iWriteEn` is low, `oMemData` is set to the value of `mem_data`, which contains the data read from the memory.
+- **Byte Addressing**: Each address points to a byte of data. The `DataMemoryM` module interprets the `iAddress` to access the correct memory location via word address alignment and using calculated byte offsets.
+- **Word Aligned Address Calculation**: The `word_aligned_address` is calculated by aligning the incoming `iAddress` to the nearest word boundary. This is crucial for `LOAD_WORD` and `STORE_WORD` operations, ensuring correct data alignment.
 
 <br>
 
-#### Address and Data Handling
+**Listing (2.1.1) :** Assigning Bytes of Memory Word For Internal Usage
+```verilog
+//Word aligned address -> multiple of 4
+        word_aligned_address = {{iAddress[31:2]}, {2'b00}};
 
-The module calculates the word-aligned address and byte offset for any given memory address. It then constructs the `mem_cell` by combining bytes from `mem_array` based on this calculated address.
+//2 LSBs of iAddress define byte offset within the word   
+        byte_offset          = iAddress[1:0];                               
+        
+        byte4 =   mem_array[word_aligned_address + 32'd3][7:0];
+        byte3 =   mem_array[word_aligned_address + 32'd2][7:0];
+        byte2 =   mem_array[word_aligned_address + 32'd1][7:0];
+        byte1 =   mem_array[word_aligned_address][7:0];
+```
 
 <br>
 
-#### Instruction-Specific Logic
+### Byte Manipulation Logic
 
-The module uses `iInstructionType` and `iMemoryInstructionType` to determine the appropriate action for LOAD and STORE instructions, handling different sizes (byte, half-word, word) and types (signed, unsigned) of data.
+- **Byte-wise Access**: For operations like `LOAD_BYTE` and `STORE_BYTE`, the module accesses individual bytes within a word. It uses the lower two bits of the `iAddress` as a byte offset to identify the specific byte within the word.
+- **Half-word Access**: For `LOAD_HALF` and `STORE_HALF`, the module handles two consecutive bytes. Similar to byte-wise access, it uses the byte offset to determine the starting byte and accesses the next adjacent byte.
+
+<br>
+
+**Listing (2.1.2) :** Load Byte Operation
+```verilog
+  LOAD : begin  
+
+    case(iMemoryInstructionType)
+      LOAD_BYTE  : begin
+
+        case (byte_offset) 
+          2'b00 : mem_data[7:0] = byte1;
+          2'b01 : mem_data[7:0] = byte2;
+          2'b10 : mem_data[7:0] = byte3;
+          2'b11 : mem_data[7:0] = byte4;
+        endcase
+
+        mem_data[31:8] = {24{mem_data[7]}}; //sign extend
+
+      end
+```
+
+<br>
+
+**Listing (2.1.3) :** Store Half Operation
+```verilog
+  STORE_HALF : begin
+    case (byte_offset) 
+
+      2'b00 : begin 
+        byte1 = iMemData[7:0];
+        byte2 = iMemData[15:8];
+      end
+
+      2'b01 : begin
+        byte2 = iMemData[7:0];
+        byte3 = iMemData[15:8];
+      end
+
+      2'b10 : begin
+        byte3 = iMemData[7:0];
+        byte4 = iMemData[15:8];
+      end
+
+      2'b11 : begin
+        byte3 = iMemData[7:0];
+        byte4 = iMemData[15:8];
+      end
+
+    endcase
+  end
+```
+
+Note how the value stored to memory is decided via a case by case analysis of the byte offset. Furthermore, if a `STORE HALF` is executing, and it specifes the byte offset as `11` (binary), the store is made to memory addresses starting from byte 3, as otherwise the stored data would overflow into the next word alligned address.
+
+<br>
+
+### Read/Write Operations
+
+The module supports half duplex read/write operations (read/write occur one at a time)
+
+- **Write Operation**: Performed on the negative edge of `iClk`. The module writes data to memory based on the instruction type, handling different data sizes (byte, half-word, word).
+- **Read Operation**: The module prepares loads in bytes of data as required by the specific instruction into `mem_data` in a combinational manner, preparing the desired data for output that occurs on the falling edge of `iClk`.
+
+<br>
+
+**Listing (2.1.4) :** Read/Write Operation
+
+```verilog
+    //Write or Read data on rising edge of clk
+    always_ff @(negedge iClk) begin
+
+        if (iWriteEn) begin
+            mem_array[word_aligned_address + 32'd3][7:0] <= byte4;
+            mem_array[word_aligned_address + 32'd2][7:0] <= byte3;
+            mem_array[word_aligned_address + 32'd1][7:0] <= byte2;
+            mem_array[word_aligned_address][7:0]         <= byte1;
+        end
+
+        else             oMemData                        <= mem_data;
+    
+    end
+```
+
+### Sign and Zero Extension
+
+- **Sign Extension**: Used for signed load operations to extend the sign bit of the loaded data to the full 32-bit width.
+- **Zero Extension**: Applied in unsigned load operations to fill the upper bits with zeros.
 
 ---
 
 <br>
 
-## (2.2) Instruction Memory
 
 ## (2.3) Result Mux
 
