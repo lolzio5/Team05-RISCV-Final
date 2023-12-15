@@ -4,6 +4,8 @@ module NewMem #(
               INDEX_WIDTH = 4
  )(
     /* verilator lint_off UNUSED */
+    /* verilator lint_off ALWCOMBORDER */
+    /* verilator lint_off UNOPTFLAT */
     input logic         iClk,
     input logic          iWriteEn,
     input InstructionTypes  iMemoryInstructionType, 
@@ -30,6 +32,7 @@ module NewMem #(
     logic [31:0] word_aligned_address;
     logic [1:0] byte_offset;
     /* verilator lint_on UNUSED */
+    /* verilator lint_on UNOPTFLAT */
     
     initial begin
         $readmemh("triangle.mem", mem_array, 20'h10000);
@@ -173,7 +176,7 @@ module NewMem #(
             end
 
             default : oMemData = {byte4, byte3, byte2, byte1};
-
+        /* verilator lint_on ALWCOMBORDER */
         endcase
     end
 
@@ -189,8 +192,4 @@ module NewMem #(
             ooMemData                        <= oMemData;
         end
     end
-
 endmodule
-
-
-
