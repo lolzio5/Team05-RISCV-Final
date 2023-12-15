@@ -19,10 +19,7 @@
    - [The Parser](#42-the-parser)
    - [Test Assembly Code](#43-test-assembly-code)
    - [F1 Assembly Code](#44-f1-assembly-code)
-5. [Limitations, Reflections and Improvements](#5-limitations-reflections-and-improvements)
-   - [General](#51-general)
-   - [Pipeline Architecture Design](#52-pipeline-architecture-design)
-6. [Acknowledgements](#6-acknowledgements)
+5. [Acknowledgements](#5-acknowledgements)
 
 ---
 
@@ -66,6 +63,8 @@ The tables below describes the usage of various branches for development and dep
 
 ## (1.1) Directory Organisation : 
 
+Within the `doc` folder are subfolders for each team member and a diagram folder. The subfolders per team member hold their respective personal statement and additional documentation they have made.
+
 **Branch : main**
 ```
 root
@@ -79,6 +78,8 @@ root
 ```
 
 **Branch : Single Cycle CPU**
+
+Within the `rtl` folder are subfolders holding the `.sv` files that make up the given module. `Testing` holds the files used in testing the CPU. It contains subfolders that house the appropriate assembly programs. Each assembly program is built into a `.hex` file that are loaded into the instruction ROM - these files are housed in `Testing/HexFiles`
 
 ```
 root
@@ -108,7 +109,7 @@ root
 
 **Branch : Pipelined CPU**
 
-
+Within the `rtl` folder are subfolders holding the `.sv` files that make up the given module. `Testing` holds the files used in testing the CPU. It contains subfolders that house the appropriate assembly programs. Each assembly program is built into a `.hex` file that are loaded into the instruction ROM - these files are housed in `Testing/HexFiles`
 
 ```
 root
@@ -138,6 +139,9 @@ root
 |
 └── README.md
 ```
+
+
+
 **Branch : Pipelined CPU With Cache**
 
 
@@ -175,49 +179,30 @@ root
 
 ## (2.0) Task Allocation
 
-### Single Cycle CPU
- #### **Arithmetic Logic Unit** 
-  - Sam Barber 
+Below is an overview of contributions made to general module categories by the team members. A full module list per CPU version is available in `rtl/README.md` on their respective branch
 
- #### **Control**
-  - Dima Askarov
+| CPU Type             | Component            | Sub-Component     | Contributors               |
+|----------------------|----------------------|-------------------|----------------------------|
+| **Single Cycle CPU** | Arithmetic Logic Unit|                   | Sam Barber                 |
+|                      | Control              |                   | Dima Askarov               |
+|                      | Memory               | Instruction Memory| Dima Askarov               |
+|                      |                      | Data Memory       | Dima Askarov               |
+|                      |                      |                   | Lolézio Viora Marquet      |
+|                      |                      | Register          | Dima Askarov               |
+|                      |                      |                   | Sam Barber                 |
+|                      | Multiplexers         | PC Mux            | Lolézio Viora Marquet      |
+|                      |                      | Result Mux        | Lolézio Viora Marquet      |
+|                      |                      | ALU Mux           | Sam Barber                 |
+|                      | Program Counter      |                   | Lolézio Viora Marquet      |
+|                      | Testing              |                   | Meric Song                 |
+|                      |                      |                   | Lolézio Viora Marquet      |
+| **Pipelined CPU**    | Pipelining           |                   | Lolézio Viora Marquet      |
+|                      | Hazard Control       |                   | Dima Askarov               |
+|                      | Testing              |                   | Meric Song                 |
+|                      |                      |                   | Lolézio Viora Marquet      |
+| **CPU with data cache**|                    |                   | Sam Barber                 |
 
- #### **Memory**
-  - **Instruction Memory :**
-   	- Dima Askarov
-  - **Data Memory :**
-  	- Dima Askarov
-   	- Lolézio Viora Marquet
-  - **Register :**
-  	- Dima Askarov
-   	- Sam Barber
-
- #### **Multiplexers**
-  - **PC Mux**
-  	- Lolézio Viora Marquet
-  - **Result Mux**
-	- Lolézio Viora Marquet
-  - **ALU Mux**
- 	- Sam Barber
-
- #### **Program Counter**
-  - Lolézio Viora Marquet
- #### **Testing**
-  - Meric Song
-  - Lolézio Viora Marquet
 <br>
-
-### Pipelined CPU
-  - **Pipelining**
-	- Lolézio Viora Marquet
-  - **Hazard Control**
-  	- Dima Askarov
-  - **Testing**
-  	- Meric Song
-   	- Lolézio Viora Marquet
-
-### CPU with data cache
-  - Sam Barber
 
 ## (2.1) Design Principles
 
@@ -234,6 +219,8 @@ The driving design principles throughout the development of components for the S
 ## (2.2) Style and Naming
 
 In order to allow quick and clear development, naming conventions and styles were upheld throughout the design and development of modules. The naming conventions and styles used in this project are listed below
+
+<br>
 
 **Table (2.2.1)** : Style and Naming Conventions
 
@@ -1835,86 +1822,9 @@ As seen above, the parser and test functions test the CPU line-by-line and see i
 
 <br>
 
-# (5) Limitations, Reflections and Improvements
-
-With the driving design and development principles focusing more on the ease of development, as well as keeping module operation logical, transparent and specialised, has lead to potential inneficiencies and redundencies in the processor design. 
-
-## (5.1) General
-
-### Redundency and Cost
-
-Given the time frame of the project, modules had to be developed quickly and in a way that team members can understand them even if they haven't contributed to their development. This meant that modules/operations had to be kept simple and logical, leading to an overall design that could potentially be considered naive and only suitable for simulated environments. Furthermore, simplicity and logical subdivision of modules could have potential trade-offs with higher hardware costs and redundency.
-
-One particular example of this is the choice of using a seperate adder, implemented in the `ResultMuxW` module, to compute `AUIPC` and the `RET` address. Using the ALU would have reduced the hardware cost of another adder, yet it could have made the design more convoluted. This is because the value of the PC would need to propagate through the CPU, and additional control signals would be needed to dictate the selection of PC, upper immediate value, and so on, as the ALU operand.
-
-Furthermore, several modules have implicitly defined adders. Below are a couple of exanples in the `PCRegisterF` and `ResultMuxW` :
-
-**Listing (5.1.1) :** Write Back Result Selection
-
-```verilog
-    case(iResultSrcW)
-      3'b000   : oRegDataInW = iAluResultW;       // Alu Operation
-      3'b001   : oRegDataInW = iMemDataOutW;      // Memory Read Operation (Load)
-      3'b010   : oRegDataInW = iPCW + 32'd4;      // Jumps 
-      3'b011   : oRegDataInW = iUpperImmW;        // Load Upper Immediate
-      3'b100   : oRegDataInW = iPCW + iUpperImmW;  // Add Upper Immediate To PC
-      default  : oRegDataInW = iAluResultW;       // Default - Alu Operation
-    endcase
-```
-
-The listing above shows the write back result selection in the `ResultMuxW`. Note how the write back value is computed in the actual module for Upper instructions and jumps - implying the use of an adder in the module. 
-
-Although this approach keeps the result selection process easy to understand within the module (compared to the alternate case where the signals are computed elsewhere in the CPU and passed into the MUX), it brings redundant/wasteful use of hardware. 
-
-<br>
-
-**Listing (5.1.2) :** PC Source Selection
-
-```verilog
-    if (iPCSrcD == 1'b0) PCNext = iPCSrcF ? iBranchTarget : oPC + 32'd4;
-    else                 PCNext = iTargetPC;
-```
-
-<br>
-
-A similiar case is shown in the listing above, illustrating the need of an adder to compute the next PC value in the `PCRegisterF` module. These implicit hardware requirements make the processor less optimized but can make it less convoluted in system verilog.
-
-Although hardware costs are usually relatively insignificant in monetary terms (with typical 4-bit full adders costing less than 1 pound), greater hardware requirements could possibly lead to greater hardware delays and would require more space on a silicon chip.
-
-A more hardware efficient approach would probably implement a single adder in the ALU for arithmetic computation, RET address calculation and upper instruction computation, with additional multiplexers to select the correct ALU operands.
-
-### Practicality
-
-The usage of certain SystemVerilog syntax and functionalities could have lead to a less efficient processor. For example, many modules utilise nested case statements to perform their operation (like decoders) as case statements are easy to interpret and write. Given that in practice, these case statements usually would be  synthesized using multiplexers, overusing nested case statements could potentially result in greater signal delay than needed (assuming no optimization is applied during synthesis). 
-
-Also, the `inital` statement used in certain modules, like the instruction ROM and data memory RAM, may not translate directly into synthesiable hardware and is mainly applicable for simulations - a more practical implementations of an 'initial' state would need to be made for practical development.
-
-### Design Assumptions
-
-Certain assumptions have been made in the design of the processor. A major assumption was to neglect the finite propagation delay of signals through wires and modules. The current design of the processor would inevitably introduce static hazards and glitches in its' hardware, as it was not optimized to account for propagation delay. 
-
-Furthermore, it was assumed that arithmetic overflow can't occur and the result of the ALU computation would always be correct and untruncated. Obviously, such assumption would not hold in practice and additional hardware would be needed to resolve signed/unsigned overflow due to a computation.
-
-## (5.2) Pipeline Architecture Design
-
-The decision to create a 5 stage pipeline with a $F/D_{jb}$ stage, in theory, can bring certain advantages and disadvantages. Some notable advantages include the reduction in cycles wasted for flushing the incorrectly fetched instruction during a branch or jump - due to static branch prediction and taking jumps in the fetch stage. 
-
-With this pipeline architecture, the worst case stall was found to be only two clock cycles. This would typically happen when a branch instruction follows a load instruction, where there exists a data dependancy between the two instructions. 
-
-Improvements are seen in jump and branch instructions given there is no data dependancy - in contrast to a pipelined architecture where branches and jumps are fully decided in the decode stage, jump instructions in this architecture don't introduce any lost cycles as they are computed in the fetch stage, furthermore, in the case of an incorrect branch, only a single clock cycle is wasted in flushing and fetching the correct instruction. 
-
-Today there are assemblers and compilers that can re-structure the program such that data dependancies and hazards are avoided were possible, thus the additional clock cycle delay occuring due to hazards could be partially eliminated when optimization techniques are applied
-
-The full benefit of such pipeline would depend on how fast the decoding can be performed in the Fetch stage. Given that memory access is usually the slowest operation that can be done in the pipeline, the maximum clock frequency would usually be determined by the time required to Fetch instructions from ROM or access the data memory
-
-Thus the additional hardware requirements in the Fetch stage (that introduce greater delay/latency in the stage) could mean that the maximum clock frequency would need to fall in order to allow time for signals in the Fetch stage to propagate. 
-
-Although this pipeline can reduce the average CPI of the processor, if the clock frequency has to fall by a factor larger than the fall in CPI, the processor may actually perform worse than without the additional static branch prediction hardware. A detailed analysis on critical paths throughout the pipeline and understanding the practical implementation of the processor would be needed to discern the true impact of this design choice.
-
-<br>
 
 
-# (6) Acknowledgements
+# (5) Acknowledgements
 
 *The successful design and development of the various CPU architectures documented here would not have been possible without the generous help and advice of the Undergraduate Teaching Assistants for the 2023-24 Instruction Architectures And Compilers course and notably, Professor Peter Y.K Cheung. A great amount of design choices were influenced by Professor [Peter Y.K Cheungs' lectures](http://www.ee.ic.ac.uk/pcheung/teaching/EIE2-IAC/) and the book 'Digital Design And Computer Architecture` - by David Money Harris & Sarah L. Harris*
 

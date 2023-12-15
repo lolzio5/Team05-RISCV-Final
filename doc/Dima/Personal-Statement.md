@@ -766,6 +766,20 @@ If `iRecoverPCD` is set, it returns `iPCD + 4`, effectively recovering the origi
    - If a load dependency is detected, the module stalls the Fetch (F) and Decode (D) stages by setting `oStallF` and `oStallD` to 1.
    - Additionally, it flushes the Execute stage (`oFlushE` set to 1) to prevent the instruction in the Execute stage from proceeding further in the pipeline.
 
+<br>
+
+**Listing () :** Load Dependancy Detection and Resolution
+
+```verilog
+    if (iInstructionTypeE == LOAD) begin 
+    //Load Dependancy Condition
+      if (iDestRegE == iSrcReg1D | iDestRegE == iSrcReg2D) begin 
+        oStallF = 1'b1;
+        oStallD = 1'b1;
+        oFlushE = 1'b1; 
+      end  
+    end
+```
 
 ### RAW Hazards In Branch And Jump Instructions
 
@@ -781,6 +795,41 @@ If `iRecoverPCD` is set, it returns `iPCD + 4`, effectively recovering the origi
 
    - In the case of no load data dependancy, the appropriate forwarding control signals are set and output
 
+```verilog
+    if (iInstructionTypeD == BRANCH | (iInstructionTypeD == JUMP & iInstructionSubTypeD ==JUMP_LINK_REG)) begin
+
+      if ((iSrcReg1D != 5'b0 & iRegWriteEnM) & iDestRegM == iSrcReg1D)  begin
+        if (iInstructionTypeM != LOAD) begin
+
+          if (iInstructionTypeD == BRANCH) oForwardCompOp1D   = 1'b1;
+          else                             oForwardRegOffsetD = 1'b1; //For JALR register offset
+        
+        end
+
+        else begin
+          oStallF = 1'b1;
+          oStallD = 1'b1;
+          oFlushE = 1'b1;
+        end
+      end 
+
+      else                             oForwardCompOp1D = 1'b0;
+
+      ... //Do the same but for iSrcReg2D
+
+
+      if ((iDestRegE != 5'b0 & iRegWriteEnE) & (iDestRegE == iSrcReg1D | iDestRegE == iSrcReg2D)) begin
+        oStallF          = 1'b1; 
+        oStallF          = 1'b1;
+        oStallD          = 1'b1;
+        oFlushE          = 1'b1;
+
+        oForwardCompOp1D = 1'b0;
+        oForwardCompOp2D = 1'b0;
+      end
+
+    end
+```
 
 ### Raw Hazards In Other Instruction Types
 
@@ -885,7 +934,6 @@ The actual PC recovery is performed by the `PCAdder` that will set the target PC
 
 <br>
 
----
 
 <br>
 
@@ -1058,7 +1106,7 @@ The module supports half duplex read/write operations (read/write occur one at a
 
 >**Description :** The `ResultMuxW` module is needed to select the value that is to be written to the respective register at the end of the instructions' computation. 
 
-<br>
+
 
 ### I/O Ports
 
@@ -1105,6 +1153,7 @@ The module selects the final data to be written back to the register file based 
 
 ---
 
+<br>
 
 ## (2.4) PC Register
 
@@ -1116,7 +1165,6 @@ The module selects the final data to be written back to the register file based 
 
 ### I/O Ports
 
-<br>
 
 ---
 | Port Name   | Direction | Width | Description                               |
@@ -1156,7 +1204,6 @@ The module selects the final data to be written back to the register file based 
 
 >**Description :** In the pipelined version of the CPU, the PC register has additional responsibilty in recovering the PC value of the instruction that was to be executed in the case of an incorrect branch, as well as being able to stall. The PC register is included within the Fetch stage of the pipeline.
 
-<br>
 
 ### I/O Ports
 
@@ -1178,9 +1225,12 @@ The module selects the final data to be written back to the register file based 
 ### PC Update Logic
 
 - **Next PC Selection**:
-  - Determines the next PC value (`PCNext`) based on multiple control signals.
+
   - If `iPCSrcD` is low, indicating no branch decision in the decode stage, the module chooses between the regular sequence (PC + 4) and the branch target from the fetch stage (`iBranchTarget`).
+
   - If `iPCSrcD` is high, it selects `iTargetPC`, typically for control flow changes decided in the decode stage like taking a forward branch or executing JALR.
+
+<br>
 
 ```verilog
 
@@ -1198,6 +1248,7 @@ The module selects the final data to be written back to the register file based 
   - Updates the PC on the positive edge of the clock (`iClk`) or a reset signal (`iRst`).
   - If reset, the PC is set to zero; otherwise, it updates to `PCNext`, unless there's a stall (`iStallF`) in the fetch stage.
 
+<br>
 
 ```verilog
   always_ff @ (posedge iClk or posedge iRst) begin 
@@ -1289,22 +1340,77 @@ The module selects the final data to be written back to the register file based 
         else if (iWriteAddress == iReadAddress2 & iWriteAddress != 5'b0 & iWriteEn) data_out2 = iDataIn;
 ```
 
-<br>
 
 ---
 
 <br>
 
+
 # (3) Reflections, Limitations and Improvements
 
-### Control Unit Design
+With the driving design and development principles focusing more on the ease of development, as well as keeping module operation logical, transparent and specialised, has lead to potential inneficiencies and redundencies in the processor design. 
 
+## (3.1) General
 
-### Pipeline Architecture Design
+### Redundency and Cost
 
-The decision to create a 5 stage pipeline with a $F/D_{jb}$ stage, in theory, can bring certain advantages and disadvantages. Some notable advantages include the reduction in cycles wasted for flushing the incorrectly fetched instruction during a branch or jump, due to static branch prediction and taking jumps in the fetch stage. 
+Given the time frame of the project, modules had to be developed quickly and in a way that team members can understand them even if they haven't contributed to their development. This meant that modules/operations had to be kept simple and logical, leading to an overall design that could potentially be considered naive and only suitable for simulated environments. Furthermore, simplicity and logical subdivision of modules could have potential trade-offs with higher hardware costs and redundency.
 
-With this pipeline architecture, the worst case stall can be only of two cycles, and would typically happen when a branch instruction follows a load instruction and there exists a data dependancy between the two instructions. 
+One particular example of this is the choice of using a seperate adder, implemented in the `ResultMuxW` module, to compute `AUIPC` and the `RET` address. Using the ALU would have reduced the hardware cost of another adder, yet it could have made the design more convoluted. This is because the value of the PC would need to propagate through the CPU, and additional control signals would be needed to dictate the selection of PC, upper immediate value, and so on, as the ALU operand.
+
+Furthermore, several modules have implicitly defined adders. Below are a couple of exanples in the `PCRegisterF` and `ResultMuxW` :
+
+**Listing (5.1.1) :** Write Back Result Selection
+
+```verilog
+    case(iResultSrcW)
+      3'b000   : oRegDataInW = iAluResultW;       // Alu Operation
+      3'b001   : oRegDataInW = iMemDataOutW;      // Memory Read Operation (Load)
+      3'b010   : oRegDataInW = iPCW + 32'd4;      // Jumps 
+      3'b011   : oRegDataInW = iUpperImmW;        // Load Upper Immediate
+      3'b100   : oRegDataInW = iPCW + iUpperImmW;  // Add Upper Immediate To PC
+      default  : oRegDataInW = iAluResultW;       // Default - Alu Operation
+    endcase
+```
+
+The listing above shows the write back result selection in the `ResultMuxW`. Note how the write back value is computed in the actual module for Upper instructions and jumps - implying the use of an adder in the module. 
+
+Although this approach keeps the result selection process easy to understand within the module (compared to the alternate case where the signals are computed elsewhere in the CPU and passed into the MUX), it brings redundant/wasteful use of hardware. 
+
+<br>
+
+**Listing (5.1.2) :** PC Source Selection
+
+```verilog
+    if (iPCSrcD == 1'b0) PCNext = iPCSrcF ? iBranchTarget : oPC + 32'd4;
+    else                 PCNext = iTargetPC;
+```
+
+<br>
+
+A similiar case is shown in the listing above, illustrating the need of an adder to compute the next PC value in the `PCRegisterF` module. These implicit hardware requirements make the processor less optimized but can make it less convoluted in system verilog.
+
+Although hardware costs are usually relatively insignificant in monetary terms (with typical 4-bit full adders costing less than 1 pound), greater hardware requirements could possibly lead to greater hardware delays and would require more space on a silicon chip.
+
+A more hardware efficient approach would probably implement a single adder in the ALU for arithmetic computation, RET address calculation and upper instruction computation, with additional multiplexers to select the correct ALU operands.
+
+### Practicality
+
+The usage of certain SystemVerilog syntax and functionalities could have lead to a less efficient processor. For example, many modules utilise nested case statements to perform their operation (like decoders) as case statements are easy to interpret and write. Given that in practice, these case statements usually would be  synthesized using multiplexers, overusing nested case statements could potentially result in greater signal delay than needed (assuming no optimization is applied during synthesis). 
+
+Also, the `inital` statement used in certain modules, like the instruction ROM and data memory RAM, may not translate directly into synthesiable hardware and is mainly applicable for simulations - a more practical implementations of an 'initial' state would need to be made for practical development.
+
+### Design Assumptions
+
+Certain assumptions have been made in the design of the processor. A major assumption was to neglect the finite propagation delay of signals through wires and modules. The current design of the processor would inevitably introduce static hazards and glitches in its' hardware, as it was not optimized to account for propagation delay. 
+
+Furthermore, it was assumed that arithmetic overflow can't occur and the result of the ALU computation would always be correct and untruncated. Obviously, such assumption would not hold in practice and additional hardware would be needed to resolve signed/unsigned overflow due to a computation.
+
+## (3.2) Pipeline Architecture Design
+
+The decision to create a 5 stage pipeline with a $F/D_{jb}$ stage, in theory, can bring certain advantages and disadvantages. Some notable advantages include the reduction in cycles wasted for flushing the incorrectly fetched instruction during a branch or jump - due to static branch prediction and taking jumps in the fetch stage. 
+
+With this pipeline architecture, the worst case stall was found to be only two clock cycles. This would typically happen when a branch instruction follows a load instruction, where there exists a data dependancy between the two instructions. 
 
 Improvements are seen in jump and branch instructions given there is no data dependancy - in contrast to a pipelined architecture where branches and jumps are fully decided in the decode stage, jump instructions in this architecture don't introduce any lost cycles as they are computed in the fetch stage, furthermore, in the case of an incorrect branch, only a single clock cycle is wasted in flushing and fetching the correct instruction. 
 
@@ -1315,8 +1421,6 @@ The full benefit of such pipeline would depend on how fast the decoding can be p
 Thus the additional hardware requirements in the Fetch stage (that introduce greater delay/latency in the stage) could mean that the maximum clock frequency would need to fall in order to allow time for signals in the Fetch stage to propagate. 
 
 Although this pipeline can reduce the average CPI of the processor, if the clock frequency has to fall by a factor larger than the fall in CPI, the processor may actually perform worse than without the additional static branch prediction hardware. A detailed analysis on critical paths throughout the pipeline and understanding the practical implementation of the processor would be needed to discern the true impact of this design choice.
-
----
 
 <br>
 
