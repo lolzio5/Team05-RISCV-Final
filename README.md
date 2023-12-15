@@ -170,7 +170,6 @@ root
 └── README.md
 ```
 
-### (1.1.2) Pipelined CPU with data cache
 
 # (2) Design Process
 
