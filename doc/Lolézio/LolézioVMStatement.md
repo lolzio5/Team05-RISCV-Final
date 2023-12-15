@@ -54,7 +54,7 @@ This logic was implemented in partnership with Dima Askarov. I created the files
 
 <br>
 
-I extensively tested this functionality by writing the testbench [pc_tb.cpp](pc_tb.cpp) with a shell script.
+I extensively tested this functionality by writing the testbench [PCTestBench.cpp](Development/PCTestBench.cpp) with a Shell script.
 
 <br>
 
@@ -100,7 +100,7 @@ However, this would not work for jumps, which need to store the location of the 
 
 <br>
 
-I extensively tested this functionality by writing the testbench [mem_tb.cpp](mem_tb.cpp) with a shell script.
+I extensively tested this functionality by writing the testbench [MemoryTestBench.cpp](Development/MemoryTestBench.cpp) with a Shell script.
 
 <br>
 
@@ -135,7 +135,7 @@ My first contribution to the Top file was writing a first draft, connecting all 
 ___
 
 ## 5 - F1 Program
-### C++ Program &emsp; [assembly.cpp](assembly.cpp)
+### C++ Program &emsp; [F1.cpp](Development/F1.cpp)
 <br>
 
 To get started on designing and implementing the F1 Program in Assembly, I wrote an implementation in C++.
