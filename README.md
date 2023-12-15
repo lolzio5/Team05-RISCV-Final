@@ -225,7 +225,7 @@ The driving design principles throughout the development of components for the S
 
 >- **Ease of intergration and development** : The ability to easily integrate sub modules together was always a key consideration during design and development
 
->- **Transparency of operation** : The ability to easily interpret and understand the operation of modules and sub-modules was the main consideration when implementing them. The implications of this approach on the efficiency and cost of the design is explored in [Reflections, Limitations and Improvements]()
+>- **Transparency of operation** : The ability to easily interpret and understand the operation of modules and sub-modules was the main consideration when implementing them. The implications of this approach on the efficiency and cost of the design is explored in [Limitations, Reflections and Improvements](#5-limitations-reflections-and-improvements)
 
 <br>
 
@@ -1835,7 +1835,7 @@ As seen above, the parser and test functions test the CPU line-by-line and see i
 
 # (5) Limitations, Reflections and Improvements
 
-With the driving design and development principles outlined earlier focusing more on the ease of development, and keeping module operation logical, transparent and specialised has lead to potential inneficiencies and redundencies in the processor design. 
+With the driving design and development principles focusing more on the ease of development, as well as keeping module operation logical, transparent and specialised, has lead to potential inneficiencies and redundencies in the processor design. 
 
 ## (5.1) General
 
@@ -1877,11 +1877,13 @@ Although this approach keeps the result selection process easy to understand wit
 
 A similiar case is shown in the listing above, illustrating the need of an adder to compute the next PC value in the `PCRegisterF` module. These implicit hardware requirements make the processor less optimized but can make it less convoluted in system verilog.
 
-Although hardware costs are usually relatively insignificant in monetary terms (with typical 4-bit full adders costing less than 1 pound), greater hardware requirements could possibly lead to greater hardware delays, that result in slower performance, and would require more space on a silicon chip.
+Although hardware costs are usually relatively insignificant in monetary terms (with typical 4-bit full adders costing less than 1 pound), greater hardware requirements could possibly lead to greater hardware delays and would require more space on a silicon chip.
 
-A more hardware efficient approach would probably implement a single adder in the ALU for arithmetic computation, RET address calculation and upper instruction computation, with additional multiplexers controlled via control unit signals to select the correct ALU operands.
+A more hardware efficient approach would probably implement a single adder in the ALU for arithmetic computation, RET address calculation and upper instruction computation, with additional multiplexers to select the correct ALU operands.
 
-Additionally, the usage of certain SystemVerilog syntax and functionality could have lead to a less efficient processor. For example, many modules utilise nested case statements to perform their operation (like decoders). Given that in practice, these case statements usually would be  synthesized using multiplexers, overusing nested case statements could potentially result in greater signal delay than needed (assuming no optimization is applied during synthesis). 
+### Practicality
+
+The usage of certain SystemVerilog syntax and functionalities could have lead to a less efficient processor. For example, many modules utilise nested case statements to perform their operation (like decoders) as case statements are easy to interpret and write. Given that in practice, these case statements usually would be  synthesized using multiplexers, overusing nested case statements could potentially result in greater signal delay than needed (assuming no optimization is applied during synthesis). 
 
 Also, the `inital` statement used in certain modules, like the instruction ROM and data memory RAM, may not translate directly into synthesiable hardware and is mainly applicable for simulations - a more practical implementations of an 'initial' state would need to be made for practical development.
 
