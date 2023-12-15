@@ -4,19 +4,19 @@ Sam Barber - Team 5: Risk V 32i Processor Project
 
 
 1. [ALU](#alu)
+     - [ Testing assembly instructions](#assembly)
 2. [Register](#register)
 3. [Processor Diagram](#diagram)
      - [Single cycle diagram](#hit)
      - [Pipelined single cycle diagram](#hit)
      - [Cached and pipelined](#hit)
 4. [Top File](#top)
-5. [Assembly](#assembly)
-6. [Cache](#cache)
+5. [Cache](#cache)
      - [Hit decetion](#hit)
      - [Miss handling](#miss)
      - [Decode module](#decode)
      - [Writing to memory and replacement policy](#writing)
-8. [Conclusion and Reflection](#conclusion)
+6. [Conclusion and Reflection](#conclusion)
 
 
 
@@ -25,7 +25,7 @@ Sam Barber - Team 5: Risk V 32i Processor Project
 The ALU module is module designed to perform various arithmetic and logical operations on two input operands based on a control signal. It supports a variety of operations including addition, subtraction, left shift, right shift (logical and arithmetic), set less than, set less than (unsigned), XOR, OR, and AND. The module is parameterized to allow customisation of the operation and data width.
 
 
-Dima and I worked together to determind what instuctions where required and how they would be impliamented by the ALU and Control Path. Below is a table showing the various control inputs for the ALU from the Control unit:
+Dima and I worked together to determined what instructions where required and how they would be implemented by the ALU and Control Path. Below is a table showing the various control inputs for the ALU from the Control unit:
 
 <br>
 
@@ -54,6 +54,9 @@ iAluOp2: Second input operand.
 oAluResult: Result of the operation.
 oZero: Indicates whether the result is zero.
 
+### Testing assembly instructions<a name="assembly"></a>
+In order to test the functionality of the ALU I had written I wrote some assembly to test the functions of the ALU in the CPU. The test was successful and verified that all the ALU operations where working as indented after it was implemented in CPU. Test file test_all_instuctions.s
+
 ## Register <a name="register"></a>
 The register file has 1 write port and 3 read ports. Two of the read ports can read any address and the other always reads a0. The register is built on a ram array additionally there is logic implemented to prevent the zero register from being changed from zero. Data is written to the register on the positive edge and read on the negative edge.
 
@@ -70,8 +73,8 @@ This diagram shows how individual modules of the pipelined processor interface w
 
 My contribution to the top file was to implement all the modules I wrote into the top file. Along with altering the top file to resolve errors found after I created the high level diagram above.
 
-## Assembly <a name="assembly"></a>
-In order to test the functionality of the ALU I had written I wrote some assembly to test all the functions of the ALU in the CPU. The test was successful and verified that all the ALU operations where working as indented after it was implemented in CPU.
+
+
 ## Direct mapped Cache <a name="cache"></a>
 I chose to implement the cache using a direct mapping with a cache size 16 blocks this meant the cache size was 64 bytes. To achieve this I chose a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache. Below is a diagram showing how the data memory modules are connected and operate.
 
@@ -93,26 +96,32 @@ Next the Hit signal is passed to the DataMemoryController.sv and the data is ret
 
 
 ### Miss Handling <a name="miss"></a>
-If a miss is detected the data must be loaded from main memory. To achieve this DataMemoryController.sv passes the 
+If a miss is detected the data must be loaded from main memory. To achieve this DataMemoryController.sv loads data from main memory. This data is then outputted and then this is stored to cache.
 ### Decode Module <a name="decode"></a>
-The decode module is very simple it splits the incoming address into its Index and tag
-### Writing to memory and Replacement policy <a name="writing"></a>
+The decode module is very simple it splits the incoming address into its Index and tag.
+### Writing to memory<a name="writing"></a>
 When an address stored  within the cache is written to the cache must be cleared to prevent the information in the cache from being out of date. This is achieved by setting the valid bit low on the cache block when iWriteEn is high for the corresponding block of cache.
+
+## Two way cache <a name="twowaycache"></a>
+The two way cache is built very similarly to the direct cache with the addition of the U ram array and two copies of the cache arrays. This U bit indicates which cache was most recently accessed. Unfortunately I did not have time to finish and fully verify the two way cache it is located in the new_cache_pipline branch under newmemtwoway.sv file.
+ 
+### Replacement policy <a name="writingreplace"></a> 
+In the two way cache when if a miss occurs and if the cache is full data needs to removed from the cache to allow for the new data. This is achieved by the U bit this indicates which which piece of data was last used. The data which is the oldest is replaced with the new data.
+
 
 Every time a miss occurs 
 ### Testing the cache
 Testing with the PDF program on the pipelined single cycle processor with data memory cache.
 ![](TestingCachePDF.jpeg)
 
-
 Testing with the Triangle PDF program on the pipelined single cycle processor with data memory cache.
 ![](TestingCacheTrianglePDF.jpeg)
 
-## Two way cache <a name="twowaycache"></a>
-The two way cache is build 
-### Writing to memory and Replacement policy <a name="writingreplace"></a>
+
+
+
 ## Conclusion and Reflection <a name="conclusion"></a>
 
-Overall I was happy with how the project went 
+Overall I really enjoyed this project it was a great opportunity for me to develop my understanding of CPU microarchitecture, hardware design and System Verilog. 
 
-If I was doing the project again I would have intergrated the cache witht the main CPU much sooner rather than relying on my own testing of the module by itself. As this resulted in If I have additonal time I would have also like to persue adding levels of caching to the process to improve the Data Memory efficency. In addition I think it would have made the module intergation much simplier if we had agreed on a naming convention at the start of the project rather than altering all our code after the fact to fit a naming conventsion.
+If I was doing the project again I would have integrated the cache with the main CPU much sooner rather than relying on my own testing of the module by itself. If I had additional time I would like to peruse adding levels of caching to the processor to improve the Data Memory efficiency. In addition I think it would have made the module integration much simpler if as a team we had agreed on a naming convention at the start of the project. As it makes debugging far simpler when all modules follow the same naming convention.
