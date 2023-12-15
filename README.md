@@ -919,7 +919,9 @@ The Processor was tested using the reference programs provided, to calculate the
 
 ### (4.1.1) F1 Program
 
-https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/5e7945cd-20f3-4126-93bd-ed382b5240a7
+
+https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/b585d13c-0146-4a05-a419-959e3aec0845
+
 
 The F1 lights were made to gradually turn on, with constant time interval in between, until all are on. Then, after a random amount of time, they turn off, and the process repeats itself. As can be seen on the video, they turn on gradually in the same manner each time, but they turn off after a different interval each time. This makes it difficult to predict when they will turn off, and showcases that both the F1 program was written correctly, and that the CPU is working correctly.
 
@@ -943,7 +945,9 @@ The F1 lights were made to gradually turn on, with constant time interval in bet
 
 ### (4.1.2) Sine PDF
 
-https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/dd5ed8be-4a6b-46a3-9663-a145f988d207
+
+https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/2c81f9f9-d959-4b91-a68d-f022c468aa8f
+
 
 Reading the data from Data Memory in the Pipelined Processor, the PDF of the Sine function was plotted on Vbuddy. This shows the correct expected output, and that the Pipelined CPU was effectively able to evaluate the PDF, after a large number of cycles. 
 
@@ -986,7 +990,9 @@ Reading the data from Data Memory in the Pipelined Processor, the PDF of the Gau
 ### (4.1.4) Noisy PDF
 
 
-https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/ec69c1a7-36aa-4a78-afd9-cc6e1552aca1
+
+https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/4f05f4a5-ad61-4ae5-8489-99a86ba0dc33
+
 
 
 Reading the data from Data Memory in the Pipelined Processor, the PDF of the Noisy function was plotted on Vbuddy. This shows the correct expected output, and that the Pipelined CPU was effectively able to evaluate the PDF, after a large number of cycles. 
@@ -1010,8 +1016,7 @@ Reading the data from Data Memory in the Pipelined Processor, the PDF of the Noi
 
 
 
-https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/a4d62bba-35f0-4a5b-acf1-8c7c295c3466
-
+https://github.com/lolzio5/Team05-RISCV-Final/assets/71973875/b90bb138-215e-406c-88d7-dc71be8c0d0b
 
 
 Reading the data from Data Memory in the Pipelined Processor, the PDF of the Triangle function was plotted on Vbuddy. This shows the correct expected output, and that the Pipelined CPU was effectively able to evaluate the PDF, after a large number of cycles. 
