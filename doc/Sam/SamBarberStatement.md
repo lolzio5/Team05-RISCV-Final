@@ -60,7 +60,20 @@ oZero: Indicates whether the result is zero.
 In order to test the functionality of the ALU I had written I wrote some assembly to test the functions of the ALU in the CPU. The test was successful and verified that all the ALU operations where working as indented after it was implemented in CPU. Test file test_all_instuctions.s
 
 ## Register <a name="register"></a>
-The register file has 1 write port and 3 read ports. Two of the read ports can read any address and the other always reads a0. The register is built on a ram array additionally there is logic implemented to prevent the zero register from being changed from zero. Data is written to the register on the positive edge and read on the negative edge.
+The register file has 1 write port and 3 read ports. Two of the read ports can read any address and the other always reads a0. a0 is register x10 in the Register File this follows the RISCV 32I register convention. The register is built on a ram array additionally there is logic implemented to prevent the zero register from being changed from zero. Data is written to the register on the positive edge and read on the negative edge. 
+
+The register file is initialised as a array. In actual hardware registers are very different to RAM in system verilog they are initalised in the same way:
+
+```verilog
+	logic [DATA_WIDTH-1:0] ram_array [0:2**ADDRESS_WIDTH-1];
+
+```
+Register x0 cannot have any value except 0. This logic ensures that it always remains at zero
+
+```verilog
+	ram_array[0] = {32{1'b0}};
+
+```
 
 ## Processor Diagram <a name="diagram"></a>
 As the processor got more complicated and we deviated from the supplied diagram it became much more difficult to understand how each of our modules linked together. To help with this I created diagrams using sigasi to show how the modules interfaced with each other on a high level. 
