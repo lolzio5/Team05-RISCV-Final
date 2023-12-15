@@ -3,6 +3,7 @@
 ---
 | Module Name | Contributors |
 |-------------|---------------|
+| `AluE` | ALU |
 | `AluE` | |
 | `AluEncode` | |
 | `ControlDecode` | |
@@ -14,9 +15,9 @@
 | `ComparatorD` | Dima, Meric | 
 | `HazardUnit` | |
 | `OperandForwarderD` | Dima, Meric |
-| `DataMemoryM` | |
+| `DataMemoryM` |Sam |
 | `InstructionMemoryF` | |
-| `RegisterFileD` | |
+| `RegisterFileD` |Sam |
 | `ResultMuxW` | |
 | `PCRegisterF` | |
 | `PCAdderD` | |
@@ -25,7 +26,13 @@
 | `DPipelineRegisterE` | |
 | `EPipelineRegisterM` | |
 | `MPipelineRegisterW` | |
-| `top` | |
+| `FindHit` | Sam |
+| `DataMemoryController` | Sam |
+| `Cache` | Sam |
+| `CacheDecode` | Sam |
+| `NewMem` | Sam |
+| `NewMemTwoWay` | Sam |
+| `top` | Sam |
 ---
 
 <br>
