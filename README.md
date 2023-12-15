@@ -1830,5 +1830,5 @@ As seen above, the parser and test functions test the CPU line-by-line and see i
 
 # (5) Acknowledgements
 
-*The successful design and development of the various CPU architectures documented here would not have been possible without the generous help and advice of the Undergraduate Teaching Assistants for the 2023-24 Instruction Architectures And Compilers course and notably, Professor Peter Y.K Cheung. A great amount of design choices were influenced by Professor [Peter Y.K Cheungs' lectures](http://www.ee.ic.ac.uk/pcheung/teaching/EIE2-IAC/) and the book 'Digital Design And Computer Architecture` - by David Money Harris & Sarah L. Harris*
+*The successful design and development of the various CPU architectures documented here would not have been possible without the generous help and advice of the Undergraduate Teaching Assistants for the 2023-24 Instruction Architectures And Compilers course and notably, Professor Peter Y.K Cheung. Certain design choices were influenced by Professor [Peter Y.K Cheungs' lectures](http://www.ee.ic.ac.uk/pcheung/teaching/EIE2-IAC/) and the book 'Digital Design And Computer Architecture` - by David Money Harris & Sarah L. Harris*
 
