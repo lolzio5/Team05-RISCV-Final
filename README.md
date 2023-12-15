@@ -598,7 +598,160 @@ Finally, the Control Unit must determine what operations the ALU must conduct ba
 ---
 
 #### (3.2.2.2) Register File
+In parallel to the signals being encoded and decoded, the Register file must be accessed, so that the data stored in it can be used by the ALU. A register is used here as the data is fast to access, making it convenient for a few variables, which is much better than accessing memory. In RISCV32I, the Register file contains 32 registers.
 
+<br>
+
+While in hardware, a register file is very different than a ROM or RAM, in SystemVerilog all three can be instantiated in a similar way:
+
+```verilog
+	logic [DATA_WIDTH-1:0] ram_array [0:2**ADDRESS_WIDTH-1];
+```
+<br>
+
+The Read operation is made to be asynchronous, so data can immediately be accessed and passed to the ALU. The register file simply outputs the data stored at the given input address. An important note, however, is that in RISCV32I architecture, Register 0 is always set to 0, and cannot be written. This behavior is ensured by the line:
+```verilog
+	ram_array[0] = {DATA_WIDTH{1'b0}};
+```
+<br>
+Register A0 is set to be the output register, which is implemented with the line:
+
+```verilog
+	oRega0    = ram_array[5'd10];
+```
+
+> Note that A0 is register x10 in the Register File, as consistent with RISC-V Register Naming conventions
+
+<br>
+
+Finally, the register file can be written, on the negative falling edge of the clock:
+
+```verilog
+always_ff @ (negedge iClk) begin
+        if(iWriteEn == 1'b1) ram_array[iWriteAddress] <= iDataIn;
+    end
+```
+It is written on the falling edge so that data can be written and read very soon thereafter, ensuring that no cycles are wasted when retrieving data from the register file.
+
+<br>
+
+---
+
+### (3.2.3) Execute Stage
+#### (3.2.3.1) Arithmetic Logic Unit (ALU)
+Since the ALU controls AluCtrl was already encoded in the Decode stage, the implementation of the ALU is quite simple, following the same logic as in the ALUEncode section of the Control Unit above, but in reverse. The ALU takes in 2 operands, AluOp1 and AluOp2, and performs the arithmetic operation encoded by ALuCtrl.
+
+<br>
+
+AluOp1 and AluOp2 are determined in the Top file [top.sv](top.sv) directly, which removes the need for an additional Mux module (which was originally implemented and later removed). They are implemented by the following:
+
+```verilog
+always_comb begin
+        alu_op1 = reg_data_out1;
+        alu_op2 = alu_src ? imm_ext : reg_data_out2 ; //Pick between immediate or register operand
+    end
+```
+<br>
+
+This implements the following logic:
+
+**Table ():**
+
+---
+
+| AluSrc | AluOp1 | AluOp2 | 
+|---------|---------|---|
+| 1  | ImmExt | RegData1  |
+| 0  | RegData2 | RegData1|
+
+---
+
+<br>
+
+Once AluOp1 and AluOp2 are determined, [Alu.sv](Alu.sv) implements the following logic with a case statement:
+
+**Table ():**
+
+---
+
+| AluCtrl | Operation | Note |
+|---------|---------|-----|
+| 0000 | AluOp1 + AluOp2 | Addition |
+|0001 | AluOp1 - AluOp2 |  Subtraction | 
+| 0010 | AluOp1 << AluOp2 | Left shift |
+|  0011 | AluOp1 > AluOp2 | Set Less Than |
+|  0100 | AluOp1 > AluOp2 | Unsigned Set Less Than |
+|  0101 |AluOp1 ^ AluOp2 | Bitwise XOR |
+| 0110 | AluOp1 >> AluOp2 | Right Shift Logical |
+| 0111 | AluOp1 >>>> AluOp2 | Right Shift Arithmetic |
+| 1000 | AluOp1 | AluOp2 | Bitwise OR |
+|  1001 | AluOp1 & AluOp2 | Bitwise AND |
+
+---
+
+<br>
+
+Additional logic is also implemented in the ALU, namely to set the Zero flag:
+
+**Table ():**
+
+---
+
+| Operation Outcome | Zero | AluResult |
+|---------|---------|-----|
+| 0 | 1 | 0 |
+|Any |0  |  Operation Outcome | 
+
+---
+
+### (3.2.4) Memory Stage
+#### (3.2.4.1) Data Memory
+The Data Memory is instantiated to be Random Access Memory (RAM) with the line:
+```verilog
+logic [31:0] mem_array [2**ADDRESS_WIDTH - 1 : 0];
+```
+<br>
+
+The given address to be read (output from the ALU) is not necessarily aligned to the words stored in memory, so they must be aligned with the line:
+```verilog
+word_aligned_address = {{iAddress[31:2]}, {2'b00}};
+```
+> Note that the RAM is organised in the same way as the Instruction Memory ROM. As such, each data word starts at an address that is a multiple of 4.
+
+However, since this would make the exact data location be lost within the words, the offset is saved as well:
+```verilog
+byte_offset          = iAddress[1:0];
+```
+<br>
+
+A case statement then determines what must be read or written, depending on the Instruction Type:
+
+**Table ():**
+
+---
+
+| Instruction Type | Type of Operation | Operation |
+|---------|---------|-----|
+| Store Byte | Write Operation | Store Input MemData[7:0] in memory at given address |
+|Store Half Word |Write Operation  |  Store Input MemData[15:0] in memory at given address | 
+| Store Word | Write Operation | Store Input MemData in memory at given address |
+| Load Byte | Read Operation | Load Output MemData[7:0] with value at given address, and sign extend |
+| Load Half Word | Read Operation | Load Output MemData[15:0] with value at given address, and sign extend |
+| Load Word | Read Operation | Load Output MemData with value at given address |
+| Unsigned Load Byte | Load Output MemData[7:0] with value at given address, and zero extend |
+| Unsigned Load Half Word | Load Output MemData[15:0] with value at given address, and zero extend |
+
+---
+
+<br>
+
+> Note that read operations are always carried out, however, whether the memory is actually written is determined by the control signal WriteEn. When it is true, the memory is written.
+
+<br>
+
+### (3.2.5) Write Stage
+#### (3.2.5.1) Result Multiplexer
+The final stage of the CPU simply determines what must be written back to the register file, following the control signal ResultSrc determined in the Control Unit. 
 
 
 ## (3.3) Pipelined Architecture
