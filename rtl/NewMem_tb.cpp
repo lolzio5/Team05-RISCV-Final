@@ -1,6 +1,6 @@
 #include "verilated.h"
 #include "verilated_vcd_c.h"
-#include "VDataMemoryController.h"
+#include "VNewMem.h"
 
 int main(int argc, char **argv, char **env) {
     int simcyc;     // simulation clock count
@@ -8,13 +8,13 @@ int main(int argc, char **argv, char **env) {
 
     Verilated::commandArgs(argc, argv);
     // init top verilog instance
-    VDataMemoryController* top = new VDataMemoryController;
+    VNewMem* top = new VNewMem;
 
     // init trace dump
     Verilated::traceEverOn(true);
     VerilatedVcdC* tfp = new VerilatedVcdC;
     top->trace (tfp, 99);
-    tfp->open ("DataMemoryController.vcd");
+    tfp->open ("NewMem.vcd");
 
     // initialize simulation input 
     top->iClk = 1;
@@ -33,14 +33,8 @@ int main(int argc, char **argv, char **env) {
             top->iClk = !top->iClk;
             top->eval ();
         }
-        if (simcyc==3)
-        {
-            top->iAddress =0x009F;
-            //top->iMemoryInstructionType=0xB;
-        }
         if (simcyc==5)
         {
-            top->iAddress =0x00FF;
             top->iWriteEn=0;
             top->iInstructionType=0x1;
             //top->iMemoryInstructionType=0xB;

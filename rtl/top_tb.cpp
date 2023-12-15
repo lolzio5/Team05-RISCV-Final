@@ -1,4 +1,4 @@
-/*#include "verilated.h"
+#include "verilated.h"
 #include "verilated_vcd_c.h"
 #include "Vtop.h"
 #include "vbuddy.cpp"
@@ -46,4 +46,3 @@ int main(int argc, char **argv, char **env) {
     printf("Exiting\n");
     exit(0);
 }
-*/

@@ -361,14 +361,14 @@ module top(
 /////////////////////////////////
 
 
-    DataMemoryController DataMemoryController(
+    NewMem NewMem(
         .iClk(iClk),
         .iWriteEn(mem_write_en_m),
         .iInstructionType(instruction_type_m),
         .iMemoryInstructionType(instruction_sub_type_m), 
         .iAddress(alu_result_m),
         .iMemData(mem_data_in_m),
-        .oMemData(mem_data_out_m)
+        .ooMemData(mem_data_out_m)
     );
 
 

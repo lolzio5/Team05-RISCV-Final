@@ -9,9 +9,9 @@ module DataMemoryController #(
     input  InstructionTypes          iInstructionType,   
     input logic [DATA_WIDTH-1:0]   iAddress,
     input  logic [DATA_WIDTH-1:0]    iMemData,        // Write Data
-    output logic [DATA_WIDTH-1:0]  oMemData 
+    output logic [DATA_WIDTH-1:0]  oMemData, 
     //output logic [DATA_WIDTH-1:0]  oMemDatat,  
-    //output logic memt
+    output logic memt
 
 );
 logic [DATA_WIDTH-1:0] MemData;
@@ -154,8 +154,9 @@ always_ff @(negedge iClk) begin
     if (hit==1 && iWriteEn==0) begin
         oMemData<=MemData;
     end
-    else begin
+    else if (iWriteEn==0) begin
         oMemData <= mData;
+        memt=memt+1;
     end   
 end
 endmodule

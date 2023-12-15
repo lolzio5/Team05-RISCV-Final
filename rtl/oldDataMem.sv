@@ -1,5 +1,5 @@
 `include "include/ControlTypeDefs.svh"
-module DataMemoryM #(
+module oldDataMem #(
     parameter DATA_WIDTH = 32
  )(
     input  logic                     iClk,             // clock
@@ -8,8 +8,7 @@ module DataMemoryM #(
     input  InstructionSubTypes       iMemoryInstructionType,
     input  logic [31:0]              iAddress,        // Write Address
     input  logic [DATA_WIDTH-1:0]    iMemData,        // Write Data
-    output logic [DATA_WIDTH-1:0]    oMemData,         // output
-    output logic [DATA_WIDTH-1:0]    oWriteCache
+    output logic [DATA_WIDTH-1:0]    oMemData         // output
 );
 
 
@@ -19,10 +18,9 @@ module DataMemoryM #(
 //////////////////////////////////////////////
 
     //RAM Array : Accomodate for Address starting at : 0x10000 to 0x1FFFF
-    /* verilator lint_off UNOPTFLAT */
     logic [31:0] mem_array [2**17 - 1  : 0]; 
-   
 
+    /* verilator lint_off UNOPTFLAT */
     //Holds the data out of memory cell 
     logic [31:0] mem_data;
     /* verilator lint_on UNOPTFLAT */
@@ -55,10 +53,10 @@ module DataMemoryM #(
         end
     end
 
-    always_latch begin
-        if (iWriteEn==0) begin  
-            oMemData   = mem_data;      
-        end      
+    always_latch begin  
+        if (iWriteEn==0) begin
+            oMemData   = mem_data;            
+        end
     end
 
 
@@ -138,7 +136,7 @@ module DataMemoryM #(
             //Read Operation
             /* verilator lint_off ALWCOMBORDER */
             LOAD : begin  
-                oWriteCache=mem_data;
+                //oWriteCache=mem_data;
                 case(iMemoryInstructionType)
                     
                     LOAD_BYTE  : begin
