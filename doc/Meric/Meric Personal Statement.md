@@ -263,7 +263,9 @@ As seen above, the parser and test functions test the CPU line-by-line and see i
 
 Then, there came the Pipelined CPU. For pipelined CPU, I had to completely alter the approach by actually handling the instruction feed-in process and testing CPU for each stage per cycle.
 
-Below is an overview of how I handled this operation in testbench.
+For Pipelined CPU development, I also participated in development of modules such as AluOpForwarderE.sv and ComparatorD.sv.
+
+Back to testbench, below is an overview of how I handled this operation in testbench.
 
 Certain repetitive parts of the code were trimmed out to prevent pasting many hundreds of lines of code.
 
