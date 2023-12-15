@@ -1,6 +1,8 @@
-# Meric Personal Statement
+# Team05 RISCV CPU
 
-# I was assigned the task of creating verification tool for our CPU. (testbench)
+# Meric Personal Statement of Contributions
+
+I was assigned the task of creating verification tool for our CPU. (testbench)
 
 To get a solid grasp of how a single cycle CPU works, I created my own single cycle CPU modules separately while I wait for the modules to be completed and ready for testing.
 
