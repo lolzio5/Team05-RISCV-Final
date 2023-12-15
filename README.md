@@ -32,7 +32,7 @@
 
 ## (1.0) Repository Branch Descriptions : 
 
-The tables below describes the usage of various branches for development and deployment purposes
+The tables below describe the usage of various branches for development and deployment purposes
 
 
 **Table(1.0.1) :** Assessed/Deployment Repository Branches
@@ -196,9 +196,9 @@ Below is an overview of contributions made to general module categories by the t
 
 The driving design principles throughout the development of components for the Single Cycle CPU and the Pipelined CPU were the following :
 
->- **Modularity** : Components were broken down into specialised units that performed a singluar or a limited set of tasks
+>- **Modularity**: Components were broken down into specialised units that performed a singular or a limited set of tasks
 
->- **Ease of intergration and development** : The ability to easily integrate sub modules together was always a key consideration during design and development
+>- **Ease of integration and development** : The ability to easily integrate sub-modules together was always a key consideration during design and development
 
 >- **Transparency of operation** : The ability to easily interpret and understand the operation of modules and sub-modules was the main consideration when implementing them. The implications of this approach on the efficiency and cost of the design is explored in [Limitations, Reflections and Improvements](#5-limitations-reflections-and-improvements)
 
@@ -227,7 +227,7 @@ In order to allow quick and clear development, naming conventions and styles wer
 
 To increase the readability of modules and make their operation more transparent and understandable, frequently used control and data signals were encoded into custom logic types using enums and unions. 
 
-These logic types are defined in the 'ControlTypeDefs.svh' file that is included in each module that utilises the respective logic types - shown in **Listing (1.2.1)**.
+These logic types are defined in the 'ControlTypeDefs.svh' file that is included in each module that utilizes the respective logic types - shown in **Listing (1.2.1)**.
 
 **Listing (2.3.1)** : Include header example
 
@@ -237,7 +237,7 @@ These logic types are defined in the 'ControlTypeDefs.svh' file that is included
 
 <br>
 
-**Table (2.3.1)** Shows the definition of the enum InstructionTypes. This enum was used to store the type of instruction executing as decoded by the control unit. Using this enum made the modules easier to understand as the viewer could easily tell what specific instruction would trigger a given set of outputs. 
+**Table (2.3.1)** Shows the definition of the enum InstructionTypes. This enum was used to store the type of instruction executed as decoded by the control unit. Using this enum made the modules easier to understand as the viewer could easily tell what specific instruction would trigger a given set of outputs. 
 
 **Table (2.3.2)** : Enum - InstructionTypes Definition
 
@@ -249,15 +249,15 @@ These logic types are defined in the 'ControlTypeDefs.svh' file that is included
 | STORE    | 0010 | **Store Instruction** (s-type) | 
 | UPPER    | 0011 | **Upper Instruction** (u-type)| 
 | IMM_COMPUTATION | 0100 | **Register-Immediate Computation** : An instruction that performs logical/arithmetic operations on an immediate and register value | 
-| REG_COMPUTATION | 0101 | **Register-Register Computation** : An instruction that performs logical/arithmetic operations on two register values  | 
-| JUMP    | 0110 | **Jump Insturction** (j-type) | 
-| NULLINS | 1111 | **NULL** : Used to represent 'no-instruction'. Helps determine when the decoding of a given isntruction word has failed |
+| REG_COMPUTATION | 0101 | **Register-Register Computation**: An instruction that performs logical/arithmetic operations on two register values  | 
+| JUMP    | 0110 | **Jump Instruction** (j-type) | 
+| NULLINS | 1111 | **NULL** : Used to represent 'no-instruction'. Helps determine when the decoding of a given instruction word has failed |
 ---
 
 <br>
 
 
-To further classify a given instruction, a union InstructionSubType was implemented. At any given time, this union would take on the value of an enum type representing the specific instruction sub type. The definition of the 'TypeR' enum is shown in **Table (2.3.4)** as example. For the case of an r-type class of instructions, the InstructionSubTypes union would take on the enum value of the specific r-type instruction.
+To further classify a given instruction, a union InstructionSubType was implemented. At any given time, this union would take on the value of an enum type representing the specific instruction subtype. The definition of the 'TypeR' enum is shown in **Table (2.3.4)** as an example. For the case of an r-type class of instructions, the InstructionSubTypes union would take on the enum value of the specific r-type instruction.
 
 <br>
 
@@ -432,7 +432,7 @@ end
 
 ## (3.2) Single Cycle Architecture
 
-Our implementation of the single cycle CPU is split in 5 main stages. 
+Our implementation of the single-cycle CPU is split into 5 main stages. 
 
 **Table (3.2.1): Single Cycle Stages Overview** 
 
@@ -440,11 +440,11 @@ Our implementation of the single cycle CPU is split in 5 main stages.
 
 |      Stage      |  Operation | Relevant files |
 |-----------------|----------------------------|-------------|
-|      Fetch      | The Program Counter is incremented by the right amount, so that the correct next instruction is fetched |[PCAdder.sv](PCAdder.sv)   [PCRegister.sv](PCRegister.sv) [InstructionMemory.sv](InstructionMemory.sv)|
-|      Decode   | The instruction is fully decoded to generate required control signals. During this stage the source registers are also read on the falling edge of the clock | [AluEncode.sv](AluEncode.sv) [ControlDecode.sv](ControlDecode.sv)  [ControlPath.sv](ControlPath.sv)  [ControlUnit.sv](ControlUnit.sv)  [ImmDecode.sv](ImmDecode.sv)  [InstructionDecode.sv](InstructionDecode.sv) [RegisterFile.sv](RegisterFile.sv) |
+|      Fetch      | The Program Counter is incremented by the right amount so that the correct next instruction is fetched |[PCAdder.sv](PCAdder.sv)   [PCRegister.sv](PCRegister.sv) [InstructionMemory.sv](InstructionMemory.sv)|
+|      Decode   | The instruction is fully decoded to generate the required control signals. During this stage the source registers are also read on the falling edge of the clock | [AluEncode.sv](AluEncode.sv) [ControlDecode.sv](ControlDecode.sv)  [ControlPath.sv](ControlPath.sv)  [ControlUnit.sv](ControlUnit.sv)  [ImmDecode.sv](ImmDecode.sv)  [InstructionDecode.sv](InstructionDecode.sv) [RegisterFile.sv](RegisterFile.sv) |
 |     Execute   | The Arithmetic Logic Unit executes the computation specified by the instruction (includes no computation at all) | [Alu.sv](Alu.sv) |
-|      Memory   | In the memory access stage the data memory is either read from or written to given the control signals in the memory stage| [DataMemory.sv](DataMemory.sv) |
-|      Write    | The final result chosen between; the Alu output, memory data, Upper immediate, PC+4 and PC + Upper Immediate, is written to the register file on the rising edge of the clock| [ResultMux.sv](ResultMux.sv) |
+|      Memory   | In the memory access stage the data memory is either read from or written to give the control signals in the memory stage| [DataMemory.sv](DataMemory.sv) |
+|      Write    | The final result chosen between; the Alu output, memory data, Upper immediate, PC+4, and PC + Upper Immediate, is written to the register file on the rising edge of the clock| [ResultMux.sv](ResultMux.sv) |
 
 ---
 
@@ -454,7 +454,7 @@ Our implementation of the single cycle CPU is split in 5 main stages.
 
 ### PC Register
 
-The Fetch stage begins with the output of the next PC value, so that the next instruction can be fetched. This is implemented in [PCRegister.sv](PCRegister.sv) with the line:
+The Fetch stage begins with the output of the next PC value so that the next instruction can be fetched. This is implemented in [PCRegister.sv](PCRegister.sv) with the line:
 ```verilog
    if (iPCSrc == 1'b0) PCNext = iPCSrc ? iBranchTarget : oPC + 32'd4;
 ```
@@ -508,7 +508,7 @@ The Read Only Memory (ROM) is implemented using the line:
 ```verilog
    logic [DATA_WIDTH - 1 : 0] rom_array [0 : 2**12  - 1];
 ```
-The address space corresponding to the corresponding to the memory map in the brief, meaning up to 1024 instruction words can be loaded. This can however easily be extended.
+The address space corresponding to corresponds to the memory map in the brief, meaning up to 1024 instruction words can be loaded. This can however easily be extended.
 <br>
 The ROM outputs an instruction word, by concatenating the 4 individual bytes of the instruction word into a single, 32 bit value:
 ```verilog
@@ -525,7 +525,7 @@ The Control Unit was split into many smaller modules, to help with debugging and
 
 <br>
 
-The instruction word out of Instruction Memory is first split into the Op Code and 2 Funct values, so that the Instruction Type and Subtype can be decoded. This is first done in [ControlPath.sv](ControlPath.sv)
+The instruction word out of Instruction Memory is first split into the Op Code and 2 Funct values so that the Instruction Type and Subtype can be decoded. This is first done in [ControlPath.sv](ControlPath.sv)
 
 <br>
 
@@ -1125,7 +1125,7 @@ _loop2:                     # repeat
     RET                     # PC = 84
 ```
 
-In the code above, there are data dependancies between the following instructions : 
+In the code above, there are data dependencies between the following instructions : 
 - `ADD a5, a1, a2` and `LBU t0, 0(a5)`: 
   -  The `LBU` instruction uses `a5` as an operand, which is set by the preceding `ADD` instruction. This is a Read After Write (RAW) hazard, as `LBU` reads the value of `a5` immediately after it's written.
 
@@ -1154,7 +1154,7 @@ In the code above, there are data dependancies between the following instruction
 
 <br>
 
-**The simulation image below shows the following pipeline state :** 
+**The simulation image below shows the following pipeline state:** 
 
 | Stage | Instruction | PC |
 |-------|-------------|----|
@@ -1188,17 +1188,17 @@ As the instruction in the decode stage is being decoded (`ADD a6, t0, a3`), the 
     end
 ```
 
-This is seen happenening in **Figure(3.1.1(1))**, where the `oStallF`, `oStallD` and `oFlushE` are output as high from the hazard unit - with the the execution stage being flushed on the next clock cycle (PC and all other signals go to 0)
+This is seen happening in **Figure(3.1.1(1))**, where the `oStallF`, `oStallD`, and `oFlushE` are output as high from the hazard unit - with the execution stage being flushed on the next clock cycle (PC and all other signals go to 0)
 
-In the same cycle, the hazard unit also detects the dependancy between the `ADD a5, a1, a2` in the Memory stage and `LBU t0, 0(a5)` in the Execute stage. **Figure(3.1.1(1))** shows the `iForwardAluOp1` being set to $01$ in binary - indicating that the destination registster in the memory stage is the same as the source 1 register in the execute stage. The logic that performs this in the `HazardUnit` is shown below :
+In the same cycle, the hazard unit also detects the dependency between the `ADD a5, a1, a2` in the Memory stage and `LBU t0, 0(a5)` in the Execute stage. **Figure(3.1.1(1))** shows the `iForwardAluOp1` being set to $01$ in binary - indicating that the destination register in the memory stage is the same as the source 1 register in the execute stage. The logic that performs this in the `HazardUnit` is shown below :
 
 
 **Listing ()**
 ```verilog
-      //If destination register in memory stage is the same as source1 register in execution stage
+      //If the destination register in the memory stage is the same as the source1 register in the execution stage
       if      (iSrcReg1E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg1E) begin
         if (iInstructionTypeM != UPPER) oForwardAluOp1E = 2'b01;
-        else                            oForwardAluOp1E = 2'b11;    //Forward writeback value to execution stage
+        else                            oForwardAluOp1E = 2'b11;    //Forward write-back value to execution stage
       end
 
       else if (iSrcReg1E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg1E) begin
@@ -1206,9 +1206,9 @@ In the same cycle, the hazard unit also detects the dependancy between the `ADD 
         else                            oForwardAluOp1E = 2'b11; 
       end
 
-      else                              oForwardAluOp1E = 2'b00;    //If there is no data dependancy hazard for source register 1
+      else                              oForwardAluOp1E = 2'b00;    //If there is no data dependency hazard for source register 1
 
-      //If destination register in memory/writeback stage is the same as source register in execution stage
+      //If the destination register in the memory/writeback stage is the same as the source register in the execution stage
       if      (iSrcReg2E != 5'b0 & iRegWriteEnM & iDestRegM == iSrcReg2E) oForwardAluOp2E = 2'b01;     
       else if (iSrcReg2E != 5'b0 & iRegWriteEnW & iDestRegW == iSrcReg2E) oForwardAluOp2E = 2'b10;     
       else 
@@ -1220,7 +1220,7 @@ As a result, the `alu_op1_e` (alu operand 1 in the execute stage) is equal to 65
 
 <br>
 
-**The simulation image below shows the following pipeline state :**
+**The simulation image below shows the following pipeline state:**
 
 | Stage | Instruction | PC |
 |-------|-------------|----|
@@ -1236,11 +1236,11 @@ As a result, the `alu_op1_e` (alu operand 1 in the execute stage) is equal to 65
 
 ![](doc/Dima/images/LBU%20in%20memory%20stage.PNG)
 
-**Figure(3.4.1(2))** shows the `LBU t0, 0(a5)` in the Memory stage. At this point the data memory is accessed with the correct address shown by `iAddress`. In the same cycle, `oMemData` holds the value of `byte1` that has been zero extended (unsigned load). Note how the execution stage is flushed in this cycle.
+**Figure(3.4.1(2))** shows the `LBU t0, 0(a5)` in the Memory stage. At this point, the data memory is accessed with the correct address shown by `iAddress`. In the same cycle, `oMemData` holds the value of `byte1` that has been zero-extended (unsigned load). Note how the execution stage is flushed in this cycle.
 
 <br>
 
-**The simulation image below shows the following pipeline state :**
+**The simulation image below shows the following pipeline state:**
 
 | Stage | Instruction | PC |
 |-------|-------------|----|
@@ -1276,13 +1276,13 @@ Below is the assembly code that was loaded into ROM and simulated
 
 ```verilog
 main:
-    JAL     ra, init            # PC = 0    jump to init, save return address in ra
+    JAL     ra, init            # PC = 0    jump to init, save the return address in ra
     JAL     ra, build           # PC = 4
 forever:
     JAL     ra, display         # PC = 8
     J       forever             # PC = 12
 
-init:                           # function to initialise PDF buffer memory 
+init:                           # function to initialize PDF buffer memory 
     LI      a1, 0x100           # PC = 16   loop_count a1 = 256
 _loop1:                         # repeat
     ADDI    a1, a1, -1          # PC = 20   decrement a1
@@ -1292,7 +1292,7 @@ _loop1:                         # repeat
 ```
 <br>
 
-**The simulation image below shows the following pipeline state :**
+**The simulation image below shows the following pipeline state:**
 
 | Stage | Instruction | PC |
 |-------|-------------|----|
@@ -1309,17 +1309,17 @@ _loop1:                         # repeat
 ![](doc/Dima/images/incorrect_branch_sim1.PNG)
 
 
-**Figure (3.4.2(1))** shows a branch instruction in the Fetch stage of the pipeline (`BNE a1, zero, _loop1`). Given that this branch is backwards to `_loop1`, it is automatically taken in the Fetch stage, as shown by the `oTakeJBF` flag.
+**Figure (3.4.2(1))** shows a branch instruction in the Fetch stage of the pipeline (`BNE a1, zero, _loop1`). Given that this branch is backward to `_loop1`, it is automatically taken in the Fetch stage, as shown by the `oTakeJBF` flag.
 
-However, the branch condition of `a1` and `zero` being not equal to would no longer be met in the next clock cycle. This is because the value of `a1/ram_array[11]` is $1$ in this clock cycle, and the instruction `ADDI a1, a1, -1` is currently being computed in the Execute stage.
+However, the branch condition of `a1` and `zero` being not equal would no longer be met in the next clock cycle. This is because the value of `a1/ram_array[11]` is $1$ in this clock cycle, and the instruction `ADDI a1, a1, -1` is currently being computed in the Execute stage.
 
-This data dependancy and incorrect branch decision are resolved once the branch instruction reaches the Decode stage.
+This data dependency and incorrect branch decision are resolved once the branch instruction reaches the Decode stage.
 
 <br>
 
 Once the branch instruction reaches the Decode stage, the instructions' source registers are compared by the `ComparatorD` module and the branch outcome is resolved.
 
-In the case of a data dependancy with the previous instruction, the hazard unit detects this and outputs the forwarding logic signal. The dependant register value is forwarded via the `OperandForwarderD` module to the `ComparatorD` for comparison. 
+In the case of a data dependence with the previous instruction, the hazard unit detects this and outputs the forwarding logic signal. The dependant register value is forwarded via the `OperandForwarderD` module to the `ComparatorD` for comparison. 
 
 Using the flag values `iTakeJBF` and `iTakeJBD` the comparator decides if the branch taken in the fetch stage was correct or not. The PC recovery logic is shown below:
 
@@ -1350,7 +1350,7 @@ Using the flag values `iTakeJBF` and `iTakeJBD` the comparator decides if the br
           end
 ```
 
-**The simulation image below shows the following pipeline state :**
+**The simulation image below shows the following pipeline state:**
 
 
 | Stage | Instruction | PC |
@@ -1370,20 +1370,20 @@ Using the flag values `iTakeJBF` and `iTakeJBD` the comparator decides if the br
 
 **Figure (3.4.2(2))** shows the PC value in the Fetch stage going from $20$ *(incorrectly fetched branch target)* to $32$ *(instruction after the branch)*. In this clock cycle, the comparator sets the `oRecoverPC` flag high, the PC register uses this information to output the value of the PC in the Decode stage plus four as shown in **Listing()**. 
 
-Note how the decode stage is also flushed to prevent the incorrectly fetched instruction to propagate through the pipeline
+Note how the decode stage is also flushed to prevent the incorrectly fetched instruction from propagating through the pipeline
 
 **Listing () :** PC Recovery in `PCRegisterF`
 
 ```verilog
   always_comb begin
-    //Must first check that the branch outcome in decode stage 
-    //If we didnt branch when we needed to and the instruction in fetch is a backward branch, we should not execute the backward branch
+    //Must first check that the branch outcome in the decode stage 
+    //If we didn't branch when we needed to and the instruction in fetch is a backward branch, we should not execute the backward branch
     if (iPCSrcD == 1'b0) PCNext = iPCSrcF ? iBranchTarget : oPC + 32'd4;
     else                 PCNext = iTargetPC;
   end
 ```
 
-Furthermore, given the dependancy of the `a1` register on the `ADDI` instruction prior to the branch, the hazard unit also outputs control signals to forward the Alu output from the memory stage to the `CompratorD` module in the Decode stage.
+Furthermore, given the dependency of the `a1` register on the `ADDI` instruction prior to the branch, the hazard unit also outputs control signals to forward the Alu output from the memory stage to the `CompratorD` module in the Decode stage.
 
 **Figure (3.4.2(3)) :** JALR Execution
 
@@ -1393,7 +1393,7 @@ Furthermore, given the dependancy of the `a1` register on the `ADDI` instruction
 
 **Figure (3.4.2(3))** shows the simulation in **Figure(3.4.2(2))** one clock cycle later. The PC value in the fetch stage is $32$ indicating a JALR (RET) instruction. Note how the `TakeJB` flags aren't set during this fetch stage. This is due to JALR being decoded fully in the decode stage as discussed earlier (in general, for JALR, the `TakeJB` flags aren't generated, instead the computed jump target is fed into `PCNext` using `PCSrcD` signals). 
 
-Also note how the Decode stage is flushed in this cycle to prevent the incorrectly fetched instruction with `PC` of $36$ from propagating through the pipieline
+Also note how the Decode stage is flushed in this cycle to prevent the incorrectly fetched instruction with `PC` of $36$ from propagating through the pipeline
 
 <br>
 
@@ -1403,7 +1403,7 @@ Also note how the Decode stage is flushed in this cycle to prevent the incorrect
 
 <br>
 
-**Figure (3.4.2(4))** shows the pipeline 1 cycle later, the `PC` in the Fetch stage is 4, which the value stored in `ram_array[1] / reg x1` representing the RET address that was set at the start of the program execution (`JAL ra, init`) 
+**Figure (3.4.2(4))** shows the pipeline 1 cycle later, the `PC` in the Fetch stage is 4, which is the value stored in `ram_array[1] / reg x1` representing the RET address that was set at the start of the program execution (`JAL ra, init`) 
 
 Given that the RET address was to another `JAL` instruction, the `TakeJBF` flag is set high in this cycle indicating that a jump to `build / PC = 36` is being  made. 
 
@@ -1548,10 +1548,10 @@ The F1 lights were made to gradually turn on, with constant time interval in bet
 
 ## (3.5)  Pipelined Architecture with Data Cache
 ### Direct Mapped Cache 
-The cache is implemented using a direct mapped approach.  The cache memory is made up of 4 parts valid bit, tag, index and data. The cache size is 64 bytes with a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache. 
+The cache is implemented using a direct-mapped approach.  The cache memory is made up of 4 parts valid bit, tag, index, and data. The cache size is 64 bytes with a tag size of 26 bits and an Index size of 4 bits. This is implemented with 3 separate RAM arrays for the cache data, valid bit, and tag of the cache. 
 
 ### (3.5.1) Hit
-A hit is detected when the incoming read iAddress tag matches the tag of the cache and the valid bit is high. When a hit occurs data is read directly from cache.
+A hit is detected when the incoming read iAddress tag matches the tag of the cache and the valid bit is high. When a hit occurs data is read directly from the cache.
 
 ### (3.5.2) Miss
 If a miss is detected data must be read from main memory. It is then stored in the cache so allow at the corresponding index.
@@ -1575,7 +1575,7 @@ Example of the metacomment; you only need to include it once per module sv files
 
 ![Accesing modules’ internal signal values in testbench.](doc/Meric/Images/Screen_Shot_2023-12-14_at_10.58.58_PM.png)
 
-Accesing modules’ internal signal values in testbench.
+Accessing modules’ internal signal values in the testbench.
 
 ![Example of instruction test functions by checking internal signal values, and making early ](doc/Meric/Images/Screen_Shot_2023-12-14_at_11.00.39_PM.png)
 
