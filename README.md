@@ -170,7 +170,6 @@ root
 └── README.md
 ```
 
-### (1.1.2) Pipelined CPU with data cache
 
 # (2) Design Process
 
@@ -189,6 +188,9 @@ root
   - **Data Memory :**
   	- Dima Askarov
    	- Lolézio Viora Marquet
+  - **Register :**
+  	- Dima Askarov
+   	- Sam Barber
 
  #### **Multiplexers**
   - **PC Mux**
