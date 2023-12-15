@@ -91,7 +91,7 @@ My contribution to the top file was to implement all the modules I wrote into th
 
 
 ## Direct mapped Cache <a name="cache"></a>
-I chose to implement the cache using a direct mapping with a cache size 16 blocks this meant the cache size was 64 bytes. To achieve this I chose a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache. Below is a diagram showing how the data memory modules are connected and operate.
+I chose to implement the cache using a direct mapping with a cache size of 64 bytes. To achieve this I chose a tag size of 26 bits and Index size of 4 bits. This is implemented with 3 separate ram arrays for the cache data, valid bit and tag of the cache. Below is a diagram showing how the data memory modules are connected and operate.
 
 ![](DataMemoryDiagramV0.1.png)
 
