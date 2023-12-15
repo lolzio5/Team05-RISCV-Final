@@ -331,17 +331,17 @@ end
 
 Our implementation of the single cycle CPU is split in 5 main stages. 
 
-**Table (3.2.1)** : 
+**Table (3.2.1): Single Cycle Stages Overview** 
 
 ---
 
 |      Stage      |  Operation | Relevant files |
 |-----------------|----------------------------|-------------|
-|      $Fetch$    | The Program Counter is incremented by the right amount, so that the correct next instruction is fetched |[PCAdder.sv](PCAdder.sv)   [PCRegister.sv](PCRegister.sv) [InstructionMemory.sv](InstructionMemory.sv)|
-|      $Decode$   | The instruction is fully decoded to generate required control signals. During this stage the source registers are also read on the falling edge of the clock | [AluEncode.sv](AluEncode.sv) [ControlDecode.sv](ControlDecode.sv)  [ControlPath.sv](ControlPath.sv)  [ControlUnit.sv](ControlUnit.sv)  [ImmDecode.sv](ImmDecode.sv)  [InstructionDecode.sv](InstructionDecode.sv) [RegisterFile.sv](RegisterFile.sv) |
-|     $Execute$   | The Arithmetic Logic Unit executes the computation specified by the instruction (includes no computation at all) | [Alu.sv](Alu.sv) |
-|      $Memory$   | In the memory access stage the data memory is either read from or written to given the control signals in the memory stage| [DataMemory.sv](DataMemory.sv) |
-|      $Write$    | The final result chosen between; the Alu output, memory data, Upper immediate, PC+4 and PC + Upper Immediate, is written to the register file on the rising edge of the clock| [ResultMux.sv](ResultMux.sv) |
+|      Fetch      | The Program Counter is incremented by the right amount, so that the correct next instruction is fetched |[PCAdder.sv](PCAdder.sv)   [PCRegister.sv](PCRegister.sv) [InstructionMemory.sv](InstructionMemory.sv)|
+|      Decode   | The instruction is fully decoded to generate required control signals. During this stage the source registers are also read on the falling edge of the clock | [AluEncode.sv](AluEncode.sv) [ControlDecode.sv](ControlDecode.sv)  [ControlPath.sv](ControlPath.sv)  [ControlUnit.sv](ControlUnit.sv)  [ImmDecode.sv](ImmDecode.sv)  [InstructionDecode.sv](InstructionDecode.sv) [RegisterFile.sv](RegisterFile.sv) |
+|     Execute   | The Arithmetic Logic Unit executes the computation specified by the instruction (includes no computation at all) | [Alu.sv](Alu.sv) |
+|      Memory   | In the memory access stage the data memory is either read from or written to given the control signals in the memory stage| [DataMemory.sv](DataMemory.sv) |
+|      Write    | The final result chosen between; the Alu output, memory data, Upper immediate, PC+4 and PC + Upper Immediate, is written to the register file on the rising edge of the clock| [ResultMux.sv](ResultMux.sv) |
 
 ---
 
@@ -353,9 +353,10 @@ The Fetch stage begins with the output of the next PC value, so that the next in
 ```
 Depending on the value of PCSrc, the next PC value is either PC + 4 or PC + ImmExt (calculated as BranchTarget. PC + 4 would simply indicate the next instruction, since each 32 bit instruction word is stored in 8 memory locations, as seen below:
 
-**Table ()** : 
+**Table (3.2.2): Memory Cell Structure**
 
 ---
+
 | Cell 3 |  Cell  2 | Cell  1 | Cell  0 | Address |
 |--------|----------|---------|---------|---------|
 |8 bytes |  8 bytes | 8 bytes | 8 bytes |  0x004  |
@@ -377,7 +378,7 @@ When Jump or Branch instructions are carried out, the next instruction that must
 The PC Adder receives the current instruction type from the Control Unit (see below), and executes the following logic:
 <br>
 
-**Table ()** : 
+**Table (3.2.3): PC Adder Logic** 
 
 ---
 | Instruction Type |  Instruction SubType | Output PC Target |
@@ -426,7 +427,7 @@ Next, the Operation Code, and Function 3 and 7 are passed into [InstructionDecod
 <br>
 The following logic is implemented using a case statement, to determine the Instruction Type, in the Instruction Decoder. Decimal numbers are used as they are more readable:
 
-**Table ()** : 
+**Table (3.2.4): Instruction Decode Logic** 
 
 ---
 
@@ -446,7 +447,8 @@ The following logic is implemented using a case statement, to determine the Inst
 
 Once the Instruction Type is determined, for Register Computation, Immediate Computation, Load, Branch, and Store, the Instruction Sub Type is determined depending on Funct3 and Funct 7, with further case statements:
 
-**Table (): Register Computation** : 
+**Table (3.2.5): Register Computation**
+
 ---
 
 | Funct3 |  Funct7    | Instruction Sub Type |
@@ -464,7 +466,8 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 
 ---
 
-**Table (): Immediate Computation** : 
+**Table (3.2.6): Immediate Computation**
+
 ---
 
 | Funct3 |  Funct7    | Instruction Sub Type |
@@ -481,7 +484,8 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 
 ---
 
-**Table (): Load** : 
+**Table (3.2.7): Load**  
+
 ---
 
 | Funct3 | Instruction Sub Type |
@@ -494,7 +498,8 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 
 ---
 
-**Table (): Branch** : 
+**Table (3.2.8): Branch** 
+
 ---
 
 | Funct3 | Instruction Sub Type |
@@ -508,7 +513,8 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 
 ---
 
-**Table (): Store** : 
+**Table (3.2.9): Store** 
+
 ---
 
 | Funct3 | Instruction Sub Type |
@@ -522,7 +528,8 @@ Once the Instruction Type is determined, for Register Computation, Immediate Com
 <br>
 Once the Instruction Type and Sub Type have been determined, the immediate operand must also be decoded, so it can be used by the ALU, or as a PC offset for Jump and Branch instructions. It is also sign extended, by setting all ImmExt[31:12] equal to the 12th bit ImmExt[11]. Once again, a case statement is used to determine this based on the Instruction Type determined previously, following this logic:
 
-**Table ()** : 
+**Table (3.2.10): Immediate Decoder Logic** 
+
 ---
 
 | Instruction Type | ImmExt |
@@ -541,7 +548,7 @@ Once the Instruction Type and Sub Type have been determined, the immediate opera
 
 Once the Immediate operand ImmExt has been determined, further control signals are determined in [ControlDecode.sv](ControlDecode.sv). This decoder once again comprises a case statement, looking at each Instruction type, and setting ResultSrc, AluSrc, RegWrite and MemWrite. They have the following purpose:
 
-**Table ():**
+**Table (3.2.11): Control Signal Definitions**
 
 ---
 
@@ -556,7 +563,7 @@ Once the Immediate operand ImmExt has been determined, further control signals a
 
 The case statement implementing these results implements the following logic:
 
-**Table ():**
+**Table (3.2.12): Control Signal Encoder Logic**
 
 ---
 
@@ -578,7 +585,7 @@ Finally, the Control Unit must determine what operations the ALU must conduct ba
 
 > Note that the Instruction Sub Types, while being part of different Instruction Types, require the same ALU operations, and so here only the Sub Types are shown.
 
-**Table ():**
+**Table (3.2.13): ALU Control Encoder Logic**
 
 ---
 
@@ -655,7 +662,7 @@ always_comb begin
 
 This implements the following logic:
 
-**Table ():**
+**Table (3.2.14): ALU Source Logic**
 
 ---
 
@@ -670,7 +677,7 @@ This implements the following logic:
 
 Once AluOp1 and AluOp2 are determined, [Alu.sv](Alu.sv) implements the following logic with a case statement:
 
-**Table ():**
+**Table (3.2.15): ALU Operation Logic**
 
 ---
 
@@ -693,7 +700,7 @@ Once AluOp1 and AluOp2 are determined, [Alu.sv](Alu.sv) implements the following
 
 Additional logic is also implemented in the ALU, namely to set the Zero flag:
 
-**Table ():**
+**Table (3.2.16): Zero Flag and AluResult Logic**
 
 ---
 
@@ -726,7 +733,7 @@ byte_offset          = iAddress[1:0];
 
 A case statement then determines what must be read or written, depending on the Instruction Type:
 
-**Table ():**
+**Table (3.2.17): Data Memory Logic**
 
 ---
 
@@ -738,8 +745,8 @@ A case statement then determines what must be read or written, depending on the 
 | Load Byte | Read Operation | Load Output MemData[7:0] with value at given address, and sign extend |
 | Load Half Word | Read Operation | Load Output MemData[15:0] with value at given address, and sign extend |
 | Load Word | Read Operation | Load Output MemData with value at given address |
-| Unsigned Load Byte | Load Output MemData[7:0] with value at given address, and zero extend |
-| Unsigned Load Half Word | Load Output MemData[15:0] with value at given address, and zero extend |
+| Unsigned Load Byte | Read Operation | Load Output MemData[7:0] with value at given address, and zero extend |
+| Unsigned Load Half Word | Read Operation | Load Output MemData[15:0] with value at given address, and zero extend |
 
 ---
 
@@ -752,9 +759,31 @@ A case statement then determines what must be read or written, depending on the 
 ### (3.2.5) Write Stage
 #### (3.2.5.1) Result Multiplexer
 The final stage of the CPU simply determines what must be written back to the register file, following the control signal ResultSrc determined in the Control Unit. 
+<br>
 
+The following logic is implemented by a final case statement in [ResultMux.sv](ResultMux.sv):
+
+**Table (3.2.18): Result Multiplexer Logic**
+
+---
+
+| ResultSrc |   RegDataIn       | Operation |
+|-----------------|----------------|-------------|
+| 000   | AluResult  | Result of ALU Operation stored in Register file |
+| 001   | MemDataOut | Read data from memory  |
+| 010   | PC + 4 | Jump, so return address must be stored | 
+| 011   | UpperImm | Load Upper Immediate | 
+| 100 | PC + UpperImm | Store PC with offset | 
+
+---
 
 <br>
+
+With all the stages fully implemented, the Single Cycle Processor is fully functional. However, it remains inefficient, and to calculate the Probability Distribution Functions with large amounts of data, a more efficient processor was developed, by implementing first pipelining, and then data cache.
+
+<br>
+
+---
 
 ## (3.3) Pipelined Architecture
 
@@ -844,7 +873,7 @@ As with the Single Cycle Architecture, the pipeline architecture broke down the 
 ### Static Branch Prediction
 ---
 
-In an attempt to reduce the CPI of the pipelined CPU and increase its' efficiency, the choice to implement static branch prediction was made. 
+In an attempt to reduce the CPI of the pipelined CPU and increase its efficiency, the choice to implement static branch prediction was made. 
 
 <br>
 
