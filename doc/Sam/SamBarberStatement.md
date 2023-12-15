@@ -115,7 +115,7 @@ Testing with the PDF program on the pipelined single cycle processor with data m
 ![](TestingCachePDF.jpeg)
 
 Testing with the Triangle PDF program on the pipelined single cycle processor with data memory cache.
-![](TestingCacheTrianglePDF.jpeg)
+![](TestingCacheTrianglePDF.jpg)
 
 
 
